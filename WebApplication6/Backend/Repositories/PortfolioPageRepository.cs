@@ -81,10 +81,10 @@ public class PortfolioPageRepository(ApplicationDbContext context) : IPortfolioP
             return true;
         }
         
-        var found = await context.PortfolioPages
+        var occupyingPage = await context.PortfolioPages
             .Where(p => p.NavbarOrder == newNavOrder)
             .FirstOrDefaultAsync();
-        if (found != null) return false;
+        if (occupyingPage != null) return false;
 
         toReorder.NavbarOrder = newNavOrder;
         await context.SaveChangesAsync();
@@ -104,9 +104,10 @@ public class PortfolioPageRepository(ApplicationDbContext context) : IPortfolioP
     public async Task<IEnumerable<IPortfolioPageRepository.PortfolioPageDto>> GetPublishedInNavbarOrdered()
     {
         var pages = await context.PortfolioPages
-            .Select(pp => PortfolioPageToDto(pp))
+            .AsNoTracking()
             .Where(pp => pp.Published && pp.NavbarOrder != -1)
             .OrderBy(pp => pp.NavbarOrder)
+            .Select(pp => PortfolioPageToDto(pp))
             .ToListAsync();
 
         return pages;

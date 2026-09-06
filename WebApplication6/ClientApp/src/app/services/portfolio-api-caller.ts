@@ -29,4 +29,19 @@ export class PortfolioApiCaller {
     return this.http.patch(requestPath, { layoutPreset });
   }
 
+  publishPortfolioPage(ppId: number){
+    let requestPath = this.apiPortfolioUrl + '/publish/' + ppId;
+    return this.http.patch(requestPath, {});
+  }
+
+  unpublishPortfolioPage(ppId: number){
+    let requestPath = this.apiPortfolioUrl + '/unpublish/' + ppId;
+    return this.http.patch(requestPath, {});
+  }
+
+  getPublishedInNavbarOrdered(){
+    let requestPath = this.apiPortfolioUrl + '/published/in-nav/ordered'
+    return this.http.get<PortfolioPageItem[]>(requestPath)
+  }
+
 }

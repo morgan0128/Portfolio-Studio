@@ -71,6 +71,17 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                     join.Property(ap => ap.DisplaysYearContentCreated)
                         .HasDefaultValue(true);
                 });
+
+        modelBuilder.Entity<PortfolioPage>(portfolioPage =>
+        {
+            portfolioPage.ToTable("PortfolioPages",
+                table => table.HasCheckConstraint("CK_PortfolioPages_NavbarOrder_Range", "\"NavbarOrder\" BETWEEN -1 AND 4"));
+
+            portfolioPage.HasIndex(page => page.NavbarOrder)
+                .IsUnique()
+                .HasFilter("\"NavbarOrder\" >= 0")
+                .HasDatabaseName("UX_PortfolioPages_NavbarOrder_NonNegative");
+        });
     }
 
 }

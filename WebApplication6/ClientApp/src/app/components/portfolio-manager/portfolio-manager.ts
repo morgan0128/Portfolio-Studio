@@ -1,14 +1,14 @@
-import {Component, inject, input, linkedSignal, signal, ViewEncapsulation} from '@angular/core';
+import {Component, inject, input, linkedSignal, output, signal, ViewEncapsulation} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {PortfolioApiCaller} from '../../services/portfolio-api-caller';
-import {AlbumItem} from '../../models/AlbumInterfacing';
+import {AlbumItem, PhotoItem} from '../../models/AlbumInterfacing';
 import {
   CreatePortfolioPageFromAlbumRequest,
   PageLayoutPreset,
   PortfolioPageItem
 } from '../../models/PortfolioInterfacing';
 import {toObservable, toSignal} from '@angular/core/rxjs-interop';
-import {of, switchMap} from 'rxjs';
+import {of, pipe, startWith, Subject, switchMap} from 'rxjs';
 
 @Component({
   selector: 'app-portfolio-manager',
@@ -23,6 +23,21 @@ export class PortfolioManager {
 
   public readonly selectedAlbum = input.required<AlbumItem | null>();
   private readonly selectedAlbum$ = toObservable(this.selectedAlbum);
+
+  private readonly refreshNavbar$ = new Subject<void>();
+  private readonly navbarItems$ = this.refreshNavbar$.pipe(
+    startWith(undefined),
+    switchMap(() => this.portfolioApi.getPublishedInNavbarOrdered())
+  );
+
+  readonly navbarItems = toSignal(this.navbarItems$, {
+    initialValue: []
+  });
+
+
+  public readonly viewingNavbarState = signal<boolean>(false);
+
+  // readonly requestNavbarState = output();
 
   protected readonly fetchedPortfolioPage = toSignal(
     this.selectedAlbum$.pipe(
@@ -67,6 +82,37 @@ export class PortfolioManager {
           );
         }
       });
+  }
+
+  publish(){
+    if (this.portfolioPage() == null) return;
+
+    this.portfolioApi.publishPortfolioPage(this.portfolioPage()!.id).subscribe({
+      next: () => {
+        this.portfolioPage.update(current => current == null ? null : { ...current, published: true } );
+        this.refreshNavbarState();
+      }
+    });
+  }
+
+  unpublish(){
+    if (this.portfolioPage() == null) return;
+
+    this.portfolioApi.unpublishPortfolioPage(this.portfolioPage()!.id).subscribe({
+      next: () => {
+        this.portfolioPage.update(current => current == null ? null : { ...current, published: false } );
+        this.refreshNavbarState();
+      }
+    });
+  }
+
+  refreshNavbarState(){
+    this.refreshNavbar$.next();
+  }
+
+  requestNavbarView(){
+    this.refreshNavbarState();
+    this.viewingNavbarState.set(!this.viewingNavbarState());
   }
 
 

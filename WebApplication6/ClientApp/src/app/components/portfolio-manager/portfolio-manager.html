@@ -22,8 +22,31 @@
 
   </div>
 
-  <div class="styling-navigation-container">
-    <button>Edit Navigation Order</button>
+  <div>
+
+  </div>
+
+  <div class="portfolio-visibility-manager">
+    <div>
+      @if (!portfolioPage()?.published){
+        <button (click)="publish()">Publish</button>
+        <p class="unpublished">This item is not published</p>
+      } @else {
+        <button (click)="unpublish()">Unpublish</button>
+        <p class="published">Published</p>
+      }
+    </div>
+    <div>
+      <button (click)="requestNavbarView()">Edit Navbar</button>
+      <p>This item is not displayed in the Navbar</p>
+    </div>
+    @if (viewingNavbarState()){
+      <div>
+        @for (n of navbarItems(); track n.id){
+          <p>{{ n.navTitle }}</p>
+        }
+      </div>
+    }
   </div>
 
 
