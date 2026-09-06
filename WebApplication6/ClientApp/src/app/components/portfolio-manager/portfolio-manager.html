@@ -1,10 +1,11 @@
 <!--<section class="card upload-card">-->
-<section class="card portfolio-card">
+<section class="portfolio-card">
 <!--    <label class="field-label" for="albums">Album</label>-->
   <div class="styling-select-container">
     <label for="stylings">Styling</label>
-    <select
-      class="styling-select"
+
+    <div class="styling-select">
+      <select
       name="stylings"
       id="stylings"
       [(ngModel)]="selectedStyleLayout"
@@ -15,16 +16,18 @@
         <option [ngValue]="s">{{ sCapitalized }}</option>
       }
     </select>
+<!--    </div>-->
+
     <div class="styling-select-buttons">
       <button>preview</button>
       <button (click)="onApplyStyling()">apply</button>
     </div>
-
+  </div>
   </div>
 
-  <div>
+<!--  <div>-->
 
-  </div>
+<!--  </div>-->
 
   <div class="portfolio-visibility-manager">
     <div>
@@ -36,17 +39,27 @@
         <p class="published">Published</p>
       }
     </div>
-    <div>
+    <div class="navbar-manager">
       <button (click)="requestNavbarView()">Edit Navbar</button>
-      <p>This item is not displayed in the Navbar</p>
-    </div>
-    @if (viewingNavbarState()){
-      <div>
-        @for (n of navbarItems(); track n.id){
-          <p>{{ n.navTitle }}</p>
+      @if (portfolioPage() != null && portfolioPage()!.navbarOrder > -1){
+        @if (portfolioPage()!.published){
+          <p>In Navbar<p>
+        } @else {
+          <p>Assigned a Navbar position, but hidden; not published</p>
         }
-      </div>
-    }
+      } @else {
+        <p>This item is not displayed in the Navbar</p>
+      }
+      @if (viewingNavbarState()){
+        <ol>
+          @for (n of navbarItems(); track n.id){
+            <li>{{ n.navTitle }}</li>
+          }
+        </ol>
+        <p class="navbar-headsup">You can have up to 5 items in your Navbar</p>
+      }
+    </div>
+
   </div>
 
 

@@ -1,48 +1,62 @@
 .portfolio-card {
   display: grid;
-  grid-template-columns: auto auto auto;
+  grid-template-columns: fit-content(100%) 2fr;
   /*align-items: start;*/
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 21px;
+  padding: 1rem;
   background: var(--surface);
   gap: 20px;
+
 }
 
-.portfolio-card > .styling-select-container {
-  font-size: 30px;
+.styling-select-container {
+  font-size: 1rem;
   text-align: center;
-  display: flex;
+  /*display: grid;*/
   gap: 2px;
+  height: fit-content;
+  align-content: center;
+  align-items: center;
+  width: fit-content;
+  /*justify-items: center;*/
+
+  label {
+    display: flex;
+    /*padding-left: 0.15rem;*/
+    margin: 0 0 0.15rem 0.15rem;
+    justify-self: start;
+    font-size: 0.7rem;
+    font-weight: bold;
+  }
+
+  .styling-select {
+    /*display: flex;*/
+    justify-self: start;
+    display: grid;
+    grid-template-columns: auto auto;
+
+    select {
+      border-radius: 7px;
+      padding: 0 0.05rem 0.2rem 0.15rem;
+      /*color: var(--text);*/
+      /*background: var(--surface);*/
+      font: inherit;
+      font-size: 0.9rem;
+      min-height: fit-content;
+    }
+
+    .styling-select-buttons {
+      display: grid;
+      gap: 1px;
+    }
+  }
 }
 
-.styling-select-buttons {
-  display: grid;
-  gap: 1px;
-}
 
-select {
-  width: 100%;
-  /*border: 1px solid var(--border);*/
-  border-radius: 7px;
-  padding: 10px 11px;
-  color: var(--text);
-  background: var(--surface);
-  font: inherit;
-  font-size: 0.84rem;
-  outline: none;
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px rgba(47, 103, 94, 0.12);
-}
-
-.styling-select {
-  appearance: auto;
-}
+/*.styling-select {*/
+/*  appearance: auto;*/
+/*}*/
 
 .portfolio-visibility-manager {
   display: grid;
@@ -52,7 +66,7 @@ select:focus {
 
   div {
     display: inline;
-    margin: 0 0 0.2rem 1rem;
+    margin: 0 0 0.2rem 0;
     /*display: block;*/
     /*align-content: center;*/
 
@@ -73,8 +87,48 @@ select:focus {
     .unpublished {
 
     }
+  }
+
+  .navbar-manager {
+    margin: 0;
+    padding: 0;
+    align-content: center;
+    justify-items: center;
+
+    /*width: 50%;*/
+
+    ol {
+      margin: 0.6rem 0 0.4rem 0;
+      display: block;
+
+      li {
+        display: inline;
+        margin-right: 1rem;
+      }
+    }
+
+    .navbar-headsup {
+      margin-left: 0;
+      padding-left: 0.85rem;
+      margin-right: 50%;
+      /*padding-right: 5rem;*/
+      color: #6666ff;
+      /*text-shadow: black 0 0 0.03rem;*/
+      font-size: 0.85rem;
+      /*display: block;*/
+      align-self: center;
+      align-content: center;
+      align-items: center;
+    }
 
   }
 
-
 }
+
+
+
+
+
+
+
+/*}*/
