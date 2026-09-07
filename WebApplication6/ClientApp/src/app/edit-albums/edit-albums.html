@@ -8,6 +8,9 @@
       </div>
       <span class="admin-badge">Private area</span>
     </header>
+    @if (detailedViewPhoto() != null){
+      <app-detailed-photo-view [photo]="detailedViewPhoto()!" (closePreview)="detailedViewPhoto.set(null)" />
+    } @else {
 
     @if (loadingAlbumsError() || selectingAlbumError() || creatingAlbumError() || loadingPhotosError() || uploadPhotoError) {
       <div class="notice" role="alert">
@@ -210,8 +213,9 @@
       <section>
         @if (this.selectedAlbumId() !== null){
           <app-album-contents [selectedAlbum]="this.selectedAlbum()" [selectedAlbumId]="this.selectedAlbumId()!" [loadingPhotos]="this.loadingPhotos()" [photos]="this.photos()"
-          (photoStateChange)="photoChangedStateUpdate($event)" (orderChanged)="loadAlbumSelection()"/>
+          (photoStateChange)="photoChangedStateUpdate($event)" (orderChanged)="loadAlbumSelection()" (photoDetailedViewRequest)="handleDetailedPhotoViewRequest($event)"/>
         }
       </section>
+    }
   </div>
 </main>

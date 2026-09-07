@@ -6,13 +6,16 @@ import { AlbumApiCaller, PhotoSpecDTO, PhotoUploadSpecification } from '../servi
 import { PhotosDisplay } from '../components/photos-display/photos-display';
 import {AlbumContents} from '../components/album-contents/album-contents';
 import {PortfolioManager} from '../components/portfolio-manager/portfolio-manager';
+import {DetailedPhotoView} from '../components/detailed-photo-view/detailed-photo-view';
 
 @Component({
   selector: 'app-edit-albums',
   imports: [
     FormsModule,
     AlbumContents,
-    PortfolioManager
+    PortfolioManager,
+    NgOptimizedImage,
+    DetailedPhotoView
   ],
   templateUrl: './edit-albums.html',
   styleUrl: './edit-albums.css',
@@ -54,6 +57,8 @@ export class EditAlbums implements OnInit {
 
   protected readonly albumDTOs = signal<AlbumItem[]>([]);
   protected readonly photos = signal<PhotoItem[]>([]);
+
+  protected readonly detailedViewPhoto = signal<PhotoItem | null>(null);
 
 
 
@@ -229,6 +234,9 @@ export class EditAlbums implements OnInit {
     );
   }
 
+  handleDetailedPhotoViewRequest(requestPhoto: PhotoItem){
+    this.detailedViewPhoto.set(requestPhoto);
+  }
 
 
 }

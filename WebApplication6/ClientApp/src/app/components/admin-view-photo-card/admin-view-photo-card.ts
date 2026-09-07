@@ -33,6 +33,8 @@ export class AdminViewPhotoCard {
   protected readonly editingOrder = signal<boolean>(false);
   newOrderValue: number = -1;
 
+  readonly photoDetailedViewRequest = output<PhotoItem>();
+
   constructor() {
     effect(() => {
       if (this.photo().order != null){

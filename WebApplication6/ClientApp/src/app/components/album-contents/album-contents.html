@@ -24,6 +24,7 @@
       <p>Upload an image above to add the first piece.</p>
     </div>
   } @else {
-    <app-photos-display [albumId]="this.selectedAlbumId()" [displayPhotos]="this.photos()" (photoStateChange)="photoStateChange.emit($event)" (orderChanged)="orderChanged.emit()"/>
+    <app-photos-display [albumId]="this.selectedAlbumId()" [displayPhotos]="this.photos()" (photoStateChange)="photoStateChange.emit($event)" (orderChanged)="orderChanged.emit()"
+    (photoDetailedViewRequest)="photoDetailedViewRequest.emit($event)"/>
   }
 </section>

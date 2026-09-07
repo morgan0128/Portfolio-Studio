@@ -1,5 +1,6 @@
 <div class="art-grid">
   @for (photo of displayPhotos(); track photo.id) {
-    <app-admin-view-photo-card [albumId]="albumId()" [photo]="photo" (photoStateChange)="photoStateChange.emit($event)" (orderChanged)="orderChanged.emit()"/>
+    <app-admin-view-photo-card [albumId]="albumId()" [photo]="photo" (photoStateChange)="photoStateChange.emit($event)" (orderChanged)="orderChanged.emit()"
+    (photoDetailedViewRequest)="photoDetailedViewRequest.emit($event)"/>
   }
 </div>

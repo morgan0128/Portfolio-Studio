@@ -10,7 +10,16 @@
 
 }
 
-.styling-select-container {
+label {
+  display: flex;
+  /*padding-left: 0.15rem;*/
+  margin: 0 0 0.15rem 0.15rem;
+  justify-self: start;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+
+.styling-select-container, .visibility-manager-container {
   font-size: 1rem;
   text-align: center;
   /*display: grid;*/
@@ -21,19 +30,13 @@
   width: fit-content;
   /*justify-items: center;*/
 
-  label {
-    display: flex;
-    /*padding-left: 0.15rem;*/
-    margin: 0 0 0.15rem 0.15rem;
-    justify-self: start;
-    font-size: 0.7rem;
-    font-weight: bold;
-  }
 
-  .styling-select {
+
+  .styling-select, .visibility-select {
     /*display: flex;*/
-    justify-self: start;
+    /*justify-self: start;*/
     display: grid;
+    gap: 1px;
     grid-template-columns: auto auto;
 
     select {
@@ -58,35 +61,49 @@
 /*  appearance: auto;*/
 /*}*/
 
-.portfolio-visibility-manager {
-  display: grid;
+.visibility-manager-container {
+  /*display: grid;*/
+  /*height: contain;*/
   /*max-height: 100%;*/
   /*align-content: start;*/
   /*align-items: start;*/
 
-  div {
-    display: inline;
-    margin: 0 0 0.2rem 0;
-    /*display: block;*/
-    /*align-content: center;*/
+  .visibility-select {
+    /*display: grid;*/
+    /*grid-template-columns: auto auto;*/
+    /*gap: 1px;*/
 
     button {
-      display: inline;
-      padding: 0.3rem;
+      display: block;
+      width: 100%;
     }
 
     p {
-      margin-left: 0.5rem;
-      display: inline;
+      /*margin-left: 0.5rem;*/
+      margin: 0 0 0 0.5rem;
+      display: flex;
+      justify-self: start;
     }
 
     .published {
       color: green;
     }
 
-    .unpublished {
+    div {
+      display: inline;
+      width: fit-content;
+      min-width: stretch;
+      margin: 0 0 0 0;
+      /*display: block;*/
+      /*align-content: center;*/
 
+
+      .unpublished {
+
+      }
     }
+
+
   }
 
   .navbar-manager {
@@ -94,7 +111,6 @@
     padding: 0;
     align-content: center;
     justify-items: center;
-
     /*width: 50%;*/
 
     ol {
@@ -108,9 +124,10 @@
     }
 
     .navbar-headsup {
+      display: inline;
       margin-left: 0;
       padding-left: 0.85rem;
-      margin-right: 50%;
+      /*margin-right: 50%;*/
       /*padding-right: 5rem;*/
       color: #6666ff;
       /*text-shadow: black 0 0 0.03rem;*/

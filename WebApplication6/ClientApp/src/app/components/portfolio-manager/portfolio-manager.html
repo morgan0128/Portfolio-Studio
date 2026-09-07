@@ -19,7 +19,7 @@
 <!--    </div>-->
 
     <div class="styling-select-buttons">
-      <button>preview</button>
+      <button (click)="previewRequest()">preview</button>
       <button (click)="onApplyStyling()">apply</button>
     </div>
   </div>
@@ -29,18 +29,30 @@
 
 <!--  </div>-->
 
-  <div class="portfolio-visibility-manager">
-    <div>
+  <div class="visibility-manager-container">
+    <label>Visibility</label>
+    <div class="visibility-select">
+
       @if (!portfolioPage()?.published){
-        <button (click)="publish()">Publish</button>
-        <p class="unpublished">This item is not published</p>
+        <div>
+          <button (click)="publish()">Publish</button>
+        </div>
+        <div>
+          <p class="unpublished">This item is not published</p>
+        </div>
       } @else {
+        <div>
         <button (click)="unpublish()">Unpublish</button>
-        <p class="published">Published</p>
+        </div>
+        <div>
+          <p class="published">Published</p>
+        </div>
       }
-    </div>
-    <div class="navbar-manager">
+
+    <div>
       <button (click)="requestNavbarView()">Edit Navbar</button>
+    </div>
+      <div>
       @if (portfolioPage() != null && portfolioPage()!.navbarOrder > -1){
         @if (portfolioPage()!.published){
           <p>In Navbar<p>
@@ -50,6 +62,9 @@
       } @else {
         <p>This item is not displayed in the Navbar</p>
       }
+      </div>
+      <div></div>
+      <div class="navbar-manager">
       @if (viewingNavbarState()){
         <ol>
           @for (n of navbarItems(); track n.id){
@@ -58,8 +73,8 @@
         </ol>
         <p class="navbar-headsup">You can have up to 5 items in your Navbar</p>
       }
+        </div>
     </div>
-
   </div>
 
 

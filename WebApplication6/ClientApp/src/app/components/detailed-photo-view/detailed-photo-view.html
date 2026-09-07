@@ -1,0 +1,11 @@
+<div style="position: relative;">
+  <button (click)="closePreview.emit()"
+          style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">&times;</button>
+  @if (photo().image != null){
+    @let image = photo().image!;
+    <img
+      [src]="image.url"
+      [alt]="image.altText || photo().name || 'Artwork'"
+      style="max-width: 90vw; max-height: 90vh; display: block; border-radius: 4px;"/>
+  }
+</div>

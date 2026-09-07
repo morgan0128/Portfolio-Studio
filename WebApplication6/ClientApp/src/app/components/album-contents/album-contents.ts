@@ -16,5 +16,7 @@ export class AlbumContents {
 
   readonly photoStateChange = output<PhotoItem>();
   readonly orderChanged = output(); // reload all photos
+  readonly photoDetailedViewRequest = output<PhotoItem>();
+
 
 }

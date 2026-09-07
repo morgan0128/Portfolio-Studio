@@ -9,6 +9,7 @@ import {
 } from '../../models/PortfolioInterfacing';
 import {toObservable, toSignal} from '@angular/core/rxjs-interop';
 import {of, pipe, startWith, Subject, switchMap} from 'rxjs';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-portfolio-manager',
@@ -19,6 +20,8 @@ import {of, pipe, startWith, Subject, switchMap} from 'rxjs';
   styleUrl: './portfolio-manager.css',
 })
 export class PortfolioManager {
+  private router = inject(Router);
+
   private readonly portfolioApi = inject(PortfolioApiCaller);
 
   public readonly selectedAlbum = input.required<AlbumItem | null>();
@@ -113,6 +116,12 @@ export class PortfolioManager {
   requestNavbarView(){
     this.refreshNavbarState();
     this.viewingNavbarState.set(!this.viewingNavbarState());
+  }
+
+  previewRequest(){
+    if (this.selectedStyleLayout != null && this.selectedAlbum() != null){
+      this.router.navigate(['/admin-view-page-preview', this.selectedAlbum()!.id, this.selectedStyleLayout]);
+    }
   }
 
 
