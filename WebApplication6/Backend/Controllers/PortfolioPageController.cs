@@ -122,6 +122,17 @@ public sealed class PortfolioPageController(IPortfolioPageRepository portfolioRe
         return pages;
     }
 
+    [HttpPatch("remove-from-nav/{id:int}")]
+    public async Task<IActionResult> RemoveFromNav(int id)
+    {
+        var pp = await portfolioRepository.ReorderPortfolioPageInNavAsync(id, -1);
+        return pp switch
+        {
+            false => Problem(),
+            true => Ok()
+        };
+    }
+
     [HttpPatch("publish/{id:int}")]
     public async Task<int?> PublishPortfolioPage(int id, int? navOrder)
     {

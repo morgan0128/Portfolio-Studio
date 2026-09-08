@@ -84,7 +84,15 @@ public class PortfolioPageRepository(ApplicationDbContext context) : IPortfolioP
         var occupyingPage = await context.PortfolioPages
             .Where(p => p.NavbarOrder == newNavOrder)
             .FirstOrDefaultAsync();
-        if (occupyingPage != null) return false;
+        switch (occupyingPage)
+        {
+            case { Published: true }:
+                return false;
+            case { Published: false }:
+                occupyingPage.NavbarOrder = -1;
+                await context.SaveChangesAsync();
+                break;
+        }
 
         toReorder.NavbarOrder = newNavOrder;
         await context.SaveChangesAsync();

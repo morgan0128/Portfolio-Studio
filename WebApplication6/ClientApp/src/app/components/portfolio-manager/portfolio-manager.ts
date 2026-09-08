@@ -1,4 +1,10 @@
-import {Component, inject, input, linkedSignal, output, signal, ViewEncapsulation} from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  linkedSignal,
+  signal,
+} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {PortfolioApiCaller} from '../../services/portfolio-api-caller';
 import {AlbumItem, PhotoItem} from '../../models/AlbumInterfacing';
@@ -59,21 +65,23 @@ export class PortfolioManager {
 
   protected readonly portfolioPage = linkedSignal(() => this.fetchedPortfolioPage());
 
-  protected readonly stylingLayouts = toSignal<PageLayoutPreset[]>(this.portfolioApi.getPageLayoutPresets());
-  // protected selectedStyleLayout: string | null = null;
-  protected selectedStyleLayout: PageLayoutPreset | null = null;
+  protected readonly stylingLayouts = toSignal(this.portfolioApi.getPageLayoutPresets(), {initialValue: null});
 
+  protected readonly selectedStyleLayout = linkedSignal({
+    source: this.fetchedPortfolioPage, computation: page =>
+      page?.layoutPreset ?? null
+    });
 
-
+  protected readonly newPositionValue = signal<number | null>(null)
 
   onPortfolioPageItemLoaded(){
     // TODO select the stylingLayout associated with the portfolio page
   }
 
   onApplyStyling() {
-    if (this.portfolioPage() == null || this.selectedStyleLayout == null) return;
+    if (this.portfolioPage() == null || this.selectedStyleLayout() == null) return;
     const portfolio = this.portfolioPage()!;
-    const layoutPreset = this.selectedStyleLayout;
+    const layoutPreset = this.selectedStyleLayout()!;
 
 
 
@@ -103,7 +111,7 @@ export class PortfolioManager {
 
     this.portfolioApi.unpublishPortfolioPage(this.portfolioPage()!.id).subscribe({
       next: () => {
-        this.portfolioPage.update(current => current == null ? null : { ...current, published: false } );
+        this.portfolioPage.update(current => current == null ? null : { ...current, published: false, navbarOrder: -1 } );
         this.refreshNavbarState();
       }
     });
@@ -119,9 +127,33 @@ export class PortfolioManager {
   }
 
   previewRequest(){
-    if (this.selectedStyleLayout != null && this.selectedAlbum() != null){
-      this.router.navigate(['/admin-view-page-preview', this.selectedAlbum()!.id, this.selectedStyleLayout]);
+    if (this.selectedStyleLayout() != null && this.selectedAlbum() != null){
+      this.router.navigate(['/admin-view-page-preview', this.selectedAlbum()!.id, this.selectedStyleLayout()]);
     }
+  }
+
+  removeFromNavRequest(ppId: number){
+    this.portfolioApi.removeFromNavbar(ppId).subscribe({
+      next: () => {
+        if (this.portfolioPage() != null && this.portfolioPage()?.id == ppId){
+          this.portfolioPage.update(current => current == null ? null : { ...current, navbarOrder: -1 } );
+        }
+        this.refreshNavbarState();
+      }
+    });
+  }
+
+  applyNavPositionRequest(navOrder: number | null){
+    if (this.portfolioPage() == null || navOrder == null || navOrder > 5 || navOrder <= 0) return;
+    let interpretedPosition = navOrder - 1;
+    this.portfolioApi.applyNavPosition(this.portfolioPage()!.id, interpretedPosition).subscribe({
+      next: () => {
+        this.portfolioPage.update(current => current == null ? null : { ...current, navbarOrder: interpretedPosition } );
+        this.refreshNavbarState();
+      }
+    })
+
+
   }
 
 

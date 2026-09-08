@@ -44,4 +44,15 @@ export class PortfolioApiCaller {
     return this.http.get<PortfolioPageItem[]>(requestPath)
   }
 
+  removeFromNavbar(ppId: number){
+    let requestPath = this.apiPortfolioUrl + "/remove-from-nav/" + ppId;
+    return this.http.patch(requestPath, {});
+  }
+
+  applyNavPosition(ppId: number, navOrder: number){
+    // if (position < 0 || position > 4) return;
+    let requestPath = this.apiPortfolioUrl + "/" + ppId + "/modify/nav-order";
+    return this.http.patch(requestPath, { navOrder });
+  }
+
 }

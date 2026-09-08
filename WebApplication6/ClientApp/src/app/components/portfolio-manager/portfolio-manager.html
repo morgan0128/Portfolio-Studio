@@ -1,33 +1,25 @@
-<!--<section class="card upload-card">-->
 <section class="portfolio-card">
-<!--    <label class="field-label" for="albums">Album</label>-->
+  <div class="portfolio-container">
   <div class="styling-select-container">
     <label for="stylings">Styling</label>
-
-    <div class="styling-select">
-      <select
-      name="stylings"
-      id="stylings"
-      [(ngModel)]="selectedStyleLayout"
-    >
-      <option [ngValue]="null">Page Styling</option>
-      @for (s of stylingLayouts(); track s){
-        @let sCapitalized = s.at(0)!.toLocaleUpperCase() + s.substring(1, s.length);
-        <option [ngValue]="s">{{ sCapitalized }}</option>
-      }
-    </select>
-<!--    </div>-->
-
-    <div class="styling-select-buttons">
-      <button (click)="previewRequest()">preview</button>
-      <button (click)="onApplyStyling()">apply</button>
-    </div>
+     <div class="styling-select">
+        <select
+        name="stylings"
+        id="stylings"
+        [ngModel]="selectedStyleLayout()"
+        (ngModelChange)="selectedStyleLayout.set($event)"
+      >
+        @for (layout of stylingLayouts(); track layout){
+          @let layoutCapitalized = layout.at(0)!.toLocaleUpperCase() + layout.substring(1, layout.length);
+            <option [ngValue]="layout">{{ layoutCapitalized }}</option>
+        }
+      </select>
+        <div class="styling-select-buttons">
+          <button (click)="previewRequest()">Preview</button>
+          <button (click)="onApplyStyling()">Apply</button>
+        </div>
+      </div>
   </div>
-  </div>
-
-<!--  <div>-->
-
-<!--  </div>-->
 
   <div class="visibility-manager-container">
     <label>Visibility</label>
@@ -63,12 +55,17 @@
         <p>This item is not displayed in the Navbar</p>
       }
       </div>
-      <div></div>
+      <div>
+        @if (portfolioPage() != null && portfolioPage()!.navbarOrder <= -1 && portfolioPage()!.published && viewingNavbarState()){
+          <input type="number" name="newPositionValue" [(ngModel)]="newPositionValue" (keydown.enter)="applyNavPositionRequest(newPositionValue())"/>
+        }
+      </div>
       <div class="navbar-manager">
       @if (viewingNavbarState()){
         <ol>
           @for (n of navbarItems(); track n.id){
             <li>{{ n.navTitle }}</li>
+            <button (click)="removeFromNavRequest(n.id)">Remove</button>
           }
         </ol>
         <p class="navbar-headsup">You can have up to 5 items in your Navbar</p>
@@ -76,14 +73,10 @@
         </div>
     </div>
   </div>
-
-
-<!--  <div class="card-heading upload-heading">-->
-<!--    <div>-->
-
-<!--&lt;!&ndash;      <h2>Upload artwork</h2>&ndash;&gt;-->
-<!--    </div>-->
-<!--&lt;!&ndash;    <span class="upload-helper">PNG, JPG, or WebP · 5 MB max</span>&ndash;&gt;-->
-<!--  </div>-->
-
+    <div class="visibility-manager-container">
+      <label>Empty</label>
+      <div class="visibility-select">
+        </div>
+      </div>
+  </div>
 </section>

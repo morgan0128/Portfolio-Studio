@@ -1,12 +1,40 @@
 .portfolio-card {
-  display: grid;
-  grid-template-columns: fit-content(100%) 2fr;
-  /*align-items: start;*/
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem;
-  background: var(--surface);
-  gap: 20px;
+  display: flex;
+
+  /*display: grid;*/
+  /*grid-template-columns: 1fr 2fr;*/
+  /*!*align-items: start;*!*/
+  /*border: 1px solid var(--border);*/
+  /*border-radius: 10px;*/
+  /*padding: 1rem;*/
+  /*background: var(--surface);*/
+  /*gap: 20px;*/
+
+  .portfolio-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr 2fr;
+    /*align-items: start;*/
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    background: var(--surface);
+    gap: 20px;
+    width: stretch;
+
+    input {
+      display: inline-block;
+      width: fit-content;
+      max-width: fit-content;
+    }
+
+    .navorder-submit {
+      button {
+        display: inline;
+        max-width: fit-content;
+      }
+    }
+
+  }
 
 }
 
@@ -22,64 +50,50 @@ label {
 .styling-select-container, .visibility-manager-container {
   font-size: 1rem;
   text-align: center;
-  /*display: grid;*/
-  gap: 2px;
   height: fit-content;
   align-content: center;
   align-items: center;
-  width: fit-content;
-  /*justify-items: center;*/
-
-
+  width: stretch;
 
   .styling-select, .visibility-select {
     /*display: flex;*/
     /*justify-self: start;*/
     display: grid;
-    gap: 1px;
+    /*gap: 1px;*/
     grid-template-columns: auto auto;
 
     select {
       border-radius: 7px;
-      padding: 0 0.05rem 0.2rem 0.15rem;
+      padding: 0 0.05rem 0.2rem 0.4rem;
       /*color: var(--text);*/
       /*background: var(--surface);*/
       font: inherit;
       font-size: 0.9rem;
       min-height: fit-content;
+      margin-right: 1px;
     }
-
-    .styling-select-buttons {
-      display: grid;
-      gap: 1px;
-    }
-  }
-}
-
-
-/*.styling-select {*/
-/*  appearance: auto;*/
-/*}*/
-
-.visibility-manager-container {
-  /*display: grid;*/
-  /*height: contain;*/
-  /*max-height: 100%;*/
-  /*align-content: start;*/
-  /*align-items: start;*/
-
-  .visibility-select {
-    /*display: grid;*/
-    /*grid-template-columns: auto auto;*/
-    /*gap: 1px;*/
 
     button {
-      display: block;
+      display: flex;
       width: 100%;
+      gap: 1px;
+      /*justify-content: center;*/
+      padding-left: 0.5rem;
     }
 
+  }
+
+  div {
+    margin: 0 0 0 0;
+  }
+
+}
+
+.visibility-manager-container {
+
+  .visibility-select {
+
     p {
-      /*margin-left: 0.5rem;*/
       margin: 0 0 0 0.5rem;
       display: flex;
       justify-self: start;
@@ -89,21 +103,6 @@ label {
       color: green;
     }
 
-    div {
-      display: inline;
-      width: fit-content;
-      min-width: stretch;
-      margin: 0 0 0 0;
-      /*display: block;*/
-      /*align-content: center;*/
-
-
-      .unpublished {
-
-      }
-    }
-
-
   }
 
   .navbar-manager {
@@ -111,7 +110,6 @@ label {
     padding: 0;
     align-content: center;
     justify-items: center;
-    /*width: 50%;*/
 
     ol {
       margin: 0.6rem 0 0.4rem 0;
@@ -121,18 +119,23 @@ label {
         display: inline;
         margin-right: 1rem;
       }
+
+      button {
+        cursor: pointer;
+        margin-top: 0.5rem;
+        justify-self: center;
+        justify-content: center;
+        width: fit-content;
+      }
+
     }
 
     .navbar-headsup {
       display: inline;
       margin-left: 0;
       padding-left: 0.85rem;
-      /*margin-right: 50%;*/
-      /*padding-right: 5rem;*/
       color: #6666ff;
-      /*text-shadow: black 0 0 0.03rem;*/
       font-size: 0.85rem;
-      /*display: block;*/
       align-self: center;
       align-content: center;
       align-items: center;
@@ -141,11 +144,3 @@ label {
   }
 
 }
-
-
-
-
-
-
-
-/*}*/

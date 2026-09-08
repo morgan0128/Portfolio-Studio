@@ -8,7 +8,7 @@ export type PortfolioPageItem = {
   published: boolean,
   navbarOrder: number,
   albumId: number,
-  pageLayoutPreset: PageLayoutPreset,
+  layoutPreset: PageLayoutPreset,
 }
 
 export class CreatePortfolioPageFromAlbumRequest {
