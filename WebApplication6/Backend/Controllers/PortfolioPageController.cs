@@ -101,9 +101,9 @@ public sealed class PortfolioPageController(IPortfolioPageRepository portfolioRe
     }
 
     [HttpPatch("{id:int}/modify/nav-order")]
-    public async Task<IActionResult> AssignNavOrder(int id, int navOrder)
+    public async Task<IActionResult> AssignNavOrder(int id, [FromBody] NavOrderRequest navOrderRequest)
     {
-        var reordered = await portfolioRepository.ReorderPortfolioPageInNavAsync(id, navOrder);
+        var reordered = await portfolioRepository.ReorderPortfolioPageInNavAsync(id, navOrderRequest.NavOrder);
 
         return reordered ? Ok() : Problem();
     }
@@ -196,4 +196,6 @@ public sealed class PortfolioPageController(IPortfolioPageRepository portfolioRe
     public sealed record FetchOrCreateUsingAlbumDto(int albumId, string Name);
     
     public sealed record UpdateLayoutPresetRequest(PageLayoutPreset LayoutPreset);
+
+    public sealed record NavOrderRequest(int NavOrder);
 }

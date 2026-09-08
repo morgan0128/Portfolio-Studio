@@ -18,6 +18,11 @@ export class AlbumApiCaller {
     return this.http.get<AlbumItem[]>(requestPath);
   }
 
+  getAlbum(id: number): (Observable<AlbumItem>) {
+    let requestPath = this.apiAlbumUrl + '/' + id;
+    return this.http.get<AlbumItem>(requestPath);
+  }
+
   postAlbum(name: string | null, description: string | null){
     let requestPath = this.apiAlbumUrl + '';
     return this.http.post(requestPath, { name, description });
