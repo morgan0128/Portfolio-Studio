@@ -1,7 +1,7 @@
 import {Component, computed, effect, inject, input, output, signal} from '@angular/core';
 import {PhotoItem} from '../../models/AlbumInterfacing';
 import {NgOptimizedImage} from '@angular/common';
-import { AlbumApiCaller } from '../../services/album-api-caller';
+import { AlbumApiService } from '../../services/album-api-service';
 import {CdkDrag, CdkDragHandle} from '@angular/cdk/drag-drop';
 import {FormsModule} from '@angular/forms';
 
@@ -17,7 +17,7 @@ import {FormsModule} from '@angular/forms';
   styleUrl: './admin-view-photo-card.css',
 })
 export class AdminViewPhotoCard {
-  private readonly albumApi = inject(AlbumApiCaller);
+  private readonly albumApi = inject(AlbumApiService);
 
   albumId = input.required<number>();
   photo = input.required<PhotoItem>();
@@ -37,7 +37,7 @@ export class AdminViewPhotoCard {
 
   constructor() {
     effect(() => {
-      if (this.photo().order != null){
+      if (this.photo().order !== null){
         this.newOrderValue = this.photo().order!;
       }
       });
@@ -48,7 +48,7 @@ export class AdminViewPhotoCard {
   }
 
   updateOrder(val: number){
-    if (this.photo().id == null) return;
+    if (this.photo().id === null) return;
     let request = this.albumApi.reorder(this.albumId(), this.photo().id!, this.newOrderValue);
     request.subscribe({
       next: () => {
@@ -58,7 +58,7 @@ export class AdminViewPhotoCard {
   }
 
   toggleDisplaysName(){
-    if (this.photo().id == null) return;
+    if (this.photo().id === null) return;
     let request = this.albumApi.toggleDisplaysName(this.albumId(), this.photo().id!);
     request.subscribe({
       next: () => {
@@ -74,7 +74,7 @@ export class AdminViewPhotoCard {
   }
 
   toggleDisplaysDesc(){
-    if (this.photo().id == null) return;
+    if (this.photo().id === null) return;
     let request = this.albumApi.toggleDisplaysDescription(this.albumId(), this.photo().id!);
     request.subscribe({
       next: () => {
@@ -90,7 +90,7 @@ export class AdminViewPhotoCard {
   }
 
   toggleDisplaysYearCC(){
-    if (this.photo().id == null) return;
+    if (this.photo().id === null) return;
     let request = this.albumApi.toggleDisplaysYearCC(this.albumId(), this.photo().id!);
     request.subscribe({
       next: () => {

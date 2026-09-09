@@ -4,12 +4,12 @@
       <p class="eyebrow">Album contents</p>
       <h2>Artwork</h2>
     </div>
-    @if (selectedAlbum() != null) {
+    @if (selectedAlbum() !== null) {
       <span class="artworks-count">{{ photos().length }} {{ photos().length === 1 ? 'piece' : 'pieces' }}</span>
     }
   </div>
 
-  @if (selectedAlbumId == null) {
+  @if (selectedAlbumId === null) {
     <div class="empty-state">
       <h3>No album selected</h3>
       <p>Select an album above to view its artwork.</p>

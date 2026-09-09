@@ -2,7 +2,7 @@ import {Component, inject, OnInit, signal, Signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {NgOptimizedImage} from '@angular/common';
 import { PhotoItem, AlbumItem } from '../models/AlbumInterfacing';
-import { AlbumApiCaller, PhotoSpecDTO, PhotoUploadSpecification } from '../services/album-api-caller';
+import { AlbumApiService, PhotoSpecDTO, PhotoUploadSpecification } from '../services/album-api-service';
 import { PhotosDisplay } from '../components/photos-display/photos-display';
 import {AlbumContents} from '../components/album-contents/album-contents';
 import {PortfolioManager} from '../components/portfolio-manager/portfolio-manager';
@@ -14,7 +14,6 @@ import {DetailedPhotoView} from '../components/detailed-photo-view/detailed-phot
     FormsModule,
     AlbumContents,
     PortfolioManager,
-    NgOptimizedImage,
     DetailedPhotoView
   ],
   templateUrl: './edit-albums.html',
@@ -24,7 +23,7 @@ export class EditAlbums implements OnInit {
   // private readonly http = inject(HttpClient);
   // private readonly apiAlbumUrl = '/api/Album';
 
-  private readonly albumApi = inject(AlbumApiCaller);
+  private readonly albumApi = inject(AlbumApiService);
 
   protected readonly creatingAlbum = signal<boolean>(false);
   protected readonly creatingAlbumError = signal<boolean>(false);
@@ -105,18 +104,18 @@ export class EditAlbums implements OnInit {
     // return;
     // this.proposingDelete.set(false);
 
-    if (this.selectedAlbumId() == null){
+    if (this.selectedAlbumId() === null){
       this.selectedAlbum.set(null);
       this.photos.set([]);
       return; // default selection value
     }
-    if (this.selectedAlbum()?.id == this.selectedAlbumId()){
+    if (this.selectedAlbum()?.id === this.selectedAlbumId()){
       return; // already selected
     }
 
     this.selectingAlbumError.set(false);
 
-    const albumDTO = this.albumDTOs().find(a => a.id == this.selectedAlbumId());
+    const albumDTO = this.albumDTOs().find(a => a.id === this.selectedAlbumId());
 
     if (!albumDTO){
       this.selectingAlbumError.set(true);
@@ -129,7 +128,7 @@ export class EditAlbums implements OnInit {
   }
 
   loadAlbumSelection(){
-    if (this.selectedAlbumId() == null) {
+    if (this.selectedAlbumId() === null) {
       this.loadingPhotosError.set(true);
       return;
     }
@@ -173,7 +172,7 @@ export class EditAlbums implements OnInit {
   }
 
   uploadPhotoToSelected(){
-    if (this.selectedAlbumId() == null || this.newPhotoSelectedImageFile == null){
+    if (this.selectedAlbumId() === null || this.newPhotoSelectedImageFile === null){
       return;
     }
 
@@ -208,7 +207,7 @@ export class EditAlbums implements OnInit {
 
   // TODO: Have strong "Are you sure?" confirmation (e.g., enter the name of the Album)
   deleteSelected(){
-    if (this.selectedAlbumId() == null){
+    if (this.selectedAlbumId() === null){
       return;
     }
 

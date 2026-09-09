@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { PortfolioApiCaller } from './portfolio-api-caller';
+import { PortfolioApiService } from './portfolio-api-service';
 
-describe('PortfolioApiCaller', () => {
-  let service: PortfolioApiCaller;
+describe('PortfolioApiService', () => {
+  let service: PortfolioApiService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(PortfolioApiCaller);
+    service = TestBed.inject(PortfolioApiService);
   });
 
   it('should be created', () => {

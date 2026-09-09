@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { AlbumApiCaller } from './album-api-caller';
+import { AlbumApiService } from './album-api-service';
 
-describe('AlbumApiCaller', () => {
-  let service: AlbumApiCaller;
+describe('AlbumApiService', () => {
+  let service: AlbumApiService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(AlbumApiCaller);
+    service = TestBed.inject(AlbumApiService);
   });
 
   it('should be created', () => {
