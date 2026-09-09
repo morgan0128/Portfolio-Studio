@@ -8,27 +8,41 @@ import {
 } from '../components/portfolio-page-components/portfolio-page-default/portfolio-page-default';
 import {PortfolioPageCozy} from '../components/portfolio-page-components/portfolio-page-cozy/portfolio-page-cozy';
 import {PortfolioPageSpooky} from '../components/portfolio-page-components/portfolio-page-spooky/portfolio-page-spooky';
+import {Navbar} from '../components/portfolio-page-components/navbar/navbar';
 
 @Component({
   selector: 'app-admin-view-page-preview',
   imports: [
     PortfolioPageDefault,
     PortfolioPageCozy,
-    PortfolioPageSpooky
+    PortfolioPageSpooky,
+    Navbar
   ],
   template: `
-    @switch (withStyle()){
-      @case ('cozy'){
-        <app-portfolio-page-cozy />
+    <main>
+      <div>
+      <app-navbar [adminPreviewMode]="true" />
+      </div>
+      <div>
+      @switch (withStyle()){
+        @case ('cozy'){
+          <app-portfolio-page-cozy />
+        }
+        @case ('spooky'){
+          <app-portfolio-page-spooky />
+        }
+        @default {
+          <app-portfolio-page-default [album]="forAlbum()"/>
+        }
       }
-      @case ('spooky'){
-        <app-portfolio-page-spooky />
-      }
-      @default {
-        <app-portfolio-page-default [album]="forAlbum()"/>
-      }
-    }
+      </div>
+    </main>
   `,
+  styles: `
+    main {
+      display: flow-root;
+    }
+  `
 })
 export class AdminViewPagePreview {
   private route = inject(ActivatedRoute);
