@@ -7,7 +7,7 @@ import {CreatePortfolioPageFromAlbumRequest, PageLayoutPreset, PortfolioPageItem
 @Injectable({
   providedIn: 'root',
 })
-export class PortfolioApiCaller {
+export class PortfolioApiService {
   constructor() {
   };
 

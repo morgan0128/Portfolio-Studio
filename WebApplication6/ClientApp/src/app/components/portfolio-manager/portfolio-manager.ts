@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {PortfolioApiCaller} from '../../services/portfolio-api-caller';
+import {PortfolioApiService} from '../../services/portfolio-api-service';
 import {AlbumItem, PhotoItem} from '../../models/AlbumInterfacing';
 import {
   CreatePortfolioPageFromAlbumRequest,
@@ -28,7 +28,7 @@ import {Router} from '@angular/router';
 export class PortfolioManager {
   private router = inject(Router);
 
-  private readonly portfolioApi = inject(PortfolioApiCaller);
+  private readonly portfolioApi = inject(PortfolioApiService);
 
   public readonly selectedAlbum = input.required<AlbumItem | null>();
   private readonly selectedAlbum$ = toObservable(this.selectedAlbum);
@@ -51,7 +51,7 @@ export class PortfolioManager {
   protected readonly fetchedPortfolioPage = toSignal(
     this.selectedAlbum$.pipe(
       switchMap(album => {
-          if (album == null) {
+          if (album === null) {
             return of(null);
           }
 
@@ -79,7 +79,7 @@ export class PortfolioManager {
   }
 
   onApplyStyling() {
-    if (this.portfolioPage() == null || this.selectedStyleLayout() == null) return;
+    if (this.portfolioPage() === null || this.selectedStyleLayout() === null) return;
     const portfolio = this.portfolioPage()!;
     const layoutPreset = this.selectedStyleLayout()!;
 
@@ -89,29 +89,29 @@ export class PortfolioManager {
       .subscribe({
         next: () => {
           this.portfolioPage.update(current =>
-            current == null ? null : { ...current, layoutPreset }
+            current === null ? null : { ...current, layoutPreset }
           );
         }
       });
   }
 
   publish(){
-    if (this.portfolioPage() == null) return;
+    if (this.portfolioPage() === null) return;
 
     this.portfolioApi.publishPortfolioPage(this.portfolioPage()!.id).subscribe({
       next: () => {
-        this.portfolioPage.update(current => current == null ? null : { ...current, published: true } );
+        this.portfolioPage.update(current => current === null ? null : { ...current, published: true } );
         this.refreshNavbarState();
       }
     });
   }
 
   unpublish(){
-    if (this.portfolioPage() == null) return;
+    if (this.portfolioPage() === null) return;
 
     this.portfolioApi.unpublishPortfolioPage(this.portfolioPage()!.id).subscribe({
       next: () => {
-        this.portfolioPage.update(current => current == null ? null : { ...current, published: false, navbarOrder: -1 } );
+        this.portfolioPage.update(current => current === null ? null : { ...current, published: false, navbarOrder: -1 } );
         this.refreshNavbarState();
       }
     });
@@ -127,7 +127,7 @@ export class PortfolioManager {
   }
 
   previewRequest(){
-    if (this.selectedStyleLayout() != null && this.selectedAlbum() != null){
+    if (this.selectedStyleLayout() !== null && this.selectedAlbum() !== null){
       this.router.navigate(['/admin-view-page-preview', this.selectedAlbum()!.id, this.selectedStyleLayout()]);
     }
   }
@@ -135,8 +135,8 @@ export class PortfolioManager {
   removeFromNavRequest(ppId: number){
     this.portfolioApi.removeFromNavbar(ppId).subscribe({
       next: () => {
-        if (this.portfolioPage() != null && this.portfolioPage()?.id == ppId){
-          this.portfolioPage.update(current => current == null ? null : { ...current, navbarOrder: -1 } );
+        if (this.portfolioPage() !== null && this.portfolioPage()?.id === ppId){
+          this.portfolioPage.update(current => current === null ? null : { ...current, navbarOrder: -1 } );
         }
         this.refreshNavbarState();
       }
@@ -144,11 +144,11 @@ export class PortfolioManager {
   }
 
   applyNavPositionRequest(navOrder: number | null){
-    if (this.portfolioPage() == null || navOrder == null || navOrder > 5 || navOrder <= 0) return;
+    if (this.portfolioPage() === null || navOrder === null || navOrder > 5 || navOrder <= 0) return;
     let interpretedPosition = navOrder - 1;
     this.portfolioApi.applyNavPosition(this.portfolioPage()!.id, interpretedPosition).subscribe({
       next: () => {
-        this.portfolioPage.update(current => current == null ? null : { ...current, navbarOrder: interpretedPosition } );
+        this.portfolioPage.update(current => current === null ? null : { ...current, navbarOrder: interpretedPosition } );
         this.refreshNavbarState();
       }
     })

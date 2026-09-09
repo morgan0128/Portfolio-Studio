@@ -2,7 +2,7 @@ import {Component, inject, input, signal} from '@angular/core';
 import {AlbumItem} from '../models/AlbumInterfacing';
 import {PageLayoutPreset} from '../models/PortfolioInterfacing';
 import {ActivatedRoute, Router} from '@angular/router';
-import {AlbumApiCaller} from '../services/album-api-caller';
+import {AlbumApiService} from '../services/album-api-service';
 import {
   PortfolioPageDefault
 } from '../components/portfolio-page-components/portfolio-page-default/portfolio-page-default';
@@ -16,13 +16,24 @@ import {PortfolioPageSpooky} from '../components/portfolio-page-components/portf
     PortfolioPageCozy,
     PortfolioPageSpooky
   ],
-  templateUrl: './admin-view-page-preview.html',
-  styleUrl: './admin-view-page-preview.css',
+  template: `
+    @switch (withStyle()){
+      @case ('cozy'){
+        <app-portfolio-page-cozy />
+      }
+      @case ('spooky'){
+        <app-portfolio-page-spooky />
+      }
+      @default {
+        <app-portfolio-page-default [album]="forAlbum()"/>
+      }
+    }
+  `,
 })
 export class AdminViewPagePreview {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private readonly albumApi = inject(AlbumApiCaller);
+  private readonly albumApi = inject(AlbumApiService);
 
 
   public readonly forAlbum = signal<AlbumItem | null>(null);
@@ -35,11 +46,11 @@ export class AdminViewPagePreview {
     const albumIdText = this.route.snapshot.paramMap.get('albumId');
     const styleText = this.route.snapshot.paramMap.get('style');
 
-    const albumId = albumIdText != null ? Number.parseInt(albumIdText, 10) : null;
-    if (albumId == null){
+    const albumId = albumIdText !== null ? Number.parseInt(albumIdText, 10) : null;
+    if (albumId === null){
       this.router.navigate(['/edit-albums']);
     }
-    const style: PageLayoutPreset = styleText == 'cozy' || styleText == 'spooky' ? styleText : 'default';
+    const style: PageLayoutPreset = styleText === 'cozy' || styleText === 'spooky' ? styleText : 'default';
 
     this.albumApi.getAlbum(albumId!)
     this.forAlbum.set(null);
