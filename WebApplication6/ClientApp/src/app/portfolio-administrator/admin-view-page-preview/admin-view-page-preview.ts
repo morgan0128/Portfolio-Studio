@@ -7,6 +7,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {AlbumItem} from '../../models/AlbumItem';
 import {PageLayoutPreset} from '../../models/PortfolioPageItemDto';
 import {AlbumApiService} from '../../api/album-api-service';
+import {EditAlbums} from '../edit-albums/edit-albums';
 
 
 @Component({
@@ -20,7 +21,8 @@ import {AlbumApiService} from '../../api/album-api-service';
   template: `
     <main>
       <div>
-        <app-navbar [adminPreviewMode]="true" />
+        <app-navbar [adminPreviewMode]="true" (requestNavToEditAlbums)="navigateToEditAlbums()"
+                    (adminModeBlockedNavigation)="alert('Cannot navigate between pages in Admin Preview Mode.')" />
       </div>
     @if (forAlbum() !== null){
       <div>
@@ -32,7 +34,7 @@ import {AlbumApiService} from '../../api/album-api-service';
           <app-portfolio-page-spooky />
         }
         @default {
-          <app-portfolio-page-default [album]="forAlbum()!"/>
+          <app-portfolio-page-default [album]="forAlbum()!" />
         }
       }
       </div>
@@ -86,5 +88,10 @@ export class AdminViewPagePreview implements OnInit {
     })
   }
 
+  navigateToEditAlbums(){
+    this.router.navigateByUrl("/edit-albums");
+  }
 
+
+  protected readonly alert = alert;
 }

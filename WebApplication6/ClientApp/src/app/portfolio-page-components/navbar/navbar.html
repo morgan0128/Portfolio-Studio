@@ -1,5 +1,9 @@
 <nav>
     <ol>
+      @if (adminPreviewMode()){
+        <li class="pp-nav-title" (click)="returnToEditAlbums()">Return</li>
+      }
+
       @for (s of navbarItems(); track s.id){
         @if (s.published){
           <li class="pp-nav-title" (click)="navigateToPage(s.navbarOrder)">{{ s.navTitle }}</li>

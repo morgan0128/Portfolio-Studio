@@ -23,7 +23,9 @@ export class Navbar implements onInit {
   public adminPreviewMode = input<boolean>(false);
   // protected adminPreviewModeBlockedRequest // display message like 'cannot navigate to other pages in preview mode'
 
-  public requestNavToPageOfPPId = output<number>();
+  public requestNavToPortfolioPageOfId = output<number>();
+  adminModeBlockedNavigation = output<void>();
+  public requestNavToEditAlbums = output<void>();
 
   ngOnInit() {
     this.portfolioApi.getPublishedInNavbarOrdered().subscribe({
@@ -44,14 +46,21 @@ export class Navbar implements onInit {
     }
 
     if (this.adminPreviewMode()){
-      // TODO
-      // display message
-      // this.adminPreviewModeBlockedRequest.....
+      this.adminModeBlockedNavigation.emit();
 
       return;
     }
 
-    this.requestNavToPageOfPPId.emit(this.navbarItems()[order].id);
+    this.requestNavToPortfolioPageOfId.emit(this.navbarItems()[order].id);
+  }
+
+
+  returnToEditAlbums(){
+    if (!this.adminPreviewMode()){
+      return;
+    }
+
+    this.requestNavToEditAlbums.emit();
   }
 
 }

@@ -1,0 +1,41 @@
+:host {
+
+}
+
+div.portfolio-items{
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+
+
+
+}
+
+div.photo-card {
+  display: inline-flex;
+  margin: 5rem 3rem;
+  border: 1px solid black;
+
+  img {
+
+  }
+
+  .text-content {
+    padding: 2rem;
+    display: inline-block;
+
+    p.name {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+
+    p.description {
+
+    }
+
+    p.year-cc {
+
+    }
+
+  }
+
+}

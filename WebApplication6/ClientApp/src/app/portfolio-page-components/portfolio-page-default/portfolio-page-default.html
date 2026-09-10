@@ -1,11 +1,22 @@
-<section>
-  <p>portfolio-page-default works!</p>
-  <div>
+<div class="portfolio-items">
     @if (!loadingPhotos() && !loadingPhotosError()){
 
       @for (p of photos(); track p.id){
-        <app-portfolio-photo-card [albumId]="album().id" [photo]="p" [layout]="PAGE_LAYOUT_PRESETS[0]" />
+        <div class="photo-card">
+          <app-portfolio-photo-card [albumId]="album().id" [photo]="p" [layout]="PAGE_LAYOUT_PRESETS[0]" />
+          <div class="text-content">
+            @if (p.displaysName){
+              <p class="name">{{ p.name }}</p>
+            }
+            @if (p.displaysDescription) {
+              <p class="description">{{ p.description }}</p>
+            }
+            @if (p.displaysYearCC){
+              <p class="year-cc">{{ p.yearContentCreated }}</p>
+            }
+          </div>
+        </div>
       }
+
     }
-  </div>
-</section>
+</div>
