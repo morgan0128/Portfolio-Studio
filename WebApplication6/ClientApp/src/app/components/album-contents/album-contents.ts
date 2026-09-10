@@ -1,10 +1,11 @@
 import {Component, input, output} from '@angular/core';
 import {AlbumItem, PhotoItem} from '../../models/AlbumInterfacing';
-import {PhotosDisplay} from '../photos-display/photos-display';
+// import {PhotosDisplay} from '../photos-display/photos-display';
+import {AdminViewPhotoCard} from '../admin-view-photo-card/admin-view-photo-card';
 
 @Component({
   selector: 'app-album-contents',
-  imports: [PhotosDisplay],
+  imports: [AdminViewPhotoCard],
   templateUrl: './album-contents.html',
   styleUrl: './album-contents.css',
 })

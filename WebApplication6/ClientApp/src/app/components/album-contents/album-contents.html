@@ -24,7 +24,12 @@
       <p>Upload an image above to add the first piece.</p>
     </div>
   } @else {
-    <app-photos-display [albumId]="this.selectedAlbumId()" [displayPhotos]="this.photos()" (photoStateChange)="photoStateChange.emit($event)" (orderChanged)="orderChanged.emit()"
-    (photoDetailedViewRequest)="photoDetailedViewRequest.emit($event)"/>
+    <div class="art-grid">
+      @for (photo of photos(); track photo.id) {
+        <app-admin-view-photo-card [albumId]="selectedAlbumId()" [photo]="photo" (photoStateChange)="photoStateChange.emit($event)" (orderChanged)="orderChanged.emit()"
+                                   (photoDetailedViewRequest)="photoDetailedViewRequest.emit($event)"/>
+      }
+    </div>
+
   }
 </section>

@@ -1,12 +1,10 @@
 import {Component, inject, OnInit, signal, Signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {NgOptimizedImage} from '@angular/common';
-import { PhotoItem, AlbumItem } from '../models/AlbumInterfacing';
-import { AlbumApiService, PhotoSpecDTO, PhotoUploadSpecification } from '../services/album-api-service';
-import { PhotosDisplay } from '../components/photos-display/photos-display';
-import {AlbumContents} from '../components/album-contents/album-contents';
-import {PortfolioManager} from '../components/portfolio-manager/portfolio-manager';
-import {DetailedPhotoView} from '../components/detailed-photo-view/detailed-photo-view';
+import {AlbumContents} from '../../album-contents/album-contents';
+import {PortfolioManager} from '../../portfolio-manager/portfolio-manager';
+import {DetailedPhotoView} from '../../detailed-photo-view/detailed-photo-view';
+import {AlbumApiService, PhotoSpecDTO, PhotoUploadSpecification} from '../../../services/album-api-service';
+import {AlbumItem, PhotoItem} from '../../../models/AlbumInterfacing';
 
 @Component({
   selector: 'app-edit-albums',
