@@ -1,0 +1,11 @@
+<section>
+  <p>portfolio-page-default works!</p>
+  <div>
+    @if (!loadingPhotos() && !loadingPhotosError()){
+
+      @for (p of photos(); track p.id){
+        <app-portfolio-photo-card [albumId]="album().id" [photo]="p" [layout]="PAGE_LAYOUT_PRESETS[0]" />
+      }
+    }
+  </div>
+</section>

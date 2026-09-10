@@ -21,11 +21,6 @@
 
     <ItemGroup>
       <Folder Include="Backend\Migrations\" />
-      <Folder Include="ClientApp\src\app\admin-view-page-preview\" />
-      <Folder Include="ClientApp\src\app\components\portfolio-page-components\" />
-      <Folder Include="ClientApp\src\app\edit-albums\" />
-      <Folder Include="ClientApp\src\app\portfolio-administrator\" />
-      <Folder Include="ClientApp\src\app\services\" />
       <Folder Include="ClientApp\uploads\" />
     </ItemGroup>
 
