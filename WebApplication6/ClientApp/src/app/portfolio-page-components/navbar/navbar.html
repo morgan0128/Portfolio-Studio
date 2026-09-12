@@ -1,4 +1,5 @@
-<nav>
+@if (!populatingNavbar()){
+  <nav>
     <ol>
       @if (adminPreviewMode()){
         <li class="pp-nav-title" (click)="returnToEditAlbums()">Return</li>
@@ -10,4 +11,5 @@
         }
       }
     </ol>
-</nav>
+  </nav>
+}

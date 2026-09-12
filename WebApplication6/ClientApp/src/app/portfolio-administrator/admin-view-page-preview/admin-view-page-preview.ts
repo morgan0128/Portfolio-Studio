@@ -1,53 +1,29 @@
-import {Component, inject, input, OnInit, signal} from '@angular/core';
+import {
+  Component,
+  inject,
+  inputBinding,
+  OnInit,
+  outputBinding,
+  signal,
+  ViewContainerRef
+} from '@angular/core';
 import {PortfolioPageDefault} from '../../portfolio-page-components/portfolio-page-default/portfolio-page-default';
 import {PortfolioPageCozy} from '../../portfolio-page-components/portfolio-page-cozy/portfolio-page-cozy';
 import {PortfolioPageSpooky} from '../../portfolio-page-components/portfolio-page-spooky/portfolio-page-spooky';
-import {Navbar} from '../../portfolio-page-components/navbar/navbar';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AlbumItem} from '../../models/AlbumItem';
 import {PageLayoutPreset} from '../../models/PortfolioPageItemDto';
 import {AlbumApiService} from '../../api/album-api-service';
-import {EditAlbums} from '../edit-albums/edit-albums';
 
 
 @Component({
   selector: 'app-admin-view-page-preview',
-  imports: [
-    PortfolioPageDefault,
-    PortfolioPageCozy,
-    PortfolioPageSpooky,
-    Navbar
-  ],
-  template: `
-    <main>
-      <div>
-        <app-navbar [adminPreviewMode]="true" (requestNavToEditAlbums)="navigateToEditAlbums()"
-                    (adminModeBlockedNavigation)="alert('Cannot navigate between pages in Admin Preview Mode.')" />
-      </div>
-    @if (forAlbum() !== null){
-      <div>
-      @switch (withStyle()){
-        @case ('cozy'){
-          <app-portfolio-page-cozy />
-        }
-        @case ('spooky'){
-          <app-portfolio-page-spooky />
-        }
-        @default {
-          <app-portfolio-page-default [album]="forAlbum()!" />
-        }
-      }
-      </div>
-    }
-    </main>
-  `,
-  styles: `
-    main {
-      display: flow-root;
-    }
-  `
+  imports: [],
+  template: ``,
+  styles: ``
 })
 export class AdminViewPagePreview implements OnInit {
+  private viewComponent = inject(ViewContainerRef);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private readonly albumApi = inject(AlbumApiService);
@@ -77,7 +53,25 @@ export class AdminViewPagePreview implements OnInit {
         this.forAlbum.set(album);
         this.withStyle.set(style);
         this.initializing.set(false);
-        return;
+        if (this.forAlbum() !== null){
+          switch (this.withStyle()){
+            case ('cozy'):
+                this.viewComponent.createComponent(PortfolioPageCozy);
+                break;
+            case ('spooky'):
+                this.viewComponent.createComponent(PortfolioPageSpooky)
+                break;
+            default:
+                this.viewComponent.createComponent(PortfolioPageDefault, {
+                  bindings: [
+                    inputBinding('album', () => this.forAlbum()!),
+                    outputBinding('requestNavToEditAlbums', () => this.navigateToEditAlbums())
+                  ]
+                });
+                // <app-portfolio-page-default [album]="forAlbum()!" (requestNavToEditAlbums)="navigateToEditAlbums()" />
+            break;
+          }
+        }
       },
       error: () => {
         this.initializationError.set(true);

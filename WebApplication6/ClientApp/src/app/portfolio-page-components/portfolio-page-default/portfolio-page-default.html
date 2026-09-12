@@ -1,22 +1,47 @@
-<div class="portfolio-items">
-    @if (!loadingPhotos() && !loadingPhotosError()){
+<main>
 
-      @for (p of photos(); track p.id){
-        <div class="photo-card">
-          <app-portfolio-photo-card [albumId]="album().id" [photo]="p" [layout]="PAGE_LAYOUT_PRESETS[0]" />
-          <div class="text-content">
-            @if (p.displaysName){
-              <p class="name">{{ p.name }}</p>
+  <div>
+    <app-navbar [adminPreviewMode]="true" (requestNavToEditAlbums)="requestNavToEditAlbums.emit()"
+                (adminModeBlockedNavigation)="alert('Cannot navigate between pages in Admin Preview Mode.')" />
+  </div>
+
+  <div class="portfolio-items">
+      @if (!loadingPhotos() && !loadingPhotosError()){
+          <div class="photo-card">
+            @if (displayedPhoto() !== null && displayedImage() !== null) {
+
+                  <div class="image-container">
+                    @for (image of [displayedImage()!]; track image.id){
+                      <app-image-display [displayedImage]="displayedImage()!"/>
+                    }
+                  </div>
+
+                @if (shouldIncludeTextContentContainer(displayedPhoto()!)){
+                  <div class="text-content-container">
+                    @if (displayedPhoto()!.displaysName){
+                      <p class="name">{{ displayedPhoto()!.name }}</p>
+                    }
+                    @if (displayedPhoto()!.displaysDescription) {
+                      <p class="description">{{ displayedPhoto()!.description }}</p>
+                    }
+                    @if (displayedPhoto()!.displaysYearCC){
+                      <p class="year-cc">{{ displayedPhoto()!.yearContentCreated }}</p>
+                    }
+                  </div>
+              }
+              <div class="button-nav">
+                <button class="prev-button" (click)="prevPhoto()">
+                  <
+                </button>
+                <button class="next-button" (click)="nextPhoto()">
+                  >
+                </button>
+              </div>
             }
-            @if (p.displaysDescription) {
-              <p class="description">{{ p.description }}</p>
-            }
-            @if (p.displaysYearCC){
-              <p class="year-cc">{{ p.yearContentCreated }}</p>
-            }
+
           </div>
-        </div>
-      }
 
-    }
-</div>
+      }
+  </div>
+
+</main>
