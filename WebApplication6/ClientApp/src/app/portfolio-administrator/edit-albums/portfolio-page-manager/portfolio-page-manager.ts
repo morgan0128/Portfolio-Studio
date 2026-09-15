@@ -12,11 +12,13 @@ import {Router} from '@angular/router';
 import {PortfolioApiService} from '../../../api/portfolio-api-service';
 import {AlbumItem} from '../../../models/AlbumItem';
 import {CreatePortfolioPageFromAlbumRequest} from '../../../models/PortfolioPageItemDto';
+import {AdminPreviewNavbar} from './admin-preview-navbar/admin-preview-navbar';
 
 @Component({
   selector: 'app-portfolio-manager',
   imports: [
-    FormsModule
+    FormsModule,
+    AdminPreviewNavbar
   ],
   templateUrl: './portfolio-page-manager.html',
   styleUrl: './portfolio-page-manager.css',
@@ -148,7 +150,42 @@ export class PortfolioPageManager {
         this.refreshNavbarState();
       }
     })
+  }
 
+  navReorderPageBackward(ppId: number){
+    this.navbarItems().forEach((value, index) => {
+      if (value.id == ppId){
+        if (index === 0){
+          return;
+        } else {
+          let pp1 = value;
+          let pp2 = this.navbarItems()[index-1];
+          this.portfolioApi.swapNavOrder(pp1.id, pp2.id).subscribe({
+            next: () => {
+              this.refreshNavbarState();
+            }
+          })
+        }
+      }
+    })
+  }
+
+  navReorderPageForward(ppId: number){
+    this.navbarItems().forEach((value, index) => {
+      if (value.id == ppId){
+        if (index === this.navbarItems().length - 1){
+          return;
+        } else {
+          let pp1 = value;
+          let pp2 = this.navbarItems()[index+1];
+          this.portfolioApi.swapNavOrder(pp1.id, pp2.id).subscribe({
+            next: () => {
+              this.refreshNavbarState();
+            }
+          })
+        }
+      }
+    })
 
   }
 

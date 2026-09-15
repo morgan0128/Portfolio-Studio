@@ -162,6 +162,17 @@ public sealed class PortfolioPageController(IPortfolioPageRepository portfolioRe
         };
     }
 
+    [HttpPatch("modify/nav-order/swap")]
+    public async Task<IActionResult> SwapPortfolioPageOrderInNav([FromBody] NavOrderSwapRequest request)
+    {
+        var swapped = await portfolioRepository.SwapPortfolioPagesInNavOrderAsync(request.ppId1, request.ppId2);
+        return swapped switch
+        {
+            false => Problem(),
+            true => Ok()
+        };
+    }
+    
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeletePortfolioPage(int id)
     {
@@ -198,4 +209,6 @@ public sealed class PortfolioPageController(IPortfolioPageRepository portfolioRe
     public sealed record UpdateLayoutPresetRequest(PageLayoutPreset LayoutPreset);
 
     public sealed record NavOrderRequest(int NavOrder);
+
+    public sealed record NavOrderSwapRequest(int ppId1, int ppId2);
 }

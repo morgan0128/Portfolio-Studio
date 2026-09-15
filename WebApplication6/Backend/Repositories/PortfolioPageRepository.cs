@@ -99,6 +99,26 @@ public class PortfolioPageRepository(ApplicationDbContext context) : IPortfolioP
         return true;
     }
 
+    public async Task<bool> SwapPortfolioPagesInNavOrderAsync(int ppId1, int ppId2)
+    {
+        var pp1 = await context.PortfolioPages.FindAsync(ppId1);
+        var pp2 = await context.PortfolioPages.FindAsync(ppId2);
+        if (pp1 == null) return false;
+        if (pp2 == null) return false;
+
+        var orderTmp1 = pp1.NavbarOrder;
+        var orderTmp2 = pp2.NavbarOrder;
+        pp1.NavbarOrder = -1;
+        pp2.NavbarOrder = -1;
+        await context.SaveChangesAsync();
+
+        pp1.NavbarOrder = orderTmp2;
+        pp2.NavbarOrder = orderTmp1;
+        await context.SaveChangesAsync();
+
+        return true;
+    }
+
     public async Task<IEnumerable<IPortfolioPageRepository.PortfolioPageDto>> GetPublishedNotInNavbar()
     {
         var pages = await context.PortfolioPages

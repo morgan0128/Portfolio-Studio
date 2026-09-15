@@ -1,0 +1,14 @@
+<nav>
+  <ol>
+    @for (n of navbarItems(); track n.id){
+      @if (n.published){
+        <li class="pp-nav-title">
+          <button class="reorder-button" (click)="reorderInNavBackwardRequest.emit(n.id)"><</button>
+          {{ n.navTitle }}
+          <button class="reorder-button" (click)="reorderInNavForwardRequest.emit(n.id)">></button>
+          <button class="remove-button" (click)="removeFromNavRequest.emit(n.id)">Remove</button>
+        </li>
+      }
+    }
+  </ol>
+</nav>

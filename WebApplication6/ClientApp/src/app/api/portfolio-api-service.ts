@@ -55,4 +55,9 @@ export class PortfolioApiService {
     return this.http.patch(requestPath, { navOrder });
   }
 
+  swapNavOrder(ppId1: number, ppId2: number){
+    let requestPath = this.apiPortfolioUrl + "/modify/nav-order/swap";
+    return this.http.patch(requestPath, { ppId1, ppId2 });
+  }
+
 }

@@ -60,23 +60,30 @@
           <input type="number" name="newPositionValue" [(ngModel)]="newPositionValue" (keydown.enter)="applyNavPositionRequest(newPositionValue())"/>
         }
       </div>
+    </div>
       <div class="navbar-manager">
       @if (viewingNavbarState()){
-        <ol>
-          @for (n of navbarItems(); track n.id){
-            <li>{{ n.navTitle }}</li>
-            <button (click)="removeFromNavRequest(n.id)">Remove</button>
-          }
-        </ol>
+<!--        <ol>-->
+<!--          @for (n of navbarItems(); track n.id){-->
+<!--            <li>{{ n.navTitle }}</li>-->
+<!--            <button (click)="removeFromNavRequest(n.id)">Remove</button>-->
+<!--          }-->
+<!--        </ol>-->
+        <app-admin-preview-navbar
+          [navbarItems]="navbarItems()"
+          (removeFromNavRequest)="removeFromNavRequest($event)"
+          (reorderInNavBackwardRequest)="navReorderPageBackward($event)"
+          (reorderInNavForwardRequest)="navReorderPageForward($event)"
+        />
         <p class="navbar-headsup">You can have up to 5 items in your Navbar</p>
       }
         </div>
-    </div>
+
   </div>
-    <div class="visibility-manager-container">
-      <label>Empty</label>
-      <div class="visibility-select">
-        </div>
-      </div>
+<!--    <div class="visibility-manager-container">-->
+<!--      <label>Empty</label>-->
+<!--      <div class="visibility-select">-->
+<!--        </div>-->
+<!--      </div>-->
   </div>
 </section>
