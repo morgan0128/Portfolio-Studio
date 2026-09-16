@@ -9,7 +9,11 @@ import {PortfolioPageItemDto} from '../../../../models/PortfolioPageItemDto';
 })
 export class AdminPreviewNavbar {
   public readonly navbarItems = input.required<PortfolioPageItemDto[]>();
+
+  public readonly selectedMayBeAdded = input.required<boolean>();
+
   public readonly removeFromNavRequest = output<number>();
   public readonly reorderInNavForwardRequest = output<number>();
   public readonly reorderInNavBackwardRequest = output<number>();
+  public readonly navInsertSelectedAtOrder = output<number>();
 }

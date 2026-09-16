@@ -34,7 +34,7 @@ export class PortfolioPageDefault implements OnInit {
 
   public requestNavToPortfolioPageOfId = output<number>();
   adminModeBlockedNavigation = output<void>();
-  public requestNavToEditAlbums = output<void>();
+  public requestNavToEditAlbums = output<number>();
 
 
   ngOnInit(){

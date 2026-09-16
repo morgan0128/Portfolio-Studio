@@ -1,4 +1,5 @@
 import {Component, inject, OnInit, signal, Signal} from '@angular/core';
+import {Location} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {AlbumContents} from './album-contents/album-contents';
 import {DetailedPhotoView} from './album-contents/detailed-photo-view/detailed-photo-view';
@@ -23,12 +24,14 @@ export class EditAlbums implements OnInit {
   // private readonly apiAlbumUrl = '/api/Album';
 
   private readonly albumApi = inject(AlbumApiService);
+  private readonly location = inject(Location);
 
   protected readonly creatingAlbum = signal<boolean>(false);
   protected readonly creatingAlbumError = signal<boolean>(false);
   protected newAlbumName = '';
   protected newAlbumDescription = '';
 
+  protected readonly restoringAlbumSelection = signal<boolean>(false);
   protected readonly loadingAlbums = signal<boolean>(true);
   protected readonly loadingAlbumsError = signal<boolean>(false);
 
@@ -61,14 +64,36 @@ export class EditAlbums implements OnInit {
 
 
   ngOnInit() {
-    this.loadAlbums();
+    const state = this.location.getState() as {
+      selectedAlbumId?: unknown;
+    } | null;
+
+    const id = state?.selectedAlbumId;
+
+    this.loadAlbums((typeof id === 'number' && Number.isInteger(id)) ? id : null);
   }
 
-  loadAlbums(){
+  loadAlbums(restoreAlbumFromId: number | null = null){
     this.loadingAlbums.set(true);
+    this.loadingAlbumsError.set(false);
 
-    let request = this.albumApi.getAlbums();
-    request.subscribe({
+    if (restoreAlbumFromId !== null){
+      this.restoringAlbumSelection.set(true);
+      this.selectingAlbumError.set(false);
+
+      this.albumApi.getAlbum(restoreAlbumFromId).subscribe({
+        next: album => {
+          this.selectAlbum(album);
+          this.restoringAlbumSelection.set(false);
+        },
+        error: () => {
+          this.selectingAlbumError.set(true);
+          this.restoringAlbumSelection.set(false);
+        }
+      });
+    }
+
+     this.albumApi.getAlbums().subscribe({
         next: albums => {
           this.albumDTOs.set(albums);
           this.loadingAlbums.set(false);
@@ -99,6 +124,14 @@ export class EditAlbums implements OnInit {
     })
   }
 
+  private selectAlbum(album: AlbumItem){
+    this.selectingAlbumError.set(false);
+    this.selectedAlbumId.set(album.id);
+    this.selectedAlbum.set(album);
+    this.photos.set([]);
+    this.loadAlbumSelection();
+  }
+
   onSelectedAlbumChange(){
     // return;
     // this.proposingDelete.set(false);
@@ -121,9 +154,8 @@ export class EditAlbums implements OnInit {
       return;
     }
 
-    this.selectedAlbum.set(albumDTO);
-    this.photos.set([]);
-    this.loadAlbumSelection();
+
+    this.selectAlbum(albumDTO);
   }
 
   loadAlbumSelection(){

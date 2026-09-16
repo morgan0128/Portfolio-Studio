@@ -45,21 +45,13 @@
       <button (click)="requestNavbarView()">Edit Navbar</button>
     </div>
       <div>
-      @if (portfolioPage() != null && portfolioPage()!.navbarOrder > -1){
-        @if (portfolioPage()!.published){
+      @if (portfolioPage() != null && portfolioPage()!.navbarOrder > -1 && portfolioPage()!.published){
           <p>In Navbar<p>
-        } @else {
-          <p>Assigned a Navbar position, but hidden; not published</p>
-        }
       } @else {
-        <p>This item is not displayed in the Navbar</p>
+        <p>This item is not displayed in the Navbar.</p>
       }
       </div>
-      <div>
-        @if (portfolioPage() != null && portfolioPage()!.navbarOrder <= -1 && portfolioPage()!.published && viewingNavbarState()){
-          <input type="number" name="newPositionValue" [(ngModel)]="newPositionValue" (keydown.enter)="applyNavPositionRequest(newPositionValue())"/>
-        }
-      </div>
+
     </div>
       <div class="navbar-manager">
       @if (viewingNavbarState()){
@@ -69,8 +61,17 @@
 <!--            <button (click)="removeFromNavRequest(n.id)">Remove</button>-->
 <!--          }-->
 <!--        </ol>-->
+
+<!--        <div>-->
+<!--          @if (selectedMayBeAdded()){-->
+<!--            <input type="number" name="newPositionValue" [(ngModel)]="newPositionValue" (keydown.enter)="applyNavPositionRequest(newPositionValue())"/>-->
+<!--          }-->
+<!--        </div>-->
+
         <app-admin-preview-navbar
           [navbarItems]="navbarItems()"
+          [selectedMayBeAdded] = "selectedMayBeAdded()"
+          (navInsertSelectedAtOrder)="applyNavPositionRequest($event)"
           (removeFromNavRequest)="removeFromNavRequest($event)"
           (reorderInNavBackwardRequest)="navReorderPageBackward($event)"
           (reorderInNavForwardRequest)="navReorderPageForward($event)"

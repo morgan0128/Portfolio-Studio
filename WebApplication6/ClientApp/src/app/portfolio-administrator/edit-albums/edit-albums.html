@@ -48,6 +48,7 @@
               class="album-select"
               name="albums"
               id="albums"
+              [disabled]="loadingAlbums() || restoringAlbumSelection()"
               [(ngModel)]="selectedAlbumId"
               (change)="onSelectedAlbumChange()">
               <option [ngValue]="null">Choose an album</option>
@@ -58,7 +59,9 @@
           </div>
 
           @if (loadingAlbums()) {
-            <p class="helper-text loading-text"><span class="loading-dot"></span> Loading albums...</p>
+            @if (!restoringAlbumSelection()){
+              <p class="helper-text loading-text"><span class="loading-dot"></span> Loading albums...</p>
+            }
           } @else if (albumDTOs().length === 0) {
             <p class="helper-text">No albums yet. Create one below.</p>
           } @else if (selectedAlbum() == null) {

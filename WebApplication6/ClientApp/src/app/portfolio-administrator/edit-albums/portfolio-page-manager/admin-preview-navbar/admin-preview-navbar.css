@@ -48,14 +48,14 @@ nav ol {
 
   }
 
-  li:first-child {
+  li:first-of-type {
     button.reorder-button:first-child {
       cursor: default;
       display: none;
     }
   }
 
-  li:last-child {
+  li:last-of-type {
     button.reorder-button:nth-last-child(2) {
       cursor: default;
       display: none;

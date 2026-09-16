@@ -65,7 +65,7 @@ export class AdminViewPagePreview implements OnInit {
                 this.viewComponent.createComponent(PortfolioPageDefault, {
                   bindings: [
                     inputBinding('album', () => this.forAlbum()!),
-                    outputBinding('requestNavToEditAlbums', () => this.navigateToEditAlbums())
+                    outputBinding<number>('requestNavToEditAlbums', event => this.navigateToEditAlbums(event))
                   ]
                 });
                 // <app-portfolio-page-default [album]="forAlbum()!" (requestNavToEditAlbums)="navigateToEditAlbums()" />
@@ -82,8 +82,11 @@ export class AdminViewPagePreview implements OnInit {
     })
   }
 
-  navigateToEditAlbums(){
-    this.router.navigateByUrl("/edit-albums");
+  navigateToEditAlbums(id: number){
+    // this.router.navigateByUrl("/edit-albums");
+    this.router.navigate(["/edit-albums"], {
+      state: { selectedAlbumId: id }
+    });
   }
 
 

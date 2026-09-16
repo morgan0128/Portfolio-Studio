@@ -16,7 +16,7 @@ public interface IPortfolioPageRepository
 
     Task<bool> SetPortfolioPageLayoutPresetAsync(int ppId, PageLayoutPreset layout);
     
-    Task<bool> ReorderPortfolioPageInNavAsync(int ppId, int newNavOrder);
+    Task<bool> AssignPortfolioPageInNavAsync(int ppId, int newNavOrder);
 
     Task<bool> SwapPortfolioPagesInNavOrderAsync(int ppId1, int ppId2);
 

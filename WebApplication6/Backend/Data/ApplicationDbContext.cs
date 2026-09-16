@@ -75,7 +75,16 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         modelBuilder.Entity<PortfolioPage>(portfolioPage =>
         {
             portfolioPage.ToTable("PortfolioPages",
-                table => table.HasCheckConstraint("CK_PortfolioPages_NavbarOrder_Range", "\"NavbarOrder\" BETWEEN -1 AND 4"));
+                table =>
+                {
+                    table.HasCheckConstraint("CK_PortfolioPages_NavbarOrder_Range", "\"NavbarOrder\" BETWEEN -1 AND 4");
+                    
+                    table.HasCheckConstraint(
+                        "CK_PortfolioPages_Unpublished_NoNavbar",
+                        "\"Published\" = TRUE OR \"NavbarOrder\" = -1");
+                });
+            
+
 
             portfolioPage.HasIndex(page => page.NavbarOrder)
                 .IsUnique()

@@ -1,5 +1,5 @@
 import {
-  Component,
+  Component, computed,
   inject,
   input,
   linkedSignal,
@@ -70,11 +70,10 @@ export class PortfolioPageManager {
       page?.layoutPreset ?? null
     });
 
-  protected readonly newPositionValue = signal<number | null>(null)
+  // protected readonly newPositionValue = signal<number | null>(null)
 
-  onPortfolioPageItemLoaded(){
-    // TODO select the stylingLayout associated with the portfolio page
-  }
+  readonly selectedMayBeAdded = computed<boolean>(() => this.portfolioPage() != null &&
+    this.portfolioPage()!.navbarOrder <= -1 && this.portfolioPage()!.published && this.navbarItems().length < 5);
 
   onApplyStyling() {
     if (this.portfolioPage() === null || this.selectedStyleLayout() === null) return;
@@ -142,11 +141,11 @@ export class PortfolioPageManager {
   }
 
   applyNavPositionRequest(navOrder: number | null){
-    if (this.portfolioPage() === null || navOrder === null || navOrder > 5 || navOrder <= 0) return;
-    let interpretedPosition = navOrder - 1;
-    this.portfolioApi.applyNavPosition(this.portfolioPage()!.id, interpretedPosition).subscribe({
+    if (this.portfolioPage() === null || navOrder === null || navOrder > 4 || navOrder < 0) return;
+    // let interpretedPosition = navOrder - 1;
+    this.portfolioApi.applyNavPosition(this.portfolioPage()!.id, navOrder).subscribe({
       next: () => {
-        this.portfolioPage.update(current => current === null ? null : { ...current, navbarOrder: interpretedPosition } );
+        this.portfolioPage.update(current => current === null ? null : { ...current, navbarOrder: navOrder } );
         this.refreshNavbarState();
       }
     })

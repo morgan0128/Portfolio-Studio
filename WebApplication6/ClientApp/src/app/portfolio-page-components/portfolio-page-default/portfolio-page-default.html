@@ -1,7 +1,7 @@
 <main>
 
   <div>
-    <app-navbar [adminPreviewMode]="true" (requestNavToEditAlbums)="requestNavToEditAlbums.emit()"
+    <app-navbar [adminPreviewMode]="true" (requestNavToEditAlbums)="requestNavToEditAlbums.emit(album().id)"
                 (adminModeBlockedNavigation)="alert('Cannot navigate between pages in Admin Preview Mode.')" />
   </div>
 

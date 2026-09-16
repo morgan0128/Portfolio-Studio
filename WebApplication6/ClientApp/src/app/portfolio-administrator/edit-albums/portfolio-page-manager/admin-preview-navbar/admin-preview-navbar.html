@@ -1,5 +1,8 @@
 <nav>
   <ol>
+    @if (selectedMayBeAdded()){
+      <button (click)="navInsertSelectedAtOrder.emit(0)">add</button>
+    }
     @for (n of navbarItems(); track n.id){
       @if (n.published){
         <li class="pp-nav-title">
@@ -8,6 +11,9 @@
           <button class="reorder-button" (click)="reorderInNavForwardRequest.emit(n.id)">></button>
           <button class="remove-button" (click)="removeFromNavRequest.emit(n.id)">Remove</button>
         </li>
+        @if (selectedMayBeAdded()){
+          <button (click)="navInsertSelectedAtOrder.emit(n.navbarOrder + 1)">add</button>
+        }
       }
     }
   </ol>

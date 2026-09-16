@@ -103,7 +103,7 @@ public sealed class PortfolioPageController(IPortfolioPageRepository portfolioRe
     [HttpPatch("{id:int}/modify/nav-order")]
     public async Task<IActionResult> AssignNavOrder(int id, [FromBody] NavOrderRequest navOrderRequest)
     {
-        var reordered = await portfolioRepository.ReorderPortfolioPageInNavAsync(id, navOrderRequest.NavOrder);
+        var reordered = await portfolioRepository.AssignPortfolioPageInNavAsync(id, navOrderRequest.NavOrder);
 
         return reordered ? Ok() : Problem();
     }
@@ -125,7 +125,7 @@ public sealed class PortfolioPageController(IPortfolioPageRepository portfolioRe
     [HttpPatch("remove-from-nav/{id:int}")]
     public async Task<IActionResult> RemoveFromNav(int id)
     {
-        var pp = await portfolioRepository.ReorderPortfolioPageInNavAsync(id, -1);
+        var pp = await portfolioRepository.AssignPortfolioPageInNavAsync(id, -1);
         return pp switch
         {
             false => Problem(),
