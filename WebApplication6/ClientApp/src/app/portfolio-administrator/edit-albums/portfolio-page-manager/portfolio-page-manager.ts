@@ -41,10 +41,9 @@ export class PortfolioPageManager {
     initialValue: []
   });
 
-
   public readonly viewingNavbarState = signal<boolean>(false);
 
-  // readonly requestNavbarState = output();
+  readonly reorderGlows = signal<Record<number, number>>({});
 
   protected readonly fetchedPortfolioPage = toSignal(
     this.selectedAlbum$.pipe(
@@ -161,6 +160,11 @@ export class PortfolioPageManager {
           let pp2 = this.navbarItems()[index-1];
           this.portfolioApi.swapNavOrder(pp1.id, pp2.id).subscribe({
             next: () => {
+              this.reorderGlows.update(counts => ({
+                ...counts,
+                [ppId]: (counts[ppId] ?? 0) + 1
+              }));
+
               this.refreshNavbarState();
             }
           })
@@ -179,6 +183,11 @@ export class PortfolioPageManager {
           let pp2 = this.navbarItems()[index+1];
           this.portfolioApi.swapNavOrder(pp1.id, pp2.id).subscribe({
             next: () => {
+              this.reorderGlows.update(counts => ({
+                ...counts,
+                [ppId]: (counts[ppId] ?? 0) + 1
+              }));
+
               this.refreshNavbarState();
             }
           })

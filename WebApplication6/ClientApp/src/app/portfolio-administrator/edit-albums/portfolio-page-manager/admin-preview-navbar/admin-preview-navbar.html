@@ -5,7 +5,10 @@
     }
     @for (n of navbarItems(); track n.id){
       @if (n.published){
-        <li class="pp-nav-title">
+        <li
+          class="pp-nav-title"
+          [appReorderGlow]="reorderGlows()[n.id] ?? 0"
+        >
           <button class="reorder-button" (click)="reorderInNavBackwardRequest.emit(n.id)"><</button>
           {{ n.navTitle }}
           <button class="reorder-button" (click)="reorderInNavForwardRequest.emit(n.id)">></button>

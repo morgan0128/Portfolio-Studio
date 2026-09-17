@@ -70,6 +70,7 @@
 
         <app-admin-preview-navbar
           [navbarItems]="navbarItems()"
+          [reorderGlows]="reorderGlows()"
           [selectedMayBeAdded] = "selectedMayBeAdded()"
           (navInsertSelectedAtOrder)="applyNavPositionRequest($event)"
           (removeFromNavRequest)="removeFromNavRequest($event)"
