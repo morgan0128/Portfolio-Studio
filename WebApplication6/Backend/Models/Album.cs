@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication6.Backend.Models;
 
@@ -14,9 +13,16 @@ public class Album
     [StringLength(400)]
     public string? Description { get; set; }
 
+    [MaxLength(20)]
+    public string NavTitle { get; set; } = "";
+
+    public bool Published { get; set; } = false;
+
+    [Range(-1, 4)]
+    public int NavbarOrder { get; set; } = -1;
+
+    public PageLayoutPreset LayoutPreset { get; set; } = PageLayoutPreset.Default;
+
     public ICollection<Photo> Photos { get; set; } = [];
     public ICollection<AlbumPhoto> AlbumPhotos { get; set; } = [];
-    
-    public PortfolioPage PortfolioPage { get; set; }
-    
 }

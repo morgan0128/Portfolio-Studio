@@ -1,52 +1,31 @@
-using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using WebApplication6.Backend.Models;
 
 namespace WebApplication6.Backend.Repositories;
 
+// Portfolio presentation and navigation operations use Album IDs.
 public interface IPortfolioPageRepository
 {
-    Task<IEnumerable<PortfolioPageDto>> GetAllPublishedAsync();
+    Task<IEnumerable<AlbumDto>> GetAllPublishedAsync();
     
-    Task<PortfolioPageDto?> GetPortfolioPageByIdAsync(int id);
-    
-    Task<PortfolioPageDto?> GetPortfolioPageByAlbumAsync(int albumId);
-    
-    /// <returns>Id of the saved portfolio page on success, or null on exception thrown or failure.</returns>
-    Task<PortfolioPageDto?> SavePortfolioPageAsync(PortfolioPage portfolioPage);
+    Task<AlbumDto?> GetAlbumByIdAsync(int albumId);
+    Task<bool> SetLayoutPresetAsync(int albumId, PageLayoutPreset layout);
+    Task<bool> AssignAlbumInNavAsync(int albumId, int newNavOrder);
+    Task<bool> SwapAlbumsInNavOrderAsync(int albumId1, int albumId2);
+    Task<IEnumerable<AlbumDto>> GetPublishedNotInNavbar();
+    Task<IEnumerable<AlbumDto>> GetPublishedInNavbarOrdered();
+    Task<int?> PublishAlbumAsync(int albumId, int? navOrder);
+    Task<bool> UnpublishAlbumAsync(int albumId);
+    Task<bool> UpdateAlbumPresentationAsync(int albumId, UpdateAlbumPresentationDto model);
 
-    Task<bool> SetPortfolioPageLayoutPresetAsync(int ppId, PageLayoutPreset layout);
-    
-    Task<bool> AssignPortfolioPageInNavAsync(int ppId, int newNavOrder);
+    public sealed record UpdateAlbumPresentationDto([MaxLength(20)] string? NavTitle);
 
-    Task<bool> SwapPortfolioPagesInNavOrderAsync(int ppId1, int ppId2);
-
-    Task<IEnumerable<PortfolioPageDto>> GetPublishedNotInNavbar();
-
-    Task<IEnumerable<PortfolioPageDto>> GetPublishedInNavbarOrdered();
-
-    /// <param name="ppId"></param>
-    /// <param name="navOrder"></param>
-    /// <returns>Returns NavbarOrder of PortfolioPage associated with ppId on published successfully, or null</returns>
-    Task<int?> PublishPortfolioPageAsync(int ppId, int? navOrder);
-    
-    Task<bool> UnpublishPortfolioPageAsync(int ppId);
-
-    Task<bool> UpdatePortfolioPageAsync(int ppId, UpdatePortfolioPageDto model);
-    
-    /// <returns>true on success, or false on not found</returns>
-    Task<bool> DeletePortfolioPageAsync(int id);
-    
-    // Task<IEnumerable<int>> Get
-
-    public sealed record UpdatePortfolioPageDto(string? NavTitle, string? Title);
-    
-    public sealed record PortfolioPageDto(
+    public sealed record AlbumDto(
         int Id,
+        string? Name,
+        string? Description,
         string NavTitle,
-        string Title,
         bool Published,
         int NavbarOrder,
-        int AlbumId,
         PageLayoutPreset LayoutPreset);
-    
 }

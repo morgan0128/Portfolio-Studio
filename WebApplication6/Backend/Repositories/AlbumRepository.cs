@@ -139,18 +139,31 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
         var album = await context.Albums.FindAsync(id);
         if (album == null) return false;
 
+        await using var transaction = context.Database.CurrentTransaction == null
+            ? await context.Database.BeginTransactionAsync()
+            : null;
 
         context.Albums.Remove(album);
+        await context.SaveChangesAsync();
 
-        try
+        // Navbar positions remain contiguous after deleting a displayed album.
+        var navbarAlbums = await context.Albums
+            .Where(a => a.NavbarOrder >= 0)
+            .OrderBy(a => a.NavbarOrder)
+            .ToListAsync();
+        foreach (var navbarAlbum in navbarAlbums)
         {
-            await context.SaveChangesAsync();
-            return true;
+            navbarAlbum.NavbarOrder = -1;
         }
-        catch (AggregateException)
+        await context.SaveChangesAsync();
+        for (var index = 0; index < navbarAlbums.Count; index++)
         {
-            return false;
+            navbarAlbums[index].NavbarOrder = index;
         }
+        await context.SaveChangesAsync();
+
+        if (transaction != null) await transaction.CommitAsync();
+        return true;
     }
 
     public async Task<IEnumerable<IAlbumRepository.AlbumPhotoDto>> GetAlbumPhotosAsync(int id)

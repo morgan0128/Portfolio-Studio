@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication6.Backend.Models;
 using WebApplication6.Backend.Repositories;
@@ -9,206 +8,76 @@ namespace WebApplication6.Backend.Controllers;
 [Route("api/Portfolio")]
 public sealed class PortfolioPageController(IPortfolioPageRepository portfolioRepository) : ControllerBase
 {
-
     [HttpGet("published")]
-    public async Task<IEnumerable<IPortfolioPageRepository.PortfolioPageDto>> GetAllPublishedPortfolioPages()
+    public Task<IEnumerable<IPortfolioPageRepository.AlbumDto>> GetAllPublishedAlbums()
+        => portfolioRepository.GetAllPublishedAsync();
+
+    [HttpGet("{albumId:int}")]
+    public async Task<ActionResult<IPortfolioPageRepository.AlbumDto>> GetAlbum(int albumId)
     {
-        var pps = await portfolioRepository.GetAllPublishedAsync();
-        return pps;
+        var album = await portfolioRepository.GetAlbumByIdAsync(albumId);
+        return album == null ? NotFound() : Ok(album);
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<IPortfolioPageRepository.PortfolioPageDto?> GetPortfolioPageById(int id)
+    [HttpPatch("{albumId:int}/modify/layout-preset")]
+    public async Task<IActionResult> UpdateLayoutPreset(int albumId, [FromBody] UpdateLayoutPresetRequest request)
     {
-        var pp = await portfolioRepository.GetPortfolioPageByIdAsync(id);
-        return pp;
-    }
-    
-    // [HttpGet("by-album/{albumId:int}")]
-    // public async Task<IPortfolioPageRepository.PortfolioPageDto?> GetPortfolioPageByAlbumId(int albumId)
-    // {
-    //     var pp = await portfolioRepository.GetPortfolioPageByAlbumAsync(albumId);
-    //     return pp;
-    // }
-    
-    private async Task<IPortfolioPageRepository.PortfolioPageDto?> PostPortfolioPage(FetchOrCreateUsingAlbumDto albumRequest)
-    {
-        var pp = new PortfolioPage();
-        pp.AlbumId = albumRequest.albumId;
-        
-        pp.Title = albumRequest.Name.Trim();
-        if (pp.Title.Length > 80)
-        {
-            pp.Title = pp.Title[..80];
-        }
-
-        pp.NavTitle = pp.Title;
-        if (pp.NavTitle.Length > 20)
-        {
-            pp.NavTitle = pp.NavTitle[..20];
-        }
-
-        
-        var saved = await portfolioRepository.SavePortfolioPageAsync(pp);
-        return saved;
-    }
-
-    [HttpPost("fetch-or-create")]
-    public async Task<ActionResult<IPortfolioPageRepository.PortfolioPageDto?>> FetchOrCreatePortfolioPage(FetchOrCreateUsingAlbumDto correspondingAlbum)
-    {
-        try
-        {
-            var pp = await portfolioRepository.GetPortfolioPageByAlbumAsync(correspondingAlbum.albumId);
-            if (pp != null)
-            {
-                return pp;
-            }
-
-            var created = await PostPortfolioPage(correspondingAlbum);
-            return created;
-
-        }
-        catch (AggregateException e)
-        {
-            var innerExceptions = e.InnerExceptions;
-            using (var exEnumerator = innerExceptions.GetEnumerator())
-            {
-                while (exEnumerator.MoveNext())
-                {
-                    if (exEnumerator.Current.GetType() != typeof(KeyNotFoundException)) continue;
-                    
-                    var keyNotFound = (KeyNotFoundException)exEnumerator.Current;
-                    return new BadRequestResult();
-                }
-                throw;
-            }
-        }
-    }
-        
-
-    [HttpGet("preview")]
-    public async Task<IActionResult> PreviewLayout(PageLayoutPreset layout)
-    {
-        // TODO not yet implemented
-        return Ok();
-    }
-
-    [HttpPatch("{id:int}/modify/layout-preset")]
-    public async Task<IActionResult> UpdateLayoutPreset(int id, [FromBody] UpdateLayoutPresetRequest request)
-    {
-        var applied = await portfolioRepository.SetPortfolioPageLayoutPresetAsync(id, request.LayoutPreset);
+        var applied = await portfolioRepository.SetLayoutPresetAsync(albumId, request.LayoutPreset);
         return applied ? NoContent() : NotFound();
     }
 
-    [HttpPatch("{id:int}/modify/nav-order")]
-    public async Task<IActionResult> AssignNavOrder(int id, [FromBody] NavOrderRequest navOrderRequest)
+    [HttpPatch("{albumId:int}/modify/nav-order")]
+    public async Task<IActionResult> AssignNavOrder(int albumId, [FromBody] NavOrderRequest request)
     {
-        var reordered = await portfolioRepository.AssignPortfolioPageInNavAsync(id, navOrderRequest.NavOrder);
-
+        var reordered = await portfolioRepository.AssignAlbumInNavAsync(albumId, request.NavOrder);
         return reordered ? Ok() : Problem();
     }
 
     [HttpGet("published/not-in-nav")]
-    public async Task<IEnumerable<IPortfolioPageRepository.PortfolioPageDto>> GetPublishedNotInNav()
-    {
-        var pages = await portfolioRepository.GetPublishedNotInNavbar();
-        return pages;
-    }
-    
+    public Task<IEnumerable<IPortfolioPageRepository.AlbumDto>> GetPublishedNotInNav()
+        => portfolioRepository.GetPublishedNotInNavbar();
+
     [HttpGet("published/in-nav/ordered")]
-    public async Task<IEnumerable<IPortfolioPageRepository.PortfolioPageDto>> GetPublishedAndInNavOrdered()
+    public Task<IEnumerable<IPortfolioPageRepository.AlbumDto>> GetPublishedAndInNavOrdered()
+        => portfolioRepository.GetPublishedInNavbarOrdered();
+
+    [HttpPatch("remove-from-nav/{albumId:int}")]
+    public async Task<IActionResult> RemoveFromNav(int albumId)
     {
-        var pages = await portfolioRepository.GetPublishedInNavbarOrdered();
-        return pages;
+        var removed = await portfolioRepository.AssignAlbumInNavAsync(albumId, -1);
+        return removed ? Ok() : Problem();
     }
 
-    [HttpPatch("remove-from-nav/{id:int}")]
-    public async Task<IActionResult> RemoveFromNav(int id)
+    [HttpPatch("publish/{albumId:int}")]
+    public Task<int?> PublishAlbum(int albumId, int? navOrder)
+        => portfolioRepository.PublishAlbumAsync(albumId, navOrder);
+
+    [HttpPatch("unpublish/{albumId:int}")]
+    public async Task<IActionResult> UnpublishAlbum(int albumId)
     {
-        var pp = await portfolioRepository.AssignPortfolioPageInNavAsync(id, -1);
-        return pp switch
-        {
-            false => Problem(),
-            true => Ok()
-        };
+        var unpublished = await portfolioRepository.UnpublishAlbumAsync(albumId);
+        return unpublished ? Ok() : Problem();
     }
 
-    [HttpPatch("publish/{id:int}")]
-    public async Task<int?> PublishPortfolioPage(int id, int? navOrder)
+    [HttpPatch("{albumId:int}/modify")]
+    public async Task<IActionResult> ModifyAlbumPresentation(
+        int albumId, IPortfolioPageRepository.UpdateAlbumPresentationDto model)
     {
-        var assignedNavOrder = await portfolioRepository.PublishPortfolioPageAsync(id, navOrder);
-        return assignedNavOrder;
-    }
-
-    [HttpPatch("unpublish/{id:int}")]
-    public async Task<IActionResult> UnpublishPortfolioPage(int id)
-    {
-        var unpublished = await portfolioRepository.UnpublishPortfolioPageAsync(id);
-        return unpublished switch
-        {
-            false => Problem(),
-            true => Ok()
-        };
-    }
-
-    [HttpPatch("{id:int}/modify")]
-    public async Task<IActionResult> ModifyPortfolioPage(int id, IPortfolioPageRepository.UpdatePortfolioPageDto model)
-    {
-        var modified = await portfolioRepository.UpdatePortfolioPageAsync(id, model);
-        return modified switch
-        {
-            false => Problem(),
-            true => Ok()
-        };
+        var modified = await portfolioRepository.UpdateAlbumPresentationAsync(albumId, model);
+        return modified ? Ok() : Problem();
     }
 
     [HttpPatch("modify/nav-order/swap")]
-    public async Task<IActionResult> SwapPortfolioPageOrderInNav([FromBody] NavOrderSwapRequest request)
+    public async Task<IActionResult> SwapAlbumsInNav([FromBody] NavOrderSwapRequest request)
     {
-        var swapped = await portfolioRepository.SwapPortfolioPagesInNavOrderAsync(request.ppId1, request.ppId2);
-        return swapped switch
-        {
-            false => Problem(),
-            true => Ok()
-        };
-    }
-    
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> DeletePortfolioPage(int id)
-    {
-        var deleted = await portfolioRepository.DeletePortfolioPageAsync(id);
-        return deleted switch
-        {
-            false => Problem(),
-            true => Ok()
-        };
+        var swapped = await portfolioRepository.SwapAlbumsInNavOrderAsync(request.AlbumId1, request.AlbumId2);
+        return swapped ? Ok() : Problem();
     }
 
     [HttpGet("styling-enums")]
-    public PageLayoutPreset[] GetPageLayoutPresets()
-    {
-        // var enumNames = Enum.GetNames<PageLayoutPreset>();
-        // var enumValues = Enum.GetValuesAsUnderlyingType<PageLayoutPreset>().Cast<int>().ToList();
-        // (string, int)[] enumTuples = [];
-        //
-        // var length = enumNames.Length;
-        // if (enumValues.Count != length) return enumTuples;
-        //
-        // for (var i = 0; i < length; i++)
-        // {
-        //     enumTuples[i] = (enumNames[i], enumValues[i]);
-        // }
-        //
-        // return enumTuples;
-        return Enum.GetValues<PageLayoutPreset>();
-    }
-    
+    public PageLayoutPreset[] GetPageLayoutPresets() => Enum.GetValues<PageLayoutPreset>();
 
-    public sealed record FetchOrCreateUsingAlbumDto(int albumId, string Name);
-    
     public sealed record UpdateLayoutPresetRequest(PageLayoutPreset LayoutPreset);
-
     public sealed record NavOrderRequest(int NavOrder);
-
-    public sealed record NavOrderSwapRequest(int ppId1, int ppId2);
+    public sealed record NavOrderSwapRequest(int AlbumId1, int AlbumId2);
 }

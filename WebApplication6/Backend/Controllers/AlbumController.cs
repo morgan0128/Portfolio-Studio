@@ -54,7 +54,8 @@ public sealed class AlbumController(IAlbumRepository albumRepository, IUploadPho
         var album = new Album
         {
             Name = name,
-            Description = albumRequest.Description
+            Description = albumRequest.Description,
+            NavTitle = name.Length > 20 ? name[..20] : name
         };
 
         var id = await albumRepository.SaveAlbumAsync(album);

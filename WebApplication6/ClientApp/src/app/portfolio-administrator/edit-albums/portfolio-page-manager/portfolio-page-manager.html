@@ -25,7 +25,7 @@
     <label>Visibility</label>
     <div class="visibility-select">
 
-      @if (!portfolioPage()?.published){
+      @if (!album()?.published){
         <div>
           <button (click)="publish()">Publish</button>
         </div>
@@ -45,7 +45,7 @@
       <button (click)="requestNavbarView()">Edit Navbar</button>
     </div>
       <div>
-      @if (portfolioPage() != null && portfolioPage()!.navbarOrder > -1 && portfolioPage()!.published){
+      @if (album() != null && album()!.navbarOrder > -1 && album()!.published){
           <p>In Navbar<p>
       } @else {
         <p>This item is not displayed in the Navbar.</p>

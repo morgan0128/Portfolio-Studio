@@ -32,7 +32,7 @@ export class PortfolioPageDefault implements OnInit {
   protected loadingPhotos = signal<boolean>(true);
   protected loadingPhotosError = signal<boolean>(false);
 
-  public requestNavToPortfolioPageOfId = output<number>();
+  public requestNavToAlbumOfId = output<number>();
   adminModeBlockedNavigation = output<void>();
   public requestNavToEditAlbums = output<number>();
 

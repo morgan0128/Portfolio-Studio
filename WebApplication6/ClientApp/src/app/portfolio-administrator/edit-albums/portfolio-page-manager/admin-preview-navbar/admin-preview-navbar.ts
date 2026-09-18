@@ -1,5 +1,5 @@
 import {Component, input, output} from '@angular/core';
-import {PortfolioPageItemDto} from '../../../../models/PortfolioPageItemDto';
+import {AlbumItem} from '../../../../models/AlbumItem';
 import {ReorderGlowDirective} from './reorder-glow-directive';
 
 @Component({
@@ -11,7 +11,7 @@ import {ReorderGlowDirective} from './reorder-glow-directive';
   styleUrl: './admin-preview-navbar.css',
 })
 export class AdminPreviewNavbar {
-  public readonly navbarItems = input.required<PortfolioPageItemDto[]>();
+  public readonly navbarItems = input.required<AlbumItem[]>();
 
   public readonly reorderGlows = input<Record<number, number>>({});
 

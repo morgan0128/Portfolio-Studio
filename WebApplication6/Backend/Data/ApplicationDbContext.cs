@@ -15,8 +15,6 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<AlbumPhoto> AlbumPhotos => Set<AlbumPhoto>();
 
-    public DbSet<PortfolioPage> PortfolioPages => Set<PortfolioPage>();
-
     public DbSet<UntrackedFile> UntrackedFiles => Set<UntrackedFile>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -72,25 +70,28 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                         .HasDefaultValue(true);
                 });
 
-        modelBuilder.Entity<PortfolioPage>(portfolioPage =>
+        modelBuilder.Entity<Album>(album =>
         {
-            portfolioPage.ToTable("PortfolioPages",
-                table =>
-                {
-                    table.HasCheckConstraint("CK_PortfolioPages_NavbarOrder_Range", "\"NavbarOrder\" BETWEEN -1 AND 4");
-                    
-                    table.HasCheckConstraint(
-                        "CK_PortfolioPages_Unpublished_NoNavbar",
-                        "\"Published\" = TRUE OR \"NavbarOrder\" = -1");
-                });
-            
+            album.ToTable("Albums", table =>
+            {
+                table.HasCheckConstraint(
+                    "CK_Albums_NavbarOrder_Range",
+                    "\"NavbarOrder\" BETWEEN -1 AND 4");
+                table.HasCheckConstraint(
+                    "CK_Albums_Unpublished_NoNavbar",
+                    "\"Published\" = TRUE OR \"NavbarOrder\" = -1");
+            });
 
+            // Defaults also apply when the migration adds these columns to existing albums.
+            album.Property(a => a.NavTitle).HasDefaultValue("");
+            album.Property(a => a.Published).HasDefaultValue(false);
+            album.Property(a => a.NavbarOrder).HasDefaultValue(-1).HasSentinel(-1);
+            album.Property(a => a.LayoutPreset).HasDefaultValue(PageLayoutPreset.Default);
 
-            portfolioPage.HasIndex(page => page.NavbarOrder)
+            album.HasIndex(a => a.NavbarOrder)
                 .IsUnique()
                 .HasFilter("\"NavbarOrder\" >= 0")
-                .HasDatabaseName("UX_PortfolioPages_NavbarOrder_NonNegative");
+                .HasDatabaseName("UX_Albums_NavbarOrder_NonNegative");
         });
     }
-
 }

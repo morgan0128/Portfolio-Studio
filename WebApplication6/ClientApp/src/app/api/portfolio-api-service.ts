@@ -1,63 +1,46 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
 import {AlbumItem} from '../models/AlbumItem';
-import {CreatePortfolioPageFromAlbumRequest, PageLayoutPreset, PortfolioPageItemDto} from '../models/PortfolioPageItemDto';
+import {PageLayoutPreset} from '../models/PortfolioPageItemDto';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class PortfolioApiService {
-  constructor() {
-  };
-
   private readonly http = inject(HttpClient);
   private readonly apiPortfolioUrl = '/api/Portfolio';
 
-  getPageLayoutPresets(): (Observable<PageLayoutPreset[]>) {
-    let requestPath = this.apiPortfolioUrl + '/styling-enums';
-    return this.http.get<PageLayoutPreset[]>(requestPath);
+  getAlbum(albumId: number) {
+    return this.http.get<AlbumItem>(this.apiPortfolioUrl + '/' + albumId);
   }
 
-  fetchOrCreatePortfolioPage(albumModel: CreatePortfolioPageFromAlbumRequest): (Observable<PortfolioPageItemDto | null>){
-    let requestPath = this.apiPortfolioUrl + '/fetch-or-create';
-    return this.http.post<PortfolioPageItemDto | null>(requestPath, albumModel);
+  getPageLayoutPresets() {
+    return this.http.get<PageLayoutPreset[]>(this.apiPortfolioUrl + '/styling-enums');
   }
 
-  applyPageLayoutPreset(ppId: number, layoutPreset: PageLayoutPreset) {
-    let requestPath = this.apiPortfolioUrl + '/' + ppId + '/modify/layout-preset';
-    return this.http.patch(requestPath, { layoutPreset });
+  applyPageLayoutPreset(albumId: number, layoutPreset: PageLayoutPreset) {
+    return this.http.patch<void>(this.apiPortfolioUrl + '/' + albumId + '/modify/layout-preset', { layoutPreset });
   }
 
-  publishPortfolioPage(ppId: number){
-    let requestPath = this.apiPortfolioUrl + '/publish/' + ppId;
-    return this.http.patch(requestPath, {});
+  publishAlbum(albumId: number) {
+    return this.http.patch<number | null>(this.apiPortfolioUrl + '/publish/' + albumId, {});
   }
 
-  unpublishPortfolioPage(ppId: number){
-    let requestPath = this.apiPortfolioUrl + '/unpublish/' + ppId;
-    return this.http.patch(requestPath, {});
+  unpublishAlbum(albumId: number) {
+    return this.http.patch<void>(this.apiPortfolioUrl + '/unpublish/' + albumId, {});
   }
 
-  getPublishedInNavbarOrdered(){
-    let requestPath = this.apiPortfolioUrl + '/published/in-nav/ordered'
-    return this.http.get<PortfolioPageItemDto[]>(requestPath)
+  getPublishedInNavbarOrdered() {
+    return this.http.get<AlbumItem[]>(this.apiPortfolioUrl + '/published/in-nav/ordered');
   }
 
-  removeFromNavbar(ppId: number){
-    let requestPath = this.apiPortfolioUrl + "/remove-from-nav/" + ppId;
-    return this.http.patch(requestPath, {});
+  removeFromNavbar(albumId: number) {
+    return this.http.patch<void>(this.apiPortfolioUrl + '/remove-from-nav/' + albumId, {});
   }
 
-  applyNavPosition(ppId: number, navOrder: number){
-    // if (position < 0 || position > 4) return;
-    let requestPath = this.apiPortfolioUrl + "/" + ppId + "/modify/nav-order";
-    return this.http.patch(requestPath, { navOrder });
+  applyNavPosition(albumId: number, navOrder: number) {
+    return this.http.patch<void>(this.apiPortfolioUrl + '/' + albumId + '/modify/nav-order', { navOrder });
   }
 
-  swapNavOrder(ppId1: number, ppId2: number){
-    let requestPath = this.apiPortfolioUrl + "/modify/nav-order/swap";
-    return this.http.patch(requestPath, { ppId1, ppId2 });
+  swapNavOrder(albumId1: number, albumId2: number) {
+    return this.http.patch<void>(this.apiPortfolioUrl + '/modify/nav-order/swap', { albumId1, albumId2 });
   }
-
 }
