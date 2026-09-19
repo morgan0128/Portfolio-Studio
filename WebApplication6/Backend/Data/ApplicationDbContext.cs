@@ -15,11 +15,39 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<AlbumPhoto> AlbumPhotos => Set<AlbumPhoto>();
 
+    public DbSet<AlbumItem> AlbumItems => Set<AlbumItem>();
+
+    public DbSet<AlbumPhotoDisplayItem> AlbumPhotoDisplayItems => Set<AlbumPhotoDisplayItem>();
+
     public DbSet<UntrackedFile> UntrackedFiles => Set<UntrackedFile>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<AlbumItem>(albumItem =>
+        {
+            albumItem.ToTable("AlbumItems",
+                table =>
+                {
+                    table.HasCheckConstraint("CK_AlbumItems_Order_NonNegative", "\"Order\" >= 0");
+                    table.HasCheckConstraint("CK_AlbumItems_PhotoDisplayMode_Range",
+                        "\"ItemType\" <> 'PhotoDisplay' OR (\"DisplayMode\" IS NOT NULL AND \"DisplayMode\" BETWEEN 0 AND 1)");
+                });
+
+            albumItem.HasDiscriminator<string>("ItemType")
+                .HasValue<AlbumPhotoDisplayItem>("PhotoDisplay");
+            albumItem.Property<string>("ItemType").HasMaxLength(32);
+            albumItem.HasAlternateKey(nameof(AlbumItem.AlbumId), nameof(AlbumItem.Id), "ItemType");
+
+            albumItem.HasOne(ai => ai.Album)
+                .WithMany(a => a.AlbumItems)
+                .HasForeignKey(ai => ai.AlbumId);
+
+            albumItem.HasIndex(ai => new { ai.AlbumId, ai.Order })
+                .IsUnique()
+                .HasDatabaseName("UX_AlbumItems_AlbumId_Order");
+        });
 
         modelBuilder.Entity<Album>()
             .HasMany(a => a.Photos)
@@ -40,9 +68,11 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 join =>
                 {
                     join.ToTable("AlbumPhoto",
-                        table => table.HasCheckConstraint(
-                            "CK_AlbumPhoto_Order_NonNegative",
-                            "\"Order\" >= 0"));
+                        table =>
+                        {
+                            table.HasCheckConstraint("CK_AlbumPhoto_Order_NonNegative", "\"Order\" >= 0");
+                            table.HasCheckConstraint("CK_AlbumPhoto_ItemType_PhotoDisplay", "\"AlbumItemType\" = 'PhotoDisplay'");
+                        });
 
                     join.HasKey(ap => new { ap.AlbumId, ap.PhotoId })
                         .HasName("PK_AlbumPhoto");
@@ -56,9 +86,21 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                     join.HasIndex(ap => ap.PhotoId)
                         .HasDatabaseName("IX_AlbumPhoto_PhotosId");
 
-                    join.HasIndex(ap => new { ap.AlbumId, ap.Order })
+                    join.HasIndex(ap => new { ap.AlbumPhotoDisplayItemId, ap.Order })
                         .IsUnique()
-                        .HasDatabaseName("UX_AlbumPhoto_AlbumsId_Order");
+                        .HasDatabaseName("UX_AlbumPhoto_AlbumPhotoDisplayItemId_Order");
+
+                    // Include the discriminator so photos can only belong to photo-display items.
+                    join.Property<string>("AlbumItemType")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasDefaultValue("PhotoDisplay");
+
+                    join.HasOne(ap => ap.AlbumPhotoDisplayItem)
+                        .WithMany(apdi => apdi.AlbumPhotos)
+                        .HasForeignKey(nameof(AlbumPhoto.AlbumId), nameof(AlbumPhoto.AlbumPhotoDisplayItemId), "AlbumItemType")
+                        .HasPrincipalKey(nameof(AlbumItem.AlbumId), nameof(AlbumItem.Id), "ItemType")
+                        .HasConstraintName("FK_AlbumPhoto_AlbumItems_AlbumId_ItemId_ItemType");
 
                     join.Property(ap => ap.DisplaysName)
                         .HasDefaultValue(true);

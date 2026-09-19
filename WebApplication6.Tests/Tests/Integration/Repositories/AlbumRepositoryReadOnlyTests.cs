@@ -30,6 +30,26 @@ public class AlbumRepositoryReadOnlyTests(TestDatabaseFixture dbFixture) : IClas
         );
     }
 
+    [Fact]
+    public async Task GetAlbumPhotosAsync_ReturnsExistingAlbumOrderAndDisplaySettings()
+    {
+        await using var context = Fixture.CreateContext();
+        var repository = new AlbumRepository(context);
+
+        var photos = (await repository.GetAlbumPhotosAsync(1)).ToList();
+
+        Assert.Equal(new[] { 4, 2, 3, 64 }, photos.Select(p => p.Id));
+        Assert.Equal(new int?[] { 0, 1, 2, 4 }, photos.Select(p => p.Order));
+        Assert.All(photos, photo =>
+        {
+            Assert.NotNull(photo.Image);
+            Assert.True(photo.displaysName);
+            Assert.True(photo.displaysDescription);
+            Assert.True(photo.displaysYearCC);
+        });
+        Assert.Empty(await repository.GetAlbumPhotosAsync(3002));
+    }
+
     [Theory]
     [InlineData(1, -1, 0)]
     [InlineData(1, 63, 0)]

@@ -90,23 +90,30 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
 
         for (var attempt = 1; attempt <= maximumAttempts; attempt++)
         {
-            var albumPhotos = context.AlbumPhotos.Where(ap => ap.AlbumId == albumId);
+            var albumItems = context.AlbumItems.Where(ai => ai.AlbumId == albumId);
             var nextOrder = -1;
-            if (!albumPhotos.Any())
+            if (!albumItems.Any())
             {
                 nextOrder = 0;
             }
             else
             {
-                nextOrder = (await albumPhotos.MaxAsync(ap => ap.Order, cancellationToken)) + 1;
+                nextOrder = (await albumItems.MaxAsync(ai => ai.Order, cancellationToken)) + 1;
             }
 
+
+            var albumPhotoDisplayItem = new AlbumPhotoDisplayItem
+            {
+                AlbumId = albumId,
+                Order = nextOrder
+            };
 
             var albumPhoto = new AlbumPhoto
             {
                 AlbumId = albumId,
                 PhotoId = photoId,
-                Order = nextOrder,
+                AlbumPhotoDisplayItem = albumPhotoDisplayItem,
+                Order = 0,
                 DisplaysName = true,
                 DisplaysDescription = true,
                 DisplaysYearContentCreated = true
@@ -123,6 +130,7 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
             {
                 // do not track albumPhoto that violated db constraint
                 context.Entry(albumPhoto).State = EntityState.Detached; 
+                context.Entry(albumPhotoDisplayItem).State = EntityState.Detached;
 
                 if (attempt == maximumAttempts)
                     throw;
@@ -178,6 +186,7 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
             if (album.Photos.Count == 0) return new List<IAlbumRepository.AlbumPhotoDto>();
 
             var albumPhotos = await context.AlbumPhotos
+                .Include(ap => ap.AlbumPhotoDisplayItem)
                 .Where(ap => ap.AlbumId == album.Id)
                 .ToListAsync();
 
@@ -194,7 +203,7 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
                         photo.Description,
                         photo.YearContentCreated,
                         photo.Image,
-                        albumPhoto.Order,
+                        albumPhoto.AlbumPhotoDisplayItem.Order,
                         albumPhoto.DisplaysName,
                         albumPhoto.DisplaysDescription,
                         albumPhoto.DisplaysYearContentCreated
@@ -214,12 +223,13 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
 
     public async Task<bool> ReorderPhotoInAlbum(int albumId, int photoId, int newOrder)
     {
-        var albumPhotos = await context.AlbumPhotos
-            .Where(ap => ap.AlbumId == albumId)
-            .OrderBy(ap => ap.Order)
+        var albumItems = await context.AlbumItems
+            .Include(ai => ((AlbumPhotoDisplayItem)ai).AlbumPhotos)
+            .Where(ai => ai.AlbumId == albumId)
+            .OrderBy(ai => ai.Order)
             .ToListAsync();
 
-        if (albumPhotos.Count == 0) return false; // this should not be reached from frontend
+        if (albumItems.Count == 0) return false; // this should not be reached from frontend
 
         if (newOrder < 0)
         {
@@ -228,11 +238,11 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
             return true;
         }
 
-        var toMove = albumPhotos.Find(ap => ap.PhotoId == photoId);
+        var toMove = albumItems.Find(ai => ai is AlbumPhotoDisplayItem item && item.AlbumPhotos.Any(ap => ap.PhotoId == photoId));
         
         if (toMove == null) return false; // this should not be reached from frontend
         
-        var ofOrder = albumPhotos.Find(ap => ap.Order == newOrder);
+        var ofOrder = albumItems.Find(ai => ai.Order == newOrder);
         
         if (ofOrder == null)
         {
@@ -242,32 +252,32 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
             return true;
         }
         
-        if (ofOrder.PhotoId == toMove.PhotoId)
+        if (ofOrder.Id == toMove.Id)
         {
             // recognize that an operation occurred by normalizing the order, but do nothing to grant
             await NormalizeOrder(albumId);
             return true;
         }
         
-        var index = albumPhotos.IndexOf(ofOrder);
+        var index = albumItems.IndexOf(ofOrder);
         if (toMove.Order < ofOrder.Order)
         {
             /* toMove.Order < ofOrder.Order; as such the user expects that this operation moves 'toMove' after 'ofOrder' */
 
             
-            // normalize first: need to pack the Order of AlbumPhotos preceding ofOrder as tightly as possible (limited by 0)
+            // normalize first: need to pack the Order of AlbumItems preceding ofOrder as tightly as possible (limited by 0)
             await NormalizeOrder(albumId);
             
             // normalized, so no longer want to use newOrder
-            var newOrderNormalized = albumPhotos[index].Order;
+            var newOrderNormalized = albumItems[index].Order;
 
-            var lowerBound = albumPhotos.IndexOf(toMove) + 1;
+            var lowerBound = albumItems.IndexOf(toMove) + 1;
             var upperBound = index;
-            toMove.Order = albumPhotos[^1].Order + 1; // temporary reassignment
+            toMove.Order = albumItems[^1].Order + 1; // temporary reassignment
 
             for (var i = lowerBound; i <= upperBound; i++)
             {
-                var moveMeBackward = albumPhotos[i];
+                var moveMeBackward = albumItems[i];
                 moveMeBackward.Order = moveMeBackward.Order - 1;
             }
             await context.SaveChangesAsync(); // avoid circular dependency
@@ -279,9 +289,9 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
         }
 
         /* toMove.Order > ofOrder.Order; as such the user expects that this operation moves 'toMove' before 'ofOrder' */
-        while (index < albumPhotos.Count)
+        while (index < albumItems.Count)
         {
-            var moveMeForward = albumPhotos[index];
+            var moveMeForward = albumItems[index];
             moveMeForward.Order = moveMeForward.Order + 1;
             index++;
         }
@@ -298,14 +308,14 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
 
     private async Task NormalizeOrder(int albumId)
     {
-        var albumPhotos = await context.AlbumPhotos
-            .Where(ap => ap.AlbumId == albumId)
-            .OrderBy(ap => ap.Order)
+        var albumItems = await context.AlbumItems
+            .Where(ai => ai.AlbumId == albumId)
+            .OrderBy(ai => ai.Order)
             .ToListAsync();
     
-        for (var i = 0; i < albumPhotos.Count; i++)
+        for (var i = 0; i < albumItems.Count; i++)
         {
-            albumPhotos[i].Order = i;
+            albumItems[i].Order = i;
         }
     
         await context.SaveChangesAsync();

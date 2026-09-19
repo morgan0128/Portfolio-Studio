@@ -91,35 +91,47 @@ public class TestDatabaseFixture
                     context.Add(album2);
                     context.SaveChanges();
 
-                    // don't have automatic Order assignment yet in AlbumPhoto TODO?
+                    // don't have automatic Order assignment yet in AlbumPhotoDisplayItem TODO?
                     var albumIdIs1 = context.Albums.Find(1);
                     if (albumIdIs1 != null)
                     {
-                        albumIdIs1.Photos.Add(photo1);
+                        albumIdIs1.AlbumPhotos.Add(new AlbumPhoto
+                        {
+                            Photo = photo1, AlbumPhotoDisplayItem = new AlbumPhotoDisplayItem { AlbumId = albumIdIs1.Id }
+                        });
                         context.SaveChanges();
-                        context.AlbumPhotos.Find(1, 2)?.Order = 1;
+                        context.AlbumPhotos.Find(1, 2)?.AlbumPhotoDisplayItem.Order = 1;
                         context.SaveChanges();
                         // photo1.Id == 2, Order in Album where Id==1 is 1
 
-                        albumIdIs1.Photos.Add(photo2);
+                        albumIdIs1.AlbumPhotos.Add(new AlbumPhoto
+                        {
+                            Photo = photo2, AlbumPhotoDisplayItem = new AlbumPhotoDisplayItem { AlbumId = albumIdIs1.Id }
+                        });
                         context.SaveChanges();
-                        context.AlbumPhotos.Find(1, photo2.Id)?.Order = 4;
+                        context.AlbumPhotos.Find(1, photo2.Id)?.AlbumPhotoDisplayItem.Order = 4;
                         context.SaveChanges();
                         // photo2.Id == 64, Order in Album where Id==1 is 4
                         
-                        albumIdIs1.Photos.Add(photo3);
+                        albumIdIs1.AlbumPhotos.Add(new AlbumPhoto
+                        {
+                            Photo = photo3, AlbumPhotoDisplayItem = new AlbumPhotoDisplayItem { AlbumId = albumIdIs1.Id }
+                        });
                         context.SaveChanges();
-                        context.AlbumPhotos.Find(1, photo3.Id)?.Order = 2;
+                        context.AlbumPhotos.Find(1, photo3.Id)?.AlbumPhotoDisplayItem.Order = 2;
                         context.SaveChanges();
                         // photo3.Id == 3, Order in Album where Id==1 is 2
                         
 
-                        albumIdIs1.Photos.Add(photo4);
+                        albumIdIs1.AlbumPhotos.Add(new AlbumPhoto
+                        {
+                            Photo = photo4, AlbumPhotoDisplayItem = new AlbumPhotoDisplayItem { AlbumId = albumIdIs1.Id }
+                        });
                         context.SaveChanges();
                         // photo4.Id == 4, Order in Album where Id==1 is 0
                         
                         // For AlbumPhotos of Album where AlbumId==1:
-                        // Photo.Id // Order
+                        // Photo.Id // AlbumPhotoDisplayItem.Order
                         // 4        // 0
                         // 2        // 1
                         // 3        // 2

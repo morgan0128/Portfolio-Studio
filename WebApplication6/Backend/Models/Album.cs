@@ -25,4 +25,5 @@ public class Album
 
     public ICollection<Photo> Photos { get; set; } = [];
     public ICollection<AlbumPhoto> AlbumPhotos { get; set; } = [];
+    public ICollection<AlbumItem> AlbumItems { get; set; } = [];
 }
