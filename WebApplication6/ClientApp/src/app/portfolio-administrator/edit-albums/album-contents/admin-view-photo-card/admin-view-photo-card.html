@@ -17,6 +17,11 @@
           <input type="number" name="newOrderValue" [(ngModel)]="newOrderValue" (keydown.enter)="updateOrder(newOrderValue)"/>
         }
       </span>
+      @if (groupingView()){
+      <span>
+          <button (click)="includeInNewGroupChange.emit(!includeInNewGroup())">{{ includeInNewGroup() ? 'Exclude' : 'Include'}}</button>
+      </span>
+      }
       <div class="art-card-user-field">
         <h3>{{ photo().name }}</h3>
         <button [style]="'background-color: ' + displaysNameColor()" (click)="toggleDisplaysName()"></button>

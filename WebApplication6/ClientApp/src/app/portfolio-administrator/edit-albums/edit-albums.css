@@ -20,9 +20,11 @@
   box-sizing: border-box;
 }
 
+
+
 .app-edit-albums {
   min-height: 100vh;
-  padding: 36px 24px 64px;
+  padding: 36px 24px 0;
 }
 
 .dashboard {

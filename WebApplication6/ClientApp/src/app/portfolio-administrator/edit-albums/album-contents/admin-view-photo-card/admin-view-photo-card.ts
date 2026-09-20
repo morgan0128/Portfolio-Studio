@@ -16,8 +16,8 @@ import {AlbumPhotoItemDto} from '../../../../models/AlbumPhotoItemDto';
 export class AdminViewPhotoCard {
   private readonly albumApi = inject(AlbumApiService);
 
-  albumId = input.required<number>();
-  photo = input.required<AlbumPhotoItemDto>();
+  readonly albumId = input.required<number>();
+  readonly photo = input.required<AlbumPhotoItemDto>();
 
   displaysNameColor = computed<string | null>(() => (this.photo().displaysName) ? 'green' : 'red');
   displaysDescColor = computed<string | null>(() => (this.photo().displaysDescription) ? 'green' : 'red');
@@ -31,6 +31,10 @@ export class AdminViewPhotoCard {
   newOrderValue: number = -1;
 
   readonly photoDetailedViewRequest = output<AlbumPhotoItemDto>();
+
+  readonly groupingView = input.required<boolean>();
+  readonly includeInNewGroup = input<boolean>(false);
+  readonly includeInNewGroupChange = output<boolean>();
 
   constructor() {
     effect(() => {

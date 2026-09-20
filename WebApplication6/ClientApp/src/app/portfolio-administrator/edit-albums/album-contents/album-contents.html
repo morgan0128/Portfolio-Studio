@@ -3,6 +3,12 @@
     <div>
       <p class="eyebrow">Album contents</p>
       <h2>Artwork</h2>
+      @if (!groupingView()){
+        <button (click)="toggleCreatePhotoGroupView()">Group Photos</button>
+      } @else {
+        <button (click)="createPhotoGroup()">Add Photo Group</button>
+        <button (click)="toggleCreatePhotoGroupView()">Cancel</button>
+      }
     </div>
     @if (selectedAlbum() !== null) {
       <span class="artworks-count">{{ photos().length }} {{ photos().length === 1 ? 'piece' : 'pieces' }}</span>
@@ -24,11 +30,25 @@
       <p>Upload an image above to add the first piece.</p>
     </div>
   } @else {
-    <div class="art-grid">
-      @for (photo of photos(); track photo.id) {
-        <app-admin-view-photo-card [albumId]="selectedAlbumId()" [photo]="photo" (photoStateChange)="photoStateChange.emit($event)" (orderChanged)="orderChanged.emit()"
-                                   (photoDetailedViewRequest)="photoDetailedViewRequest.emit($event)"/>
-      }
+<!--    <br>-->
+    <div class="art-grid-container">
+      <div class="art-grid">
+        @for (photo of photos(); track photo.id) {
+          <app-admin-view-photo-card
+            [albumId]="selectedAlbumId()"
+            [photo]="photo"
+            (photoStateChange)="photoStateChange.emit($event)"
+            (orderChanged)="itemsStateChange.emit()"
+            (photoDetailedViewRequest)="handleDetailedPhotoViewRequest($event)"
+            [groupingView]="groupingView()"
+            [includeInNewGroup]="photoOptStatus(photo.id)"
+            (includeInNewGroupChange)="handlePhotoOptChangeEvent(photo.id, $event)"
+          />
+        }
+        @if (detailedViewPhoto() != null){
+          <app-detailed-photo-view [photo]="detailedViewPhoto()!" (closePreview)="detailedViewPhoto.set(null)" />
+        }
+      </div>
     </div>
 
   }

@@ -35,6 +35,7 @@ builder.Services.AddScoped<IPortfolioPageRepository, PortfolioPageRepository>();
 builder.Services.AddScoped<IUntrackedFileRepository, UntrackedFileRepository>();
 builder.Services.AddScoped<IFileHostingService, LocalFileHostingService>();
 builder.Services.AddScoped<IUploadPhotoService, UploadPhotoService>();
+builder.Services.AddScoped<IAlbumItemRepository, AlbumItemRepository>();
 
 var configuredUploadDirectory =
     builder.Configuration["LocalFileStorage:UploadDirectory"]

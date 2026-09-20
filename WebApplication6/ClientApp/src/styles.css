@@ -11,4 +11,5 @@ body {
 html {
   scrollbar-gutter: stable;
   overflow-y: scroll;
+  overflow-x: hidden;
 }

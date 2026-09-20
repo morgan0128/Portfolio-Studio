@@ -1,7 +1,7 @@
 import {ImageItem} from './ImageItem';
 
 export type AlbumPhotoItemDto = {
-  id: number | null,
+  id: number,
   name: string | null,
   description: string | null,
   yearContentCreated: number | null,

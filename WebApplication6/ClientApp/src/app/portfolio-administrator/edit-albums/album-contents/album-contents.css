@@ -25,6 +25,7 @@
 
 .artworks-section {
   margin-top: 6px;
+  position: relative;
 }
 
 .artworks-count {
@@ -51,8 +52,35 @@
   font-size: 0.8rem;
 }
 
+.art-grid-container{
+  width: 100dvw;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 1rem;
+}
+
 .art-grid {
+  width: min(1160px, 100%);
+  margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
+
+/*div.detailed-photo-view {*/
+/*  display: flex;*/
+/*  button {*/
+/*    display: flex;*/
+/*    position: absolute;*/
+/*    top: 10px;*/
+/*    right: 10px;*/
+/*    background: rgba(0,0,0,0.6);*/
+/*    color: white;*/
+/*    border: none;*/
+/*    border-radius: 50%;*/
+/*    width: 30px;*/
+/*    height: 30px;*/
+/*    cursor: pointer;*/
+/*  }*/
+/*}*/

@@ -4,13 +4,9 @@
       <div>
         <p class="eyebrow">Admin</p>
         <h1>Album Manager</h1>
-<!--        <p class="subtitle">Manage albums your albums, photos, and metadata.</p>-->
       </div>
       <span class="admin-badge">Private area</span>
     </header>
-    @if (detailedViewPhoto() != null){
-      <app-detailed-photo-view [photo]="detailedViewPhoto()!" (closePreview)="detailedViewPhoto.set(null)" />
-    } @else {
 
     @if (loadingAlbumsError() || selectingAlbumError() || creatingAlbumError() || loadingPhotosError() || uploadPhotoError) {
       <div class="notice" role="alert">
@@ -207,18 +203,23 @@
       </section>
       </div>
     <br>
+<!--    </div>-->
     @if (selectedAlbum() != null){
       <section>
         <app-portfolio-manager [selectedAlbum]="selectedAlbum()" />
       </section>
       <br>
     }
-      <section>
+      <section class="album-contents-container">
         @if (this.selectedAlbumId() !== null){
-          <app-album-contents [selectedAlbum]="this.selectedAlbum()" [selectedAlbumId]="this.selectedAlbumId()!" [loadingPhotos]="this.loadingPhotos()" [photos]="this.photos()"
-          (photoStateChange)="photoChangedStateUpdate($event)" (orderChanged)="loadAlbumSelection()" (photoDetailedViewRequest)="handleDetailedPhotoViewRequest($event)"/>
+          <app-album-contents
+            [selectedAlbum]="this.selectedAlbum()"
+            [selectedAlbumId]="this.selectedAlbumId()!"
+            [loadingPhotos]="this.loadingPhotos()"
+            [photos]="this.photos()"
+            (photoStateChange)="photoChangedStateUpdate($event)"
+            (itemsStateChange)="loadAlbumSelection()"/>
         }
       </section>
-    }
   </div>
 </main>

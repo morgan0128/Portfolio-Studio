@@ -2,7 +2,6 @@ import {Component, inject, OnInit, signal, Signal} from '@angular/core';
 import {Location} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {AlbumContents} from './album-contents/album-contents';
-import {DetailedPhotoView} from './album-contents/detailed-photo-view/detailed-photo-view';
 import {AlbumItem} from '../../models/AlbumItem';
 import {PortfolioPageManager} from './portfolio-page-manager/portfolio-page-manager';
 import {AlbumPhotoItemDto} from '../../models/AlbumPhotoItemDto';
@@ -14,7 +13,6 @@ import {AlbumApiService, PhotoSpecDTO, PhotoUploadSpecification} from '../../api
     FormsModule,
     AlbumContents,
     PortfolioPageManager,
-    DetailedPhotoView
   ],
   templateUrl: './edit-albums.html',
   styleUrl: './edit-albums.css',
@@ -59,7 +57,8 @@ export class EditAlbums implements OnInit {
   protected readonly albumDTOs = signal<AlbumItem[]>([]);
   protected readonly photos = signal<AlbumPhotoItemDto[]>([]);
 
-  protected readonly detailedViewPhoto = signal<AlbumPhotoItemDto | null>(null);
+
+  protected readonly createPhotoGroupView = signal<boolean>(false);
 
 
 
@@ -262,10 +261,6 @@ export class EditAlbums implements OnInit {
         photo.id === updatedPhoto.id ? updatedPhoto : photo
       )
     );
-  }
-
-  handleDetailedPhotoViewRequest(requestPhoto: AlbumPhotoItemDto){
-    this.detailedViewPhoto.set(requestPhoto);
   }
 
 
