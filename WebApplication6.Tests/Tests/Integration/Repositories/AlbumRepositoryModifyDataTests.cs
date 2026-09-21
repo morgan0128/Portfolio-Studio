@@ -24,39 +24,38 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
     {
         await using var context = Fixture.CreateContext();
         await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
-        var repository = new AlbumRepository(context);
+        var albumItemRepository = new AlbumItemRepository(context);
 
 
         
-        var task = await repository.ReorderPhotoInAlbum(albumId, photoId, newOrder);
+        var task = await albumItemRepository.ReorderPhotoInAlbum(albumId, photoId, newOrder);
         context.ChangeTracker.Clear();
         
-        var albumPhotos = await context.AlbumPhotos
-            .Include(ap => ap.AlbumPhotoDisplayItem)
+        var albumPhotos = await context.PhotoDisplays
             .Where(ap => ap.AlbumId == albumId)
-            .OrderBy(ap => ap.AlbumPhotoDisplayItem.Order)
+            .OrderBy(ap => ap.Order)
             .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         
         Assert.Collection(albumPhotos,
             element1Inspector =>
             {
                 Assert.Equal(4, element1Inspector.PhotoId);
-                Assert.Equal(0, element1Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(0, element1Inspector.Order);
             },
             element2Inspector =>
             {
                 Assert.Equal(2, element2Inspector.PhotoId);
-                Assert.Equal(1, element2Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(1, element2Inspector.Order);
             },
             element3Inspector =>
             {
                 Assert.Equal(3, element3Inspector.PhotoId);
-                Assert.Equal(2, element3Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(2, element3Inspector.Order);
             },
             element4Inspector =>
             {
                 Assert.Equal(64, element4Inspector.PhotoId);
-                Assert.Equal(3, element4Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(3, element4Inspector.Order);
             });
         
         Assert.True(task);
@@ -71,39 +70,39 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
     {
         await using var context = Fixture.CreateContext();
         await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
-        var repository = new AlbumRepository(context);
+        var albumRepository = new AlbumRepository(context);
+        var albumItemRepository = new AlbumItemRepository(context);
 
 
         
-        var task = await repository.ReorderPhotoInAlbum(albumId, photoId, newOrder);
+        var task = await albumItemRepository.ReorderPhotoInAlbum(albumId, photoId, newOrder);
         context.ChangeTracker.Clear();
         
-        var albumPhotos = await context.AlbumPhotos
-            .Include(ap => ap.AlbumPhotoDisplayItem)
+        var albumPhotos = await context.PhotoDisplays
             .Where(ap => ap.AlbumId == albumId)
-            .OrderBy(ap => ap.AlbumPhotoDisplayItem.Order)
+            .OrderBy(ap => ap.Order)
             .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         
         Assert.Collection(albumPhotos,
             element1Inspector =>
             {
                 Assert.Equal(4, element1Inspector.PhotoId);
-                Assert.Equal(0, element1Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(0, element1Inspector.Order);
             },
             element2Inspector =>
             {
                 Assert.Equal(2, element2Inspector.PhotoId);
-                Assert.Equal(1, element2Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(1, element2Inspector.Order);
             },
             element3Inspector =>
             {
                 Assert.Equal(3, element3Inspector.PhotoId);
-                Assert.Equal(2, element3Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(2, element3Inspector.Order);
             },
             element4Inspector =>
             {
                 Assert.Equal(64, element4Inspector.PhotoId);
-                Assert.Equal(3, element4Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(3, element4Inspector.Order);
             });
         
         Assert.True(task);
@@ -118,37 +117,36 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
         
         await using var context = Fixture.CreateContext();
         await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
-        var repository = new AlbumRepository(context);
+        var albumItemRepository = new AlbumItemRepository(context);
         
-        var task = await repository.ReorderPhotoInAlbum(albumId, photoId, newOrder);
+        var task = await albumItemRepository.ReorderPhotoInAlbum(albumId, photoId, newOrder);
         context.ChangeTracker.Clear();
         
-        var albumPhotos = await context.AlbumPhotos
-            .Include(ap => ap.AlbumPhotoDisplayItem)
+        var albumPhotos = await context.PhotoDisplays
             .Where(ap => ap.AlbumId == albumId)
-            .OrderBy(ap => ap.AlbumPhotoDisplayItem.Order)
+            .OrderBy(ap => ap.Order)
             .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         
         Assert.Collection(albumPhotos,
             element1Inspector =>
             {
                 Assert.Equal(2, element1Inspector.PhotoId);
-                Assert.Equal(0, element1Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(0, element1Inspector.Order);
             },
             element2Inspector =>
             {
                 Assert.Equal(3, element2Inspector.PhotoId);
-                Assert.Equal(1, element2Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(1, element2Inspector.Order);
             },
             element3Inspector =>
             {
                 Assert.Equal(4, element3Inspector.PhotoId);
-                Assert.Equal(2, element3Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(2, element3Inspector.Order);
             },
             element4Inspector =>
             {
                 Assert.Equal(64, element4Inspector.PhotoId);
-                Assert.Equal(3, element4Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(3, element4Inspector.Order);
             });
         
         Assert.True(task);
@@ -163,37 +161,36 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
         
         await using var context = Fixture.CreateContext();
         await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
-        var repository = new AlbumRepository(context);
+        var albumItemRepository = new AlbumItemRepository(context);
         
-        var task = await repository.ReorderPhotoInAlbum(albumId, photoId, newOrder);
+        var task = await albumItemRepository.ReorderPhotoInAlbum(albumId, photoId, newOrder);
         context.ChangeTracker.Clear();
         
-        var albumPhotos = await context.AlbumPhotos
-            .Include(ap => ap.AlbumPhotoDisplayItem)
+        var albumPhotos = await context.PhotoDisplays
             .Where(ap => ap.AlbumId == albumId)
-            .OrderBy(ap => ap.AlbumPhotoDisplayItem.Order)
+            .OrderBy(ap => ap.Order)
             .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         
         Assert.Collection(albumPhotos,
             element1Inspector =>
             {
                 Assert.Equal(4, element1Inspector.PhotoId);
-                Assert.Equal(0, element1Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(0, element1Inspector.Order);
             },
             element2Inspector =>
             {
                 Assert.Equal(3, element2Inspector.PhotoId);
-                Assert.Equal(1, element2Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(1, element2Inspector.Order);
             },
             element3Inspector =>
             {
                 Assert.Equal(64, element3Inspector.PhotoId);
-                Assert.Equal(2, element3Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(2, element3Inspector.Order);
             },
             element4Inspector =>
             {
                 Assert.Equal(2, element4Inspector.PhotoId);
-                Assert.Equal(3, element4Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(3, element4Inspector.Order);
             });
         
         Assert.True(task);
@@ -208,37 +205,36 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
         
         await using var context = Fixture.CreateContext();
         await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
-        var repository = new AlbumRepository(context);
+        var albumItemRepository = new AlbumItemRepository(context);
         
-        var task = await repository.ReorderPhotoInAlbum(albumId, photoId, newOrder);
+        var task = await albumItemRepository.ReorderPhotoInAlbum(albumId, photoId, newOrder);
         context.ChangeTracker.Clear();
         
-        var albumPhotos = await context.AlbumPhotos
-            .Include(ap => ap.AlbumPhotoDisplayItem)
+        var albumPhotos = await context.PhotoDisplays
             .Where(ap => ap.AlbumId == albumId)
-            .OrderBy(ap => ap.AlbumPhotoDisplayItem.Order)
+            .OrderBy(ap => ap.Order)
             .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         
         Assert.Collection(albumPhotos,
             element1Inspector =>
             {
                 Assert.Equal(4, element1Inspector.PhotoId);
-                Assert.Equal(0, element1Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(0, element1Inspector.Order);
             },
             element2Inspector =>
             {
                 Assert.Equal(2, element2Inspector.PhotoId);
-                Assert.Equal(1, element2Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(1, element2Inspector.Order);
             },
             element3Inspector =>
             {
                 Assert.Equal(3, element3Inspector.PhotoId);
-                Assert.Equal(2, element3Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(2, element3Inspector.Order);
             },
             element4Inspector =>
             {
                 Assert.Equal(64, element4Inspector.PhotoId);
-                Assert.Equal(3, element4Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(3, element4Inspector.Order);
             });
         
         Assert.True(task);
@@ -253,42 +249,41 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
         
         await using var context = Fixture.CreateContext();
         await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
-        var repository = new AlbumRepository(context);
+        var albumItemRepository = new AlbumItemRepository(context);
         
-        var task1 = await repository.ReorderPhotoInAlbum(albumId, photoId, newOrder);
+        var task1 = await albumItemRepository.ReorderPhotoInAlbum(albumId, photoId, newOrder);
         newOrder += 1;
-        var task2 = await repository.ReorderPhotoInAlbum(albumId, photoId, newOrder);
+        var task2 = await albumItemRepository.ReorderPhotoInAlbum(albumId, photoId, newOrder);
         newOrder += 2;
-        var task3 = await repository.ReorderPhotoInAlbum(albumId, photoId, newOrder);
+        var task3 = await albumItemRepository.ReorderPhotoInAlbum(albumId, photoId, newOrder);
 
         context.ChangeTracker.Clear();
         
-        var albumPhotos = await context.AlbumPhotos
-            .Include(ap => ap.AlbumPhotoDisplayItem)
+        var albumPhotos = await context.PhotoDisplays
             .Where(ap => ap.AlbumId == albumId)
-            .OrderBy(ap => ap.AlbumPhotoDisplayItem.Order)
+            .OrderBy(ap => ap.Order)
             .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         
         Assert.Collection(albumPhotos,
             element1Inspector =>
             {
                 Assert.Equal(2, element1Inspector.PhotoId);
-                Assert.Equal(0, element1Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(0, element1Inspector.Order);
             },
             element2Inspector =>
             {
                 Assert.Equal(3, element2Inspector.PhotoId);
-                Assert.Equal(1, element2Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(1, element2Inspector.Order);
             },
             element3Inspector =>
             {
                 Assert.Equal(64, element3Inspector.PhotoId);
-                Assert.Equal(2, element3Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(2, element3Inspector.Order);
             },
             element4Inspector =>
             {
                 Assert.Equal(4, element4Inspector.PhotoId);
-                Assert.Equal(3, element4Inspector.AlbumPhotoDisplayItem.Order);
+                Assert.Equal(3, element4Inspector.Order);
             });
         
         Assert.True(task1);
@@ -303,28 +298,23 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
     {
         await using var context = Fixture.CreateContext();
         await using var transaction = await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
-        var repository = new AlbumRepository(context);
+        var albumItemRepository = new AlbumItemRepository(context);
 
-        Assert.True(await repository.AddPhotoToAlbumAsync(3002, 2, TestContext.Current.CancellationToken));
-        Assert.True(await repository.AddPhotoToAlbumAsync(3002, 3, TestContext.Current.CancellationToken));
-        Assert.True(await repository.ToggleDisplaysName(3002, 2));
-        Assert.True(await repository.ToggleDisplaysDescription(3002, 2));
-        Assert.True(await repository.ToggleDisplaysYearContenCreated(3002, 2));
+        Assert.True(await albumItemRepository.AddPhotoToAlbumAsync(3002, 2, TestContext.Current.CancellationToken));
+        Assert.True(await albumItemRepository.AddPhotoToAlbumAsync(3002, 3, TestContext.Current.CancellationToken));
+        Assert.True(await albumItemRepository.ToggleDisplaysName(3002, 2));
+        Assert.True(await albumItemRepository.ToggleDisplaysDescription(3002, 2));
+        Assert.True(await albumItemRepository.ToggleDisplaysYearContentCreated(3002, 2));
         context.ChangeTracker.Clear();
 
-        var albumPhotoDisplayItems = await context.AlbumPhotoDisplayItems
-            .Include(ag => ag.AlbumPhotos)
+        var photoDisplays = await context.PhotoDisplays
             .Where(ag => ag.AlbumId == 3002)
             .OrderBy(ag => ag.Order)
             .ToListAsync(TestContext.Current.CancellationToken);
-        Assert.Equal(new[] { 0, 1 }, albumPhotoDisplayItems.Select(ag => ag.Order));
-        Assert.All(albumPhotoDisplayItems, albumPhotoDisplayItem =>
-        {
-            Assert.Equal(AlbumPhotoDisplayItem.PhotoDisplayMode.Static, albumPhotoDisplayItem.DisplayMode);
-            Assert.Equal(0, Assert.Single(albumPhotoDisplayItem.AlbumPhotos).Order);
-        });
+        Assert.Equal(new[] { 0, 1 }, photoDisplays.Select(ag => ag.Order));
+        Assert.All(photoDisplays, photoDisplay => Assert.Null(photoDisplay.PhotoDisplayCollectionId));
 
-        var photos = (await repository.GetAlbumPhotosAsync(3002)).ToList();
+        var photos = (await albumItemRepository.GetAlbumPhotosAsync(3002)).ToList();
         Assert.Equal(new[] { 2, 3 }, photos.Select(p => p.Id));
         Assert.Equal(new int?[] { 0, 1 }, photos.Select(p => p.Order));
         Assert.False(photos[0].displaysName);
@@ -340,30 +330,30 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
     {
         await using var context = Fixture.CreateContext();
         await using var transaction = await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
-        var repository = new AlbumRepository(context);
+        var albumItemRepository = new AlbumItemRepository(context);
 
-        var exception = await Assert.ThrowsAsync<DbUpdateException>(() => repository.AddPhotoToAlbumAsync(1, 2, TestContext.Current.CancellationToken));
-        Assert.Equal("PK_AlbumPhoto", Assert.IsType<PostgresException>(exception.InnerException).ConstraintName);
+        var exception = await Assert.ThrowsAsync<DbUpdateException>(() => albumItemRepository.AddPhotoToAlbumAsync(1, 2, TestContext.Current.CancellationToken));
+        Assert.Equal("UX_AlbumItems_AlbumId_PhotoId", Assert.IsType<PostgresException>(exception.InnerException).ConstraintName);
 
-        Assert.Equal(4, await context.AlbumPhotoDisplayItems.CountAsync(ag => ag.AlbumId == 1, TestContext.Current.CancellationToken));
-        Assert.Equal(4, await context.AlbumPhotos.CountAsync(ap => ap.AlbumId == 1, TestContext.Current.CancellationToken));
+        Assert.Equal(4, await context.AlbumItems.CountAsync(ag => ag.AlbumId == 1, TestContext.Current.CancellationToken));
+        Assert.Equal(4, await context.PhotoDisplays.CountAsync(ap => ap.AlbumId == 1, TestContext.Current.CancellationToken));
         Assert.DoesNotContain(context.ChangeTracker.Entries(), e => e.State == EntityState.Added);
-        Assert.True(await repository.AddPhotoToAlbumAsync(3002, 2, TestContext.Current.CancellationToken));
+        Assert.True(await albumItemRepository.AddPhotoToAlbumAsync(3002, 2, TestContext.Current.CancellationToken));
     }
 
     [Theory]
     [InlineData(1, -1, 0, "CK_AlbumItems_Order_NonNegative")]
-    [InlineData(1, 3, -1, "CK_AlbumItems_PhotoDisplayMode_Range")]
-    [InlineData(1, 3, 2, "CK_AlbumItems_PhotoDisplayMode_Range")]
+    [InlineData(1, 3, -1, "CK_AlbumItems_PhotoDisplayCollection_Mode")]
+    [InlineData(1, 3, 2, "CK_AlbumItems_PhotoDisplayCollection_Mode")]
     [InlineData(1, 0, 0, "UX_AlbumItems_AlbumId_Order")]
     [InlineData(9999, 0, 0, "FK_AlbumItems_Albums_AlbumId")]
-    public async Task AlbumPhotoDisplayItem_DatabaseRejectsInvalidItem(int albumId, int order, int displayMode, string constraintName)
+    public async Task PhotoDisplayCollection_DatabaseRejectsInvalidItem(int albumId, int order, int displayMode, string constraintName)
     {
         await using var context = Fixture.CreateContext();
         await using var transaction = await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
-        context.AlbumPhotoDisplayItems.Add(new AlbumPhotoDisplayItem
+        context.PhotoDisplayCollections.Add(new PhotoDisplayCollection
         {
-            AlbumId = albumId, Order = order, DisplayMode = (AlbumPhotoDisplayItem.PhotoDisplayMode)displayMode
+            AlbumId = albumId, Order = order, DisplayMode = (PhotoDisplayCollection.PhotoDisplayMode)displayMode
         });
 
         var exception = await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync(TestContext.Current.CancellationToken));
@@ -377,26 +367,27 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
     {
         await using var context = Fixture.CreateContext();
         await using var transaction = await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
-        var albumPhotoDisplayItemId = existingItem
-            ? await context.AlbumPhotoDisplayItems.Where(ag => ag.AlbumId == 1).Select(ag => ag.Id).FirstAsync(TestContext.Current.CancellationToken)
-            : 0;
-        context.AlbumPhotos.Add(new AlbumPhoto { AlbumId = 3002, PhotoId = 2, AlbumPhotoDisplayItemId = albumPhotoDisplayItemId, Order = 1 });
+        var photoDisplayCollection = new PhotoDisplayCollection { AlbumId = 1, Order = 5 };
+        context.PhotoDisplayCollections.Add(photoDisplayCollection);
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+        var photoDisplayCollectionId = existingItem ? photoDisplayCollection.Id : 0;
+        context.PhotoDisplays.Add(new PhotoDisplay { AlbumId = 3002, PhotoId = 2, PhotoDisplayCollectionId = photoDisplayCollectionId, Order = 1 });
 
         var exception = await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync(TestContext.Current.CancellationToken));
-        Assert.Equal("FK_AlbumPhoto_AlbumItems_AlbumId_ItemId_ItemType", Assert.IsType<PostgresException>(exception.InnerException).ConstraintName);
+        Assert.Equal("FK_AlbumItems_AlbumItems_AlbumId_CollectionId_ItemType", Assert.IsType<PostgresException>(exception.InnerException).ConstraintName);
     }
 
     [Theory]
-    [InlineData(0, "UX_AlbumPhoto_AlbumPhotoDisplayItemId_Order")]
-    [InlineData(-1, "CK_AlbumPhoto_Order_NonNegative")]
+    [InlineData(0, "UX_AlbumItems_PhotoDisplayCollectionId_Order")]
+    [InlineData(-1, "CK_AlbumItems_Order_NonNegative")]
     public async Task AlbumPhoto_DatabaseRequiresUniqueNonNegativeOrderWithinItem(int order, string constraintName)
     {
         await using var context = Fixture.CreateContext();
         await using var transaction = await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
-        var albumPhotoDisplayItem = new AlbumPhotoDisplayItem { AlbumId = 3002, Order = 0, DisplayMode = AlbumPhotoDisplayItem.PhotoDisplayMode.Carousel };
-        context.AlbumPhotos.Add(new AlbumPhoto { AlbumId = 3002, PhotoId = 2, AlbumPhotoDisplayItem = albumPhotoDisplayItem, Order = 0 });
-        var albumPhoto = new AlbumPhoto { AlbumId = 3002, PhotoId = 3, AlbumPhotoDisplayItem = albumPhotoDisplayItem, Order = 1 };
-        context.AlbumPhotos.Add(albumPhoto);
+        var photoDisplayCollection = new PhotoDisplayCollection { AlbumId = 3002, Order = 0, DisplayMode = PhotoDisplayCollection.PhotoDisplayMode.Carousel };
+        context.PhotoDisplays.Add(new PhotoDisplay { AlbumId = 3002, PhotoId = 2, PhotoDisplayCollection = photoDisplayCollection, Order = 0 });
+        var albumPhoto = new PhotoDisplay { AlbumId = 3002, PhotoId = 3, PhotoDisplayCollection = photoDisplayCollection, Order = 1 };
+        context.PhotoDisplays.Add(albumPhoto);
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         albumPhoto.Order = order;
@@ -409,12 +400,12 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
     {
         await using var context = Fixture.CreateContext();
         await using var transaction = await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
-        var albumPhotoDisplayItem = new AlbumPhotoDisplayItem { AlbumId = 3002, Order = 0 };
-        context.AlbumPhotos.Add(new AlbumPhoto { AlbumId = 3002, PhotoId = 2, AlbumPhotoDisplayItem = albumPhotoDisplayItem, Order = 0 });
-        context.AlbumPhotos.Add(new AlbumPhoto { AlbumId = 3002, PhotoId = 3, AlbumPhotoDisplayItem = albumPhotoDisplayItem, Order = 1 });
+        var photoDisplayCollection = new PhotoDisplayCollection { AlbumId = 3002, Order = 0 };
+        context.PhotoDisplays.Add(new PhotoDisplay { AlbumId = 3002, PhotoId = 2, PhotoDisplayCollection = photoDisplayCollection, Order = 0 });
+        context.PhotoDisplays.Add(new PhotoDisplay { AlbumId = 3002, PhotoId = 3, PhotoDisplayCollection = photoDisplayCollection, Order = 1 });
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-        var albumPhotoDisplayItemId = await context.AlbumPhotos.Where(ap => ap.AlbumId == 1 && ap.PhotoId == 2)
-            .Select(ap => ap.AlbumPhotoDisplayItemId).SingleAsync(TestContext.Current.CancellationToken);
+        var photoDisplayCollectionId = await context.PhotoDisplays.Where(ap => ap.AlbumId == 1 && ap.PhotoId == 2)
+            .Select(ap => ap.Id).SingleAsync(TestContext.Current.CancellationToken);
         context.ChangeTracker.Clear();
         var repository = new PhotoRepository(context);
 
@@ -423,12 +414,12 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
 
         Assert.Null(await context.Photos.FindAsync([2], TestContext.Current.CancellationToken));
         Assert.NotNull(await context.Photos.FindAsync([3], TestContext.Current.CancellationToken));
-        Assert.False(await context.AlbumPhotoDisplayItems.AnyAsync(ag => ag.Id == albumPhotoDisplayItemId, TestContext.Current.CancellationToken));
-        Assert.False(await context.AlbumPhotos.AnyAsync(ap => ap.PhotoId == 2, TestContext.Current.CancellationToken));
-        var remaining = await context.AlbumPhotoDisplayItems.Include(ag => ag.AlbumPhotos)
-            .SingleAsync(ag => ag.Id == albumPhotoDisplayItem.Id, TestContext.Current.CancellationToken);
-        Assert.Equal(3, Assert.Single(remaining.AlbumPhotos).PhotoId);
-        Assert.Equal(3, await context.AlbumPhotoDisplayItems.CountAsync(ag => ag.AlbumId == 1, TestContext.Current.CancellationToken));
+        Assert.False(await context.AlbumItems.AnyAsync(ag => ag.Id == photoDisplayCollectionId, TestContext.Current.CancellationToken));
+        Assert.False(await context.PhotoDisplays.AnyAsync(ap => ap.PhotoId == 2, TestContext.Current.CancellationToken));
+        var remaining = await context.PhotoDisplayCollections.Include(ag => ag.PhotoDisplays)
+            .SingleAsync(ag => ag.Id == photoDisplayCollection.Id, TestContext.Current.CancellationToken);
+        Assert.Equal(3, Assert.Single(remaining.PhotoDisplays).PhotoId);
+        Assert.Equal(3, await context.AlbumItems.CountAsync(ag => ag.AlbumId == 1, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -437,7 +428,7 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
         await using var context = Fixture.CreateContext();
         await using var transaction = await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
         var albums = await CreatePresentationAlbumsAsync(context, 2);
-        var repository = new PortfolioPageRepository(context);
+        var repository = new AlbumRepository(context);
 
         Assert.Equal(-1, albums[0].NavbarOrder);
         Assert.False(albums[0].Published);
@@ -451,7 +442,7 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
         Assert.Equal(albums[1].Name, albums[1].NavTitle);
         Assert.True(await repository.SetLayoutPresetAsync(albums[0].Id, PageLayoutPreset.Spooky));
         Assert.True(await repository.UpdateAlbumPresentationAsync(albums[0].Id,
-            new IPortfolioPageRepository.UpdateAlbumPresentationDto("Gallery")));
+            new IAlbumRepository.UpdateAlbumPresentationDto("Gallery")));
 
         context.ChangeTracker.Clear();
         var published = (await repository.GetAllPublishedAsync()).ToList();
@@ -470,7 +461,7 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
         await using var context = Fixture.CreateContext();
         await using var transaction = await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
         var albums = await CreatePresentationAlbumsAsync(context, 6);
-        var repository = new PortfolioPageRepository(context);
+        var repository = new AlbumRepository(context);
         foreach (var album in albums) Assert.Equal(-1, await repository.PublishAlbumAsync(album.Id, null));
         for (var index = 0; index < 5; index++)
             Assert.True(await repository.AssignAlbumInNavAsync(albums[index].Id, index));
@@ -492,13 +483,13 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
         await using var context = Fixture.CreateContext();
         await using var transaction = await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
         var albums = await CreatePresentationAlbumsAsync(context, 3);
-        context.AlbumPhotos.Add(new AlbumPhoto
+        context.PhotoDisplays.Add(new PhotoDisplay
         {
             AlbumId = albums[1].Id, PhotoId = 2, Order = 0,
-            AlbumPhotoDisplayItem = new AlbumPhotoDisplayItem { AlbumId = albums[1].Id, Order = 0 }
+            PhotoDisplayCollection = new PhotoDisplayCollection { AlbumId = albums[1].Id, Order = 0 }
         });
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-        var repository = new PortfolioPageRepository(context);
+        var repository = new AlbumRepository(context);
         for (var index = 0; index < albums.Length; index++)
             Assert.Equal(index, await repository.PublishAlbumAsync(albums[index].Id, index));
 
@@ -515,8 +506,8 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
         Assert.Equal(albums[2].Id, remaining.Id);
         Assert.Equal(0, remaining.NavbarOrder);
         Assert.NotNull(await context.Photos.FindAsync([2], TestContext.Current.CancellationToken));
-        Assert.False(await context.AlbumPhotos.AnyAsync(ap => ap.AlbumId == albums[1].Id, TestContext.Current.CancellationToken));
-        Assert.False(await context.AlbumPhotoDisplayItems.AnyAsync(ag => ag.AlbumId == albums[1].Id, TestContext.Current.CancellationToken));
+        Assert.False(await context.PhotoDisplays.AnyAsync(ap => ap.AlbumId == albums[1].Id, TestContext.Current.CancellationToken));
+        Assert.False(await context.PhotoDisplayCollections.AnyAsync(ag => ag.AlbumId == albums[1].Id, TestContext.Current.CancellationToken));
         Assert.Null(await repository.GetAlbumByIdAsync(albums[1].Id));
     }
 

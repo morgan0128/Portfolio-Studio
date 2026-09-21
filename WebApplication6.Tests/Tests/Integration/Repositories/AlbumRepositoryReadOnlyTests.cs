@@ -34,7 +34,7 @@ public class AlbumRepositoryReadOnlyTests(TestDatabaseFixture dbFixture) : IClas
     public async Task GetAlbumPhotosAsync_ReturnsExistingAlbumOrderAndDisplaySettings()
     {
         await using var context = Fixture.CreateContext();
-        var repository = new AlbumRepository(context);
+        var repository = new AlbumItemRepository(context);
 
         var photos = (await repository.GetAlbumPhotosAsync(1)).ToList();
 
@@ -58,7 +58,7 @@ public class AlbumRepositoryReadOnlyTests(TestDatabaseFixture dbFixture) : IClas
     public async Task ReorderPhotoInAlbum_InvalidKeyAlbumPhotoDoesNotExistPhoto_ReturnsFalse(int albumId, int photoId, int newOrder)
     {
         await using var context = Fixture.CreateContext();
-        var repository = new AlbumRepository(context);
+        var repository = new AlbumItemRepository(context);
         
         // double-check our inputs:
         // test should not fail based on invalid albumId; want to use valid albumId
@@ -80,7 +80,7 @@ public class AlbumRepositoryReadOnlyTests(TestDatabaseFixture dbFixture) : IClas
     public async Task ReorderPhotoInAlbum_InvalidKeyAlbumPhotoDoesNotExistAlbum_ReturnsFalse(int albumId, int photoId, int newOrder)
     {
         await using var context = Fixture.CreateContext();
-        var repository = new AlbumRepository(context);
+        var repository = new AlbumItemRepository(context);
         
         // double-check our inputs:
         // test should not fail based on invalid photoId; want to use valid photoId
@@ -101,7 +101,7 @@ public class AlbumRepositoryReadOnlyTests(TestDatabaseFixture dbFixture) : IClas
     public async Task ReorderPhotoInAlbum_InvalidKeyAlbumPhotoAlthoughBothExist_ReturnsFalse(int albumId, int photoId, int newOrder)
     {
         await using var context = Fixture.CreateContext();
-        var repository = new AlbumRepository(context);
+        var repository = new AlbumItemRepository(context);
 
         // double-check our inputs:
         var album = await context.Albums.FindAsync([albumId], TestContext.Current.CancellationToken);

@@ -52,11 +52,11 @@ public class PhotoRepository(ApplicationDbContext context) : IPhotoRepository
         var photo = await context.Photos.FindAsync(id);
         if (photo == null) return false;
 
-        var albumPhotoDisplayItems = await context.AlbumPhotoDisplayItems
-            .Where(apdi => apdi.AlbumPhotos.Any(ap => ap.PhotoId == id)
-                         && apdi.AlbumPhotos.All(ap => ap.PhotoId == id))
+        var photoDisplayCollections = await context.PhotoDisplayCollections
+            .Where(apdi => apdi.PhotoDisplays.Any(ap => ap.PhotoId == id)
+                         && apdi.PhotoDisplays.All(ap => ap.PhotoId == id))
             .ToListAsync();
-        context.AlbumPhotoDisplayItems.RemoveRange(albumPhotoDisplayItems);
+        context.PhotoDisplayCollections.RemoveRange(photoDisplayCollections);
 
         context.Photos.Remove(photo);
 

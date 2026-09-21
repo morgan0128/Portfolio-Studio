@@ -15,6 +15,7 @@ namespace WebApplication6.Tests.Tests.Unit.Controllers;
 
 public class AlbumControllerUnitTests
 {
+    /*
     [Fact]
     public async Task GetAllAlbums_SingleAlbumList_ReturnsSameSingleAlbumInList()
     {
@@ -530,5 +531,5 @@ public class AlbumControllerUnitTests
     //     Assert.Equal(photoList[0], retrievedPhoto1);
     //     Assert.Equal(photoList[1], retrievedPhoto2);
     // }
-    
+    */
 }

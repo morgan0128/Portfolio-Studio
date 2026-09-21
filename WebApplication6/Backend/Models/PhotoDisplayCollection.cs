@@ -1,10 +1,9 @@
 namespace WebApplication6.Backend.Models;
 
-public class AlbumPhotoDisplayItem : AlbumItem
+public class PhotoDisplayCollection : AlbumItem
 {
     public PhotoDisplayMode DisplayMode { get; set; } = PhotoDisplayMode.Static;
-
-    public ICollection<AlbumPhoto> AlbumPhotos { get; set; } = [];
+    public ICollection<PhotoDisplay> PhotoDisplays { get; set; } = [];
 
     public enum PhotoDisplayMode
     {

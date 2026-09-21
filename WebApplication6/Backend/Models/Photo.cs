@@ -27,7 +27,6 @@ public class Photo
     [Range(1900, 2100)]
     public int? YearContentCreated { get; set; }
 
-    public ICollection<Album> Albums { get; set; } = [];
-    public ICollection<AlbumPhoto> AlbumPhotos { get; set; } = [];
+    public ICollection<PhotoDisplay> PhotoDisplays { get; set; } = [];
 
 }
