@@ -5,13 +5,13 @@ using WebApplication6.Backend.Services;
 namespace WebApplication6.Backend.Controllers;
 
 [ApiController]
-[Route("api/{albumId:int}/photo-display")]
+[Route("api/album/{albumId:int}/photo-display")]
 public sealed class PhotoDisplayController(IAlbumRepository albumRepository, IAlbumItemRepository albumItemRepository,
     IUploadPhotoService uploadPhotoService) : ControllerBase
 {
     /* POST */
     [HttpPost]
-    public async Task<IActionResult> Post(int albumId, [FromForm] CombinedPhotoSpecDto combinedPhotoSpec)
+    public async Task<IActionResult> UploadPhotoThenPost(int albumId, [FromForm] CombinedPhotoSpecDto combinedPhotoSpec)
     {
         var file = combinedPhotoSpec.File;
 
@@ -29,7 +29,7 @@ public sealed class PhotoDisplayController(IAlbumRepository albumRepository, IAl
             return new ForbidResult();
         }
 
-        var photoResult = await uploadPhotoService.UploadPhoto(album, file, photoSpec);
+        var photoResult = await uploadPhotoService.UploadPhoto(file, photoSpec);
         if (photoResult == null) return Problem();
 
         var photoToAlbum = await albumItemRepository.AddPhotoToAlbumAsync(album.Id, photoResult.Value);
@@ -49,36 +49,51 @@ public sealed class PhotoDisplayController(IAlbumRepository albumRepository, IAl
     
     
     /* PUT, PATCH */
-    [HttpPatch("{photoId:int}/displaysName")]
-    public async Task<IActionResult> ToggleDisplaysName(int id, int photoId)
+    [HttpPatch("{photoId:int}/fields-displayed")]
+    public async Task<IActionResult> ModifyFieldsDisplayed(int albumId, int photoId, 
+        IAlbumItemRepository.PhotoDisplayFieldsDisplayedRequest request)
     {
-        var request = await albumItemRepository.ToggleDisplaysName(id, photoId);
-        return request switch
+        var result = await albumItemRepository.ModifyFieldsDisplayed(albumId, photoId, request);
+        return result switch
         {
             true => Ok(),
-            false => Problem()
+            false => NotFound()
         };
     }
     
-    [HttpPatch("{photoId:int}/displaysDescription")]
-    public async Task<IActionResult> ToggleDisplaysDescription(int id, int photoId)
-    {
-        var request = await albumItemRepository.ToggleDisplaysDescription(id, photoId);
-        return request switch
-        {
-            true => Ok(),
-            false => Problem()
-        };
-    }
     
-    [HttpPatch("{photoId:int}/displaysYearCC")]
-    public async Task<IActionResult> ToggleDisplaysYearContentCreated(int id, int photoId)
-    {
-        var request = await albumItemRepository.ToggleDisplaysYearContentCreated(id, photoId);
-        return request switch
-        {
-            true => Ok(),
-            false => Problem()
-        };
-    }
+    // [HttpPatch("{photoId:int}/displaysName")]
+    // public async Task<IActionResult> ToggleDisplaysName(int albumId, int photoId)
+    // {
+    //     var request = await albumItemRepository.ToggleDisplaysName(albumId, photoId);
+    //     return request switch
+    //     {
+    //         true => Ok(),
+    //         false => Problem()
+    //     };
+    // }
+    //
+    // [HttpPatch("{photoId:int}/displaysDescription")]
+    // public async Task<IActionResult> ToggleDisplaysDescription(int albumId, int photoId)
+    // {
+    //     var request = await albumItemRepository.ToggleDisplaysDescription(albumId, photoId);
+    //     return request switch
+    //     {
+    //         true => Ok(),
+    //         false => Problem()
+    //     };
+    // }
+    //
+    // [HttpPatch("{photoId:int}/displaysYearCC")]
+    // public async Task<IActionResult> ToggleDisplaysYearContentCreated(int albumId, int photoId)
+    // {
+    //     var request = await albumItemRepository.ToggleDisplaysYearContentCreated(albumId, photoId);
+    //     return request switch
+    //     {
+    //         true => Ok(),
+    //         false => Problem()
+    //     };
+    // }
+
+    
 }

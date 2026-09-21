@@ -11,8 +11,8 @@ import {PortfolioPageDefault} from '../../portfolio-page-components/portfolio-pa
 import {PortfolioPageCozy} from '../../portfolio-page-components/portfolio-page-cozy/portfolio-page-cozy';
 import {PortfolioPageSpooky} from '../../portfolio-page-components/portfolio-page-spooky/portfolio-page-spooky';
 import {ActivatedRoute, Router} from '@angular/router';
-import {AlbumItem} from '../../models/AlbumItem';
-import {PageLayoutPreset} from '../../models/PortfolioPageItemDto';
+import {AlbumDto} from '../../models/AlbumDto';
+import {PageLayoutPreset} from '../../models/ApiEnums';
 import {AlbumApiService} from '../../api/album-api-service';
 
 
@@ -32,7 +32,7 @@ export class AdminViewPagePreview implements OnInit {
   protected readonly initializationError = signal<boolean>(false);
 
 
-  public readonly forAlbum = signal<AlbumItem | null>(null);
+  public readonly forAlbum = signal<AlbumDto | null>(null);
   // private readonly forAlbum$ = toObservable(this.forAlbum);
 
   public readonly withStyle = signal<PageLayoutPreset>('default');

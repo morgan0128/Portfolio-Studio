@@ -220,42 +220,58 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
         return context.AlbumItems
             .Where(ai => ai.AlbumId == albumId && (!(ai is PhotoDisplay) || ((PhotoDisplay)ai).PhotoDisplayCollectionId == null));
     }
-    
-    public async Task<bool> ToggleDisplaysName(int albumId, int photoId)
-    {
-        var ap = await context.PhotoDisplays
-            .SingleOrDefaultAsync(pd => pd.AlbumId == albumId && pd.PhotoId == photoId);
 
-        if (ap == null) return false;
-        
-        ap.DisplaysName = !ap.DisplaysName;
+    // TODO return type
+    public async Task<bool> ModifyFieldsDisplayed(int albumId, int photoDisplayId,
+        IAlbumItemRepository.PhotoDisplayFieldsDisplayedRequest request)
+    {
+        var photoDisplay = await context.PhotoDisplays
+            .FindAsync(photoDisplayId);
+        if (photoDisplay == null) return false;
+
+        photoDisplay.DisplaysName = request.DisplaysName ?? photoDisplay.DisplaysName;
+        photoDisplay.DisplaysDescription = request.DisplaysDescription ?? photoDisplay.DisplaysDescription;
+        photoDisplay.DisplaysYearContentCreated = request.DisplaysYearContentCreated ?? photoDisplay.DisplaysYearContentCreated;
         await context.SaveChangesAsync();
+
         return true;
     }
     
-    public async Task<bool> ToggleDisplaysDescription(int albumId, int photoId)
-    {
-        var ap = await context.PhotoDisplays
-            .SingleOrDefaultAsync(pd => pd.AlbumId == albumId && pd.PhotoId == photoId);
-
-        if (ap == null) return false;
-        
-        ap.DisplaysDescription = !ap.DisplaysDescription;
-        await context.SaveChangesAsync();
-        return true;
-    }
-
-    public async Task<bool> ToggleDisplaysYearContentCreated(int albumId, int photoId)
-    {
-        var ap = await context.PhotoDisplays
-            .SingleOrDefaultAsync(pd => pd.AlbumId == albumId && pd.PhotoId == photoId);
-
-        if (ap == null) return false;
-        
-        ap.DisplaysYearContentCreated = !ap.DisplaysYearContentCreated;
-        await context.SaveChangesAsync();
-        return true;
-    }
+    // public async Task<bool> ToggleDisplaysName(int albumId, int photoId)
+    // {
+    //     var ap = await context.PhotoDisplays
+    //         .SingleOrDefaultAsync(pd => pd.AlbumId == albumId && pd.PhotoId == photoId);
+    //
+    //     if (ap == null) return false;
+    //     
+    //     ap.DisplaysName = !ap.DisplaysName;
+    //     await context.SaveChangesAsync();
+    //     return true;
+    // }
+    //
+    // public async Task<bool> ToggleDisplaysDescription(int albumId, int photoId)
+    // {
+    //     var ap = await context.PhotoDisplays
+    //         .SingleOrDefaultAsync(pd => pd.AlbumId == albumId && pd.PhotoId == photoId);
+    //
+    //     if (ap == null) return false;
+    //     
+    //     ap.DisplaysDescription = !ap.DisplaysDescription;
+    //     await context.SaveChangesAsync();
+    //     return true;
+    // }
+    //
+    // public async Task<bool> ToggleDisplaysYearContentCreated(int albumId, int photoId)
+    // {
+    //     var ap = await context.PhotoDisplays
+    //         .SingleOrDefaultAsync(pd => pd.AlbumId == albumId && pd.PhotoId == photoId);
+    //
+    //     if (ap == null) return false;
+    //     
+    //     ap.DisplaysYearContentCreated = !ap.DisplaysYearContentCreated;
+    //     await context.SaveChangesAsync();
+    //     return true;
+    // }
     
     // public async Task<List<PhotoDisplay>> FetchPhotoDisplaysByIds(int albumId, List<int> photoDisplayIds)
     // {

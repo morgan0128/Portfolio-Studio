@@ -1,5 +1,5 @@
 import {Component, input, output} from '@angular/core';
-import {AlbumPhotoItemDto} from '../../../../models/AlbumPhotoItemDto';
+import {PhotoDto} from '../../../../models/PhotoDto';
 
 
 @Component({
@@ -9,7 +9,7 @@ import {AlbumPhotoItemDto} from '../../../../models/AlbumPhotoItemDto';
   styleUrl: './detailed-photo-view.css',
 })
 export class DetailedPhotoView {
-  photo = input.required<AlbumPhotoItemDto>();
+  photo = input.required<PhotoDto>();
 
   public closePreview = output<void>();
 }

@@ -1,7 +1,7 @@
 import {Component, input, output, signal} from '@angular/core';
 import {AdminViewPhotoCard} from './admin-view-photo-card/admin-view-photo-card';
-import {AlbumItem} from '../../../models/AlbumItem';
-import {AlbumPhotoItemDto} from '../../../models/AlbumPhotoItemDto';
+import {AlbumDto} from '../../../models/AlbumDto';
+import {PhotoDto} from '../../../models/PhotoDto';
 import {DetailedPhotoView} from './detailed-photo-view/detailed-photo-view';
 
 
@@ -14,20 +14,20 @@ import {DetailedPhotoView} from './detailed-photo-view/detailed-photo-view';
 export class AlbumContents {
   // private
 
-  public readonly selectedAlbum = input<AlbumItem | null>(null);
+  public readonly selectedAlbum = input<AlbumDto | null>(null);
   public readonly selectedAlbumId = input.required<number>();
   public readonly loadingPhotos = input<boolean>(false);
-  public readonly photos = input<AlbumPhotoItemDto[]>([]);
+  public readonly photos = input<PhotoDto[]>([]);
 
-  protected readonly detailedViewPhoto = signal<AlbumPhotoItemDto | null>(null);
+  protected readonly detailedViewPhoto = signal<PhotoDto | null>(null);
 
-  readonly photoStateChange = output<AlbumPhotoItemDto>();
+  readonly photoStateChange = output<PhotoDto>();
   readonly itemsStateChange = output(); // reload all photos
 
   protected readonly groupingView = signal<boolean>(false);
   protected readonly optInPhotoGroupIds = signal<number[]>([])
 
-  handleDetailedPhotoViewRequest(requestPhoto: AlbumPhotoItemDto){
+  handleDetailedPhotoViewRequest(requestPhoto: PhotoDto){
     this.detailedViewPhoto.set(requestPhoto);
   }
 

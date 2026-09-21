@@ -2,7 +2,7 @@ import {Component, computed, effect, inject, input, output, signal} from '@angul
 import {FormsModule} from '@angular/forms';
 import {NgOptimizedImage} from '@angular/common';
 import {AlbumApiService} from '../../../../api/album-api-service';
-import {AlbumPhotoItemDto} from '../../../../models/AlbumPhotoItemDto';
+import {PhotoDto} from '../../../../models/PhotoDto';
 
 @Component({
   selector: 'app-admin-view-photo-card',
@@ -17,20 +17,20 @@ export class AdminViewPhotoCard {
   private readonly albumApi = inject(AlbumApiService);
 
   readonly albumId = input.required<number>();
-  readonly photo = input.required<AlbumPhotoItemDto>();
+  readonly photo = input.required<PhotoDto>();
 
   displaysNameColor = computed<string | null>(() => (this.photo().displaysName) ? 'green' : 'red');
   displaysDescColor = computed<string | null>(() => (this.photo().displaysDescription) ? 'green' : 'red');
   displaysYearCCColor = computed<string | null>(() => (this.photo().displaysYearCC) ? 'green' : 'red');
 
-  readonly photoStateChange = output<AlbumPhotoItemDto>();
+  readonly photoStateChange = output<PhotoDto>();
 
   readonly orderChanged = output(); // reload all photos
 
   protected readonly editingOrder = signal<boolean>(false);
   newOrderValue: number = -1;
 
-  readonly photoDetailedViewRequest = output<AlbumPhotoItemDto>();
+  readonly photoDetailedViewRequest = output<PhotoDto>();
 
   readonly groupingView = input.required<boolean>();
   readonly includeInNewGroup = input<boolean>(false);

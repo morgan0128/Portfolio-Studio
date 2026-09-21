@@ -1,6 +1,6 @@
-import {PageLayoutPreset} from './PortfolioPageItemDto';
+import {PageLayoutPreset} from './ApiEnums';
 
-export type AlbumItem = {
+export type AlbumDto = {
   id: number,
   name: string | null,
   description: string | null,

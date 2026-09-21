@@ -7,14 +7,17 @@ namespace WebApplication6.Backend.Repositories;
 
 public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
 {
-    public async Task<IEnumerable<Album>> GetAllAlbumsAsync()
+    public async Task<IEnumerable<IAlbumRepository.AlbumDto>> GetAllAlbumsAsync()
     {
         var albums = await context.Albums
+            .AsNoTracking()
+            .Select(ToDto)
             .ToListAsync();
         
         return albums;
     }
 
+    
     public async Task<IEnumerable<int>> GetAllAlbumsIdsAsync()
     {
         var albumIds = await context.Albums
@@ -25,6 +28,7 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
         return albumIds;
     }
 
+    
     public async Task<int> GetTotalNumberAlbums()
     {
         var amount = await context.Albums
@@ -33,14 +37,19 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
         return amount;
     }
 
-    public async Task<Album?> GetAlbumByIdAsync(int id)
+    
+    public async Task<IAlbumRepository.AlbumDto?> GetAlbumByIdAsync(int id)
     {
         var album = await context.Albums
-            .FindAsync(id);
+            .Where(album => album.Id == id)
+            .Select(ToDto)
+            .FirstOrDefaultAsync();
+
         
         return album;
     }
 
+    
     public async Task<int?> SaveAlbumAsync(Album album)
     {
         context.Albums.Add(album);
@@ -55,58 +64,9 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
             return null;
         }
     }
-    
-    // public async Task<bool> AddPhotoToAlbumAsync(int albumId, int photoId, CancellationToken cancellationToken = default)
-    // {
-    //     const int maximumAttempts = 3;
-    //
-    //     for (var attempt = 1; attempt <= maximumAttempts; attempt++)
-    //     {
-    //         var albumItems = ItemsInScope(albumId);
-    //         
-    //         var nextOrder = -1;
-    //         if (!albumItems.Any())
-    //         {
-    //             nextOrder = 0;
-    //         }
-    //         else
-    //         {
-    //             nextOrder = (await albumItems.MaxAsync(ai => ai.Order, cancellationToken)) + 1;
-    //         }
-    //
-    //
-    //         var photoDisplay = new PhotoDisplay
-    //         {
-    //             AlbumId = albumId,
-    //             PhotoId = photoId,
-    //             Order = nextOrder,
-    //             DisplaysName = true,
-    //             DisplaysDescription = true,
-    //             DisplaysYearContentCreated = true
-    //         };
-    //
-    //         context.PhotoDisplays.Add(photoDisplay);
-    //
-    //         try
-    //         {
-    //             await context.SaveChangesAsync(cancellationToken);
-    //             return true;
-    //         }
-    //         catch (DbUpdateException exception)
-    //         {
-    //             // do not track photoDisplay that violated db constraint
-    //             context.Entry(photoDisplay).State = EntityState.Detached;
-    //
-    //             if (attempt == maximumAttempts)
-    //                 throw;
-    //         }
-    //     }
-    //
-    //     return false;
-    // }
-    
-    
 
+    
+    // TODO: Avoid unnecessary navbar re-normalization
     public async Task<bool> DeleteAlbumByIdAsync(int id)
     {
         var album = await context.Albums.FindAsync(id);
@@ -139,218 +99,11 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
         return true;
     }
 
-    // public async Task<IEnumerable<IAlbumRepository.AlbumPhotoDto>> GetAlbumPhotosAsync(int id)
-    // {
-    //     try
-    //     {
-    //         var album = await context.Albums
-    //             .Where(a => a.Id == id)
-    //             .SingleAsync();
-    //
-    //         var photoDisplays = await context.PhotoDisplays
-    //             .Include(pd => pd.Photo).ThenInclude(p => p.Image)
-    //             .Include(pd => pd.PhotoDisplayCollection)
-    //             .Where(pd => pd.AlbumId == album.Id)
-    //             .OrderBy(pd => pd.PhotoDisplayCollection == null ? pd.Order : pd.PhotoDisplayCollection.Order)
-    //             .ThenBy(pd => pd.Order)
-    //             .ToListAsync();
-    //
-    //         var photos = photoDisplays
-    //             .Select(pd => new IAlbumRepository.AlbumPhotoDto(
-    //                 pd.Photo.Id,
-    //                 pd.Photo.Name,
-    //                 pd.Photo.Description,
-    //                 pd.Photo.YearContentCreated,
-    //                 pd.Photo.Image,
-    //                 pd.PhotoDisplayCollection?.Order ?? pd.Order,
-    //                 pd.DisplaysName,
-    //                 pd.DisplaysDescription,
-    //                 pd.DisplaysYearContentCreated
-    //             ))
-    //             .ToList();
-    //
-    //         return photos;
-    //     }
-    //     catch (Exception)
-    //     {
-    //         // return new List<IAlbumRepository.AlbumPhotoDto>();
-    //         throw;
-    //     }
-    // }
-
-    // public async Task<bool> ReorderPhotoInAlbum(int albumId, int photoId, int newOrder)
-    // {
-    //     var photoDisplay = await context.PhotoDisplays
-    //         .SingleOrDefaultAsync(pd => pd.AlbumId == albumId && pd.PhotoId == photoId);
-    //     if (photoDisplay == null) return false;
-    //
-    //     return await ReorderItem(albumId, photoDisplay.Id, newOrder, photoDisplay.PhotoDisplayCollectionId);
-    // }
-
-    // public Task<bool> ReorderAlbumItem(int albumId, int itemId, int newOrder)
-    // {
-    //     return ReorderItem(albumId, itemId, newOrder);
-    // }
-    //
-    // public Task<bool> ReorderPhotoDisplayInCollection(int albumId, int photoDisplayCollectionId, int photoDisplayId, int newOrder)
-    // {
-    //     return ReorderItem(albumId, photoDisplayId, newOrder, photoDisplayCollectionId);
-    // }
-
-    // private IQueryable<AlbumItem> ItemsInScope(int albumId, int? photoDisplayCollectionId = null)
-    // {
-    //     if (photoDisplayCollectionId != null)
-    //     {
-    //         return context.PhotoDisplays
-    //             .Where(pd => pd.AlbumId == albumId && pd.PhotoDisplayCollectionId == photoDisplayCollectionId)
-    //             .Cast<AlbumItem>();
-    //     }
-    //
-    //     return context.AlbumItems
-    //         .Where(ai => ai.AlbumId == albumId && (!(ai is PhotoDisplay) || ((PhotoDisplay)ai).PhotoDisplayCollectionId == null));
-    // }
-
-    // private async Task<bool> ReorderItem(int albumId, int itemId, int newOrder, int? photoDisplayCollectionId = null)
-    // {
-    //     var albumItems = await ItemsInScope(albumId, photoDisplayCollectionId)
-    //         .OrderBy(ai => ai.Order)
-    //         .ToListAsync();
-    //
-    //     if (albumItems.Count == 0) return false; // this should not be reached from frontend
-    //
-    //     if (newOrder < 0)
-    //     {
-    //         // recognize that an operation occurred by normalizing the order, but violates constraint
-    //         await NormalizeOrder(albumId, photoDisplayCollectionId);
-    //         return true;
-    //     }
-    //
-    //     var toMove = albumItems.Find(ai => ai.Id == itemId);
-    //     
-    //     if (toMove == null) return false; // this should not be reached from frontend
-    //     
-    //     var ofOrder = albumItems.Find(ai => ai.Order == newOrder);
-    //     
-    //     if (ofOrder == null)
-    //     {
-    //         toMove.Order = newOrder;
-    //         await context.SaveChangesAsync();
-    //         await NormalizeOrder(albumId, photoDisplayCollectionId);
-    //         return true;
-    //     }
-    //     
-    //     if (ofOrder.Id == toMove.Id)
-    //     {
-    //         // recognize that an operation occurred by normalizing the order, but do nothing to grant
-    //         await NormalizeOrder(albumId, photoDisplayCollectionId);
-    //         return true;
-    //     }
-    //     
-    //     var index = albumItems.IndexOf(ofOrder);
-    //     if (toMove.Order < ofOrder.Order)
-    //     {
-    //         /* toMove.Order < ofOrder.Order; as such the user expects that this operation moves 'toMove' after 'ofOrder' */
-    //
-    //         
-    //         // normalize first: need to pack the Order of AlbumItems preceding ofOrder as tightly as possible (limited by 0)
-    //         await NormalizeOrder(albumId, photoDisplayCollectionId);
-    //         
-    //         // normalized, so no longer want to use newOrder
-    //         var newOrderNormalized = albumItems[index].Order;
-    //
-    //         var lowerBound = albumItems.IndexOf(toMove) + 1;
-    //         var upperBound = index;
-    //         toMove.Order = albumItems[^1].Order + 1; // temporary reassignment
-    //
-    //         for (var i = lowerBound; i <= upperBound; i++)
-    //         {
-    //             var moveMeBackward = albumItems[i];
-    //             moveMeBackward.Order = moveMeBackward.Order - 1;
-    //         }
-    //         await context.SaveChangesAsync(); // avoid circular dependency
-    //
-    //         toMove.Order = newOrderNormalized;
-    //         await context.SaveChangesAsync();
-    //
-    //         return true; // order already normalized
-    //     }
-    //
-    //     /* toMove.Order > ofOrder.Order; as such the user expects that this operation moves 'toMove' before 'ofOrder' */
-    //     while (index < albumItems.Count)
-    //     {
-    //         var moveMeForward = albumItems[index];
-    //         moveMeForward.Order = moveMeForward.Order + 1;
-    //         index++;
-    //     }
-    //     
-    //     await context.SaveChangesAsync(); // avoid circular dependency
-    //
-    //     toMove.Order = newOrder;
-    //     await context.SaveChangesAsync();
-    //     
-    //     await NormalizeOrder(albumId, photoDisplayCollectionId);
-    //
-    //     return true;
-    // }
-
-    // private async Task NormalizeOrder(int albumId, int? photoDisplayCollectionId)
-    // {
-    //     var albumItems = await ItemsInScope(albumId, photoDisplayCollectionId)
-    //         .OrderBy(ai => ai.Order)
-    //         .ToListAsync();
-    //
-    //     for (var i = 0; i < albumItems.Count; i++)
-    //     {
-    //         albumItems[i].Order = i;
-    //     }
-    //
-    //     await context.SaveChangesAsync();
-    // }
-
-    // public async Task<bool> ToggleDisplaysName(int albumId, int photoId)
-    // {
-    //     var ap = await context.PhotoDisplays
-    //         .SingleOrDefaultAsync(pd => pd.AlbumId == albumId && pd.PhotoId == photoId);
-    //
-    //     if (ap == null) return false;
-    //     
-    //     ap.DisplaysName = !ap.DisplaysName;
-    //     await context.SaveChangesAsync();
-    //     return true;
-    // }
-    //
-    // public async Task<bool> ToggleDisplaysDescription(int albumId, int photoId)
-    // {
-    //     var ap = await context.PhotoDisplays
-    //         .SingleOrDefaultAsync(pd => pd.AlbumId == albumId && pd.PhotoId == photoId);
-    //
-    //     if (ap == null) return false;
-    //     
-    //     ap.DisplaysDescription = !ap.DisplaysDescription;
-    //     await context.SaveChangesAsync();
-    //     return true;
-    // }
-    //
-    // public async Task<bool> ToggleDisplaysYearContentCreated(int albumId, int photoId)
-    // {
-    //     var ap = await context.PhotoDisplays
-    //         .SingleOrDefaultAsync(pd => pd.AlbumId == albumId && pd.PhotoId == photoId);
-    //
-    //     if (ap == null) return false;
-    //     
-    //     ap.DisplaysYearContentCreated = !ap.DisplaysYearContentCreated;
-    //     await context.SaveChangesAsync();
-    //     return true;
-    // }
     
-    private static readonly Expression<Func<Album, IAlbumRepository.AlbumDto>> ToDto =
-        album => new IAlbumRepository.AlbumDto(
-            album.Id, album.Name, album.Description, album.NavTitle,
-            album.Published, album.NavbarOrder, album.LayoutPreset);
-
     public async Task<IEnumerable<IAlbumRepository.AlbumDto>> GetAllPublishedAsync()
         => await context.Albums.AsNoTracking().Where(album => album.Published).Select(ToDto).ToListAsync();
 
+    
     public async Task<bool> SetLayoutPresetAsync(int albumId, PageLayoutPreset layout)
     {
         if (!Enum.IsDefined(layout)) return false;
@@ -362,6 +115,7 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
         return true;
     }
 
+    
     public async Task<bool> AssignAlbumInNavAsync(int albumId, int newNavOrder)
     {
         if (newNavOrder is < -1 or > 4) return false;
@@ -380,6 +134,8 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
         return true;
     }
 
+    
+    // TODO: Implement shared navbar locking system
     public async Task<bool> SwapAlbumsInNavOrderAsync(int albumId1, int albumId2)
     {
         if (albumId1 == albumId2) return false;
@@ -393,18 +149,22 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
         return true;
     }
 
+    
     public async Task<IEnumerable<IAlbumRepository.AlbumDto>> GetPublishedNotInNavbar()
         => await context.Albums.AsNoTracking().Where(album => album.Published && album.NavbarOrder == -1)
             .Select(ToDto).ToListAsync();
 
+    
     public async Task<IEnumerable<IAlbumRepository.AlbumDto>> GetPublishedInNavbarOrdered()
         => await context.Albums.AsNoTracking().Where(album => album.Published && album.NavbarOrder >= 0)
             .OrderBy(album => album.NavbarOrder).Select(ToDto).ToListAsync();
 
-    public async Task<int?> PublishAlbumAsync(int albumId, int? navOrder)
+    
+    public async Task<IAlbumRepository.AlbumDto?> PublishAlbumAsync(int albumId, int? navOrder)
     {
         var album = await context.Albums.FindAsync(albumId);
-        if (album == null || album.Published) return null;
+        if (album == null) return null;
+        if (album.Published) return AlbumToDto(album);
 
         var albums = await GetNavbarAlbumsAsync();
         if (navOrder is >= 0 and <= 4 && albums.Count < 5)
@@ -422,37 +182,34 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
         // Publish before assigning a navbar position to satisfy the database constraint.
         album.Published = true;
         await SaveNavbarOrderAsync(albums);
-        return album.NavbarOrder;
+        return AlbumToDto(album);
     }
 
-    public async Task<bool> UnpublishAlbumAsync(int albumId)
+    
+    public async Task<IAlbumRepository.AlbumDto?> UnpublishAlbumAsync(int albumId)
     {
         var album = await context.Albums.FindAsync(albumId);
-        if (album is not { Published: true }) return false;
+        if (album == null) return null;
+        if (!album.Published) return AlbumToDto(album);
 
-        var albums = await GetNavbarAlbumsAsync();
-        albums.Remove(album);
+        if (album.NavbarOrder > -1)
+        {
+            var albums = await GetNavbarAlbumsAsync();
+            albums.Remove(album);
+            album.Published = false;
+            await SaveNavbarOrderAsync(albums);
+            return AlbumToDto(album);
+        }
         album.Published = false;
-        await SaveNavbarOrderAsync(albums);
-        return true;
-    }
-
-    public async Task<bool> UpdateAlbumPresentationAsync(
-        int albumId, IAlbumRepository.UpdateAlbumPresentationDto model)
-    {
-        if (model.NavTitle is null || model.NavTitle.Length > 20) return false;
-        var album = await context.Albums.FindAsync(albumId);
-        if (album == null) return false;
-
-        album.NavTitle = model.NavTitle;
         await context.SaveChangesAsync();
-        return true;
+        return AlbumToDto(album);
     }
-
+    
     private Task<List<Album>> GetNavbarAlbumsAsync()
         => context.Albums.Where(album => album.NavbarOrder >= 0)
             .OrderBy(album => album.NavbarOrder).ToListAsync();
 
+    
     private async Task SaveNavbarOrderAsync(List<Album> orderedAlbums)
     {
         // Free occupied positions before assigning the new order. Keep both saves atomic.
@@ -476,5 +233,22 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
         if (transaction != null) await transaction.CommitAsync();
     }
     
+    
+    private static readonly Expression<Func<Album, IAlbumRepository.AlbumDto>> ToDto = album => 
+        new IAlbumRepository.AlbumDto(album.Id, album.Name, album.Description,
+            album.NavTitle, album.Published, album.NavbarOrder, album.LayoutPreset);
 
+    private static IAlbumRepository.AlbumDto AlbumToDto(Album album)
+    {
+        return new IAlbumRepository.AlbumDto
+        (
+            Id: album.Id,
+            Name: album.Name,
+            Description: album.Description,
+            NavTitle: album.NavTitle,
+            Published: album.Published,
+            NavbarOrder: album.NavbarOrder,
+            LayoutPreset: album.LayoutPreset
+        );
+    }
 }

@@ -2,9 +2,9 @@ import {Component, inject, OnInit, signal, Signal} from '@angular/core';
 import {Location} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {AlbumContents} from './album-contents/album-contents';
-import {AlbumItem} from '../../models/AlbumItem';
+import {AlbumDto} from '../../models/AlbumDto';
 import {PortfolioPageManager} from './portfolio-page-manager/portfolio-page-manager';
-import {AlbumPhotoItemDto} from '../../models/AlbumPhotoItemDto';
+import {PhotoDto} from '../../models/PhotoDto';
 import {AlbumApiService, PhotoSpecDTO, PhotoUploadSpecification} from '../../api/album-api-service';
 
 @Component({
@@ -34,7 +34,7 @@ export class EditAlbums implements OnInit {
   protected readonly loadingAlbumsError = signal<boolean>(false);
 
   // protected selectedAlbum: AlbumItem | null = null;
-  protected selectedAlbum = signal<AlbumItem | null>(null);
+  protected selectedAlbum = signal<AlbumDto | null>(null);
   protected selectedAlbumId = signal<number | null>(null);
   // selectedAlbumId: number | null = null;
   protected readonly selectingAlbumError = signal<boolean>(false);
@@ -54,8 +54,8 @@ export class EditAlbums implements OnInit {
   protected readonly loadingPhotos = signal<boolean>(false);
   protected readonly loadingPhotosError = signal<boolean>(false);
 
-  protected readonly albumDTOs = signal<AlbumItem[]>([]);
-  protected readonly photos = signal<AlbumPhotoItemDto[]>([]);
+  protected readonly albumDTOs = signal<AlbumDto[]>([]);
+  protected readonly photos = signal<PhotoDto[]>([]);
 
 
   protected readonly createPhotoGroupView = signal<boolean>(false);
@@ -123,7 +123,7 @@ export class EditAlbums implements OnInit {
     })
   }
 
-  private selectAlbum(album: AlbumItem){
+  private selectAlbum(album: AlbumDto){
     this.selectingAlbumError.set(false);
     this.selectedAlbumId.set(album.id);
     this.selectedAlbum.set(album);
@@ -255,7 +255,7 @@ export class EditAlbums implements OnInit {
 
   }
 
-  photoChangedStateUpdate(updatedPhoto: AlbumPhotoItemDto) {
+  photoChangedStateUpdate(updatedPhoto: PhotoDto) {
     this.photos.update(photos =>
       photos.map(photo =>
         photo.id === updatedPhoto.id ? updatedPhoto : photo

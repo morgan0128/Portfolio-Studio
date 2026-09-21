@@ -6,7 +6,7 @@ namespace WebApplication6.Backend.Services;
 
 public class UploadPhotoService(IPhotoRepository photoRepository, IImageRepository imageRepository, IFileHostingService fileHostingService) : IUploadPhotoService
 {
-    public async Task<int?> UploadPhoto(Album album, IFormFile file, PhotoSpecDto photoSpec)
+    public async Task<int?> UploadPhoto(IFormFile file, PhotoSpecDto photoSpec)
     {
         var altText = photoSpec.Name;
 

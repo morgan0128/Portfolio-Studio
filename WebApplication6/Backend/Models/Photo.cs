@@ -15,12 +15,12 @@ public class Photo
     [ForeignKey("ImageId")]
     [Required]
     public Image Image { get; set; }
-    
+
     [MaxLength(100)]
-    public string? Name { get; set; }
-    
+    public string Name { get; set; } = "";
+
     [MaxLength(500)]
-    public string? Description { get; set; }
+    public string Description { get; set; } = "";
     
     public DateTime? CreatedAt { get; set; }
     

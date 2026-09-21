@@ -3,14 +3,14 @@ import {Router} from '@angular/router';
 import {of} from 'rxjs';
 import {PortfolioPageManager} from './portfolio-page-manager';
 import {PortfolioApiService} from '../../../api/portfolio-api-service';
-import {AlbumItem} from '../../../models/AlbumItem';
+import {AlbumDto} from '../../../models/AlbumDto';
 
 describe('PortfolioPageManager', () => {
   let component: PortfolioPageManager;
   let fixture: ComponentFixture<PortfolioPageManager>;
   let api: jasmine.SpyObj<PortfolioApiService>;
   let router: jasmine.SpyObj<Router>;
-  let album: AlbumItem;
+  let album: AlbumDto;
 
   beforeEach(async () => {
     album = {id: 42, name: 'Gallery', description: null, navTitle: 'Gallery', published: false,

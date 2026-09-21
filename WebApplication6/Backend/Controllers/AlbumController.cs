@@ -1,19 +1,18 @@
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication6.Backend.Models;
 using WebApplication6.Backend.Repositories;
-using WebApplication6.Backend.Services;
+
 
 namespace WebApplication6.Backend.Controllers;
 
 [ApiController]
 [Route("api/album")]
-public sealed class AlbumController(IAlbumRepository albumRepository, IUploadPhotoService uploadPhotoService)
+public sealed class AlbumController(IAlbumRepository albumRepository)
     : ControllerBase
 {
     /* POST */
     [HttpPost]
-    public async Task<ActionResult<int>> PostAlbum(CreateAlbumItemRequest albumRequest)
+    public async Task<ActionResult<int>> Post(CreateAlbumRequest albumRequest)
     {
         var name = albumRequest.Name?.Trim();
         if (string.IsNullOrEmpty(name))
@@ -25,49 +24,43 @@ public sealed class AlbumController(IAlbumRepository albumRepository, IUploadPho
 
         var album = new Album
         {
-            Name = name,
-            Description = albumRequest.Description,
-            NavTitle = name.Length > 20 ? name[..20] : name
+            Name = name, Description = albumRequest.Description, NavTitle = name.Length > 20 ? name[..20] : name
         };
 
         var id = await albumRepository.SaveAlbumAsync(album);
-        if (id is null)
-        {
-            return Problem();
-        }
+        if (id is null) return Problem();
 
         return id;
     }
     
     
     /* GET */
-    [HttpGet("all")]
-    public async Task<ActionResult<IEnumerable<Album>>> GetAllAlbums()
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<IAlbumRepository.AlbumDto>>> Get()
     {
         var albums = await albumRepository.GetAllAlbumsAsync();
         return Ok(albums);
     }
 
 
-    [HttpGet("all-ids")]
-    public async Task<ActionResult<IEnumerable<int>>> GetAllAlbumsIds()
+    [HttpGet("ids")]
+    public async Task<ActionResult<IEnumerable<int>>> GetIds()
     {
         var albumIds = await albumRepository.GetAllAlbumsIdsAsync();
         return Ok(albumIds);
     }
 
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Album>> GetAlbumById(int id)
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<IAlbumRepository.AlbumDto>> Get(int id)
     {
         var album = await albumRepository.GetAlbumByIdAsync(id);
-        if (album == null)
-        {
-            return NotFound();
-        }
-
-        return Ok(album);
+        return ((album != null) ? Ok(album) : NotFound());
     }
+    
+    [HttpGet("styling-enums")]
+    public PageLayoutPreset[] GetPageLayoutPresets() => Enum.GetValues<PageLayoutPreset>();
+    
     
     
     [HttpGet("published")]
@@ -78,59 +71,46 @@ public sealed class AlbumController(IAlbumRepository albumRepository, IUploadPho
     public Task<IEnumerable<IAlbumRepository.AlbumDto>> GetPublishedNotInNav() => albumRepository.GetPublishedNotInNavbar();
     
     
-    [HttpGet("published/in-nav/ordered")]
-    public Task<IEnumerable<IAlbumRepository.AlbumDto>> GetPublishedAndInNavOrdered() => albumRepository.GetPublishedInNavbarOrdered();
+    [HttpGet("nav-ordered")]
+    public Task<IEnumerable<IAlbumRepository.AlbumDto>> GetNavAlbumsOrdered() => albumRepository.GetPublishedInNavbarOrdered();
     
     
-    [HttpGet("styling-enums")]
-    public PageLayoutPreset[] GetPageLayoutPresets() => Enum.GetValues<PageLayoutPreset>();
     
     
     /* PUT, PATCH */
-    [HttpPatch("{albumId:int}/modify/layout-preset")]
-    public async Task<IActionResult> UpdateLayoutPreset(int albumId, [FromBody] UpdateLayoutPresetRequest request)
+    [HttpPatch("{id:int}/modify/layout-preset")]
+    public async Task<IActionResult> UpdateLayoutPreset(int id, [FromBody] UpdateLayoutPresetRequest request)
     {
-        var applied = await albumRepository.SetLayoutPresetAsync(albumId, request.LayoutPreset);
+        var applied = await albumRepository.SetLayoutPresetAsync(id, request.LayoutPreset);
         return applied ? NoContent() : NotFound();
     }
     
-    
-    [HttpPatch("{albumId:int}/modify/nav-order")]
-    public async Task<IActionResult> AssignNavOrder(int albumId, [FromBody] NavOrderRequest request)
+    [HttpPatch("{id:int}/visibility")]
+    public async Task<ActionResult<IAlbumRepository.AlbumDto>> ModifyAlbumVisibility(int id, AlbumVisibilityRequest request)
     {
-        var reordered = await albumRepository.AssignAlbumInNavAsync(albumId, request.NavOrder);
+        var albumDto = request.Published ?
+            await albumRepository.PublishAlbumAsync(id, request.NavOrder) :
+            await albumRepository.UnpublishAlbumAsync(id);
+        
+        return (albumDto is not null) ? Ok(albumDto) : NotFound();
+    }
+    
+    
+    [HttpPatch("{id:int}/nav-order")]
+    public async Task<IActionResult> AssignNavOrder(int id, [FromBody] NavOrderRequest request)
+    {
+        var reordered = await albumRepository.AssignAlbumInNavAsync(id, request.NavOrder);
         return reordered ? Ok() : Problem();
     }
     
     
-    [HttpPatch("remove-from-nav/{albumId:int}")]
-    public async Task<IActionResult> RemoveFromNav(int albumId)
+    [HttpPatch("{id:int}/remove-from-nav")]
+    public async Task<IActionResult> RemoveFromNav(int id)
     {
-        var removed = await albumRepository.AssignAlbumInNavAsync(albumId, -1);
+        var removed = await albumRepository.AssignAlbumInNavAsync(id, -1);
         return removed ? Ok() : Problem();
     }
     
-    
-    [HttpPatch("publish/{albumId:int}")]
-    public Task<int?> PublishAlbum(int albumId, int? navOrder) => albumRepository.PublishAlbumAsync(albumId, navOrder);
-
-    
-    [HttpPatch("unpublish/{albumId:int}")]
-    public async Task<IActionResult> UnpublishAlbum(int albumId)
-    {
-        var unpublished = await albumRepository.UnpublishAlbumAsync(albumId);
-        return unpublished ? Ok() : Problem();
-    }
-
-    
-    [HttpPatch("{albumId:int}/modify")]
-    public async Task<IActionResult> ModifyAlbumPresentation(
-        int albumId, IAlbumRepository.UpdateAlbumPresentationDto model)
-    {
-        var modified = await albumRepository.UpdateAlbumPresentationAsync(albumId, model);
-        return modified ? Ok() : Problem();
-    }
-
     
     [HttpPatch("modify/nav-order/swap")]
     public async Task<IActionResult> SwapAlbumsInNav([FromBody] NavOrderSwapRequest request)
@@ -138,7 +118,7 @@ public sealed class AlbumController(IAlbumRepository albumRepository, IUploadPho
         var swapped = await albumRepository.SwapAlbumsInNavOrderAsync(request.AlbumId1, request.AlbumId2);
         return swapped ? Ok() : Problem();
     }
-
+    
     
     /* DELETE */
     [HttpDelete("{id}")]
@@ -151,9 +131,15 @@ public sealed class AlbumController(IAlbumRepository albumRepository, IUploadPho
                 false => Problem()
             };
         }
-
-    public sealed record CreateAlbumItemRequest(string? Name, string? Description);
+        
+        
+    
+    /* request data type objects */
+    public sealed record CreateAlbumRequest(string? Name, string? Description);
     public sealed record UpdateLayoutPresetRequest(PageLayoutPreset LayoutPreset);
+    
+    
+    public sealed record AlbumVisibilityRequest(bool Published, int? NavOrder);
     public sealed record NavOrderRequest(int NavOrder);
     public sealed record NavOrderSwapRequest(int AlbumId1, int AlbumId2);
 

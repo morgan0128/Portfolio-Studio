@@ -6,7 +6,7 @@ using WebApplication6.Backend.Repositories;
 namespace WebApplication6.Backend.Controllers;
 
 [ApiController]
-[Route("api/album-item")]
+[Route("api/album/{id:int}/album-item")]
 public sealed class AlbumItemController(IAlbumItemRepository albumItemRepository) : ControllerBase
 {
     // [HttpPost("{albumId:int}/create/photo-display-carousel")]
@@ -23,14 +23,19 @@ public sealed class AlbumItemController(IAlbumItemRepository albumItemRepository
     //     return displayCollection;
     // }
     
-    [HttpPut("{itemId:int}/reorder/{toDest:int}")]
-    public async Task<IActionResult> ReorderPhoto(int albumId, int photoId, int toDest)
+    [HttpPost("root/reorder")]
+    public async Task<IActionResult> RootReorder(int id, RootLevelReorderRequest request)
     {
-        var reordering = await albumItemRepository.ReorderPhotoInAlbum(albumId, photoId, toDest);
+        var reordering = await albumItemRepository.ReorderAlbumItem(id, request.AlbumItemId, request.OrderDestination);
         return reordering switch
         {
             true => Ok(),
             false => Problem()
         };
     }
+    
+    
+    /* request data type objects */
+    public sealed record RootLevelReorderRequest(int AlbumItemId, int OrderDestination);
+
 }

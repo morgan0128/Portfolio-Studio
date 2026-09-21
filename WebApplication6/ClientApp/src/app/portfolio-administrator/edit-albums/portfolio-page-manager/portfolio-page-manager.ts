@@ -4,8 +4,8 @@ import {toObservable, toSignal} from '@angular/core/rxjs-interop';
 import {of, startWith, Subject, switchMap} from 'rxjs';
 import {Router} from '@angular/router';
 import {PortfolioApiService} from '../../../api/portfolio-api-service';
-import {AlbumItem} from '../../../models/AlbumItem';
-import {PageLayoutPreset} from '../../../models/PortfolioPageItemDto';
+import {AlbumDto} from '../../../models/AlbumDto';
+import {PageLayoutPreset} from '../../../models/ApiEnums';
 import {AdminPreviewNavbar} from './admin-preview-navbar/admin-preview-navbar';
 
 @Component({
@@ -18,7 +18,7 @@ export class PortfolioPageManager {
   private readonly router = inject(Router);
   private readonly portfolioApi = inject(PortfolioApiService);
 
-  public readonly selectedAlbum = input.required<AlbumItem | null>();
+  public readonly selectedAlbum = input.required<AlbumDto | null>();
   private readonly selectedAlbum$ = toObservable(this.selectedAlbum);
   private readonly refreshAlbum$ = new Subject<void>();
   private readonly refreshNavbar$ = new Subject<void>();
@@ -37,7 +37,7 @@ export class PortfolioPageManager {
   ), {initialValue: null});
 
   protected readonly stylingLayouts = toSignal(this.portfolioApi.getPageLayoutPresets(), {initialValue: null});
-  protected readonly selectedStyleLayout = linkedSignal<AlbumItem | null, PageLayoutPreset | null>({
+  protected readonly selectedStyleLayout = linkedSignal<AlbumDto | null, PageLayoutPreset | null>({
     source: this.album,
     computation: (album, previous) => {
       if (album !== null && album.id === previous?.source?.id &&

@@ -13,7 +13,7 @@ public interface IUploadPhotoService
     /// <param name="file"></param>
     /// <param name="photoSpec"></param>
     /// <returns>Id of newly created Photo on success, or null</returns>
-    Task<int?> UploadPhoto(Album album, IFormFile file, PhotoSpecDto photoSpec);
+    Task<int?> UploadPhoto(IFormFile file, PhotoSpecDto photoSpec);
 }
 
 // Specification for a photo based on user input

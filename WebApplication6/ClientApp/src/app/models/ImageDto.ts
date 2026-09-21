@@ -1,4 +1,4 @@
-export type ImageItem = {
+export type ImageDto = {
   id: number,
   fileName: string,
   contentType: string,

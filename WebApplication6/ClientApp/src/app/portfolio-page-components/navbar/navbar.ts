@@ -1,6 +1,6 @@
 import {Component, inject, input, output, signal} from '@angular/core';
 import {PortfolioApiService} from '../../api/portfolio-api-service';
-import {AlbumItem} from '../../models/AlbumItem';
+import {AlbumDto} from '../../models/AlbumDto';
 
 
 interface onInit {
@@ -15,7 +15,7 @@ interface onInit {
 export class Navbar implements onInit {
   private portfolioApi = inject(PortfolioApiService)
 
-  protected navbarItems = signal<AlbumItem[]>([]);
+  protected navbarItems = signal<AlbumDto[]>([]);
 
   protected populatingNavbar = signal<boolean>(true);
   protected navbarPopulationFailure = signal<boolean>(false);

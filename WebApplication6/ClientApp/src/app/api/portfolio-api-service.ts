@@ -1,46 +1,46 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {AlbumItem} from '../models/AlbumItem';
-import {PageLayoutPreset} from '../models/PortfolioPageItemDto';
+import {AlbumDto} from '../models/AlbumDto';
+import {PageLayoutPreset} from '../models/ApiEnums';
 
 @Injectable({ providedIn: 'root' })
 export class PortfolioApiService {
   private readonly http = inject(HttpClient);
   private readonly apiPortfolioUrl = '/api/Portfolio';
 
-  getAlbum(albumId: number) {
-    return this.http.get<AlbumItem>(this.apiPortfolioUrl + '/' + albumId);
-  }
+  // getAlbum(albumId: number) {
+  //   return this.http.get<AlbumDto>(this.apiPortfolioUrl + '/' + albumId);
+  // }
+  //
+  // getPageLayoutPresets() {
+  //   return this.http.get<PageLayoutPreset[]>(this.apiPortfolioUrl + '/styling-enums');
+  // }
 
-  getPageLayoutPresets() {
-    return this.http.get<PageLayoutPreset[]>(this.apiPortfolioUrl + '/styling-enums');
-  }
+  // applyPageLayoutPreset(albumId: number, layoutPreset: PageLayoutPreset) {
+  //   return this.http.patch<void>(this.apiPortfolioUrl + '/' + albumId + '/modify/layout-preset', { layoutPreset });
+  // }
 
-  applyPageLayoutPreset(albumId: number, layoutPreset: PageLayoutPreset) {
-    return this.http.patch<void>(this.apiPortfolioUrl + '/' + albumId + '/modify/layout-preset', { layoutPreset });
-  }
+  // publishAlbum(albumId: number) {
+  //   return this.http.patch<number | null>(this.apiPortfolioUrl + '/publish/' + albumId, {});
+  // }
+  //
+  // unpublishAlbum(albumId: number) {
+  //   return this.http.patch<void>(this.apiPortfolioUrl + '/unpublish/' + albumId, {});
+  // }
 
-  publishAlbum(albumId: number) {
-    return this.http.patch<number | null>(this.apiPortfolioUrl + '/publish/' + albumId, {});
-  }
+  // getPublishedInNavbarOrdered() {
+  //   return this.http.get<AlbumDto[]>(this.apiPortfolioUrl + '/published/in-nav/ordered');
+  // }
 
-  unpublishAlbum(albumId: number) {
-    return this.http.patch<void>(this.apiPortfolioUrl + '/unpublish/' + albumId, {});
-  }
+  // removeFromNavbar(albumId: number) {
+  //   return this.http.patch<void>(this.apiPortfolioUrl + '/remove-from-nav/' + albumId, {});
+  // }
 
-  getPublishedInNavbarOrdered() {
-    return this.http.get<AlbumItem[]>(this.apiPortfolioUrl + '/published/in-nav/ordered');
-  }
+  // applyNavPosition(albumId: number, navOrder: number) {
+  //   return this.http.patch<void>(this.apiPortfolioUrl + '/' + albumId + '/modify/nav-order', { navOrder });
+  // }
 
-  removeFromNavbar(albumId: number) {
-    return this.http.patch<void>(this.apiPortfolioUrl + '/remove-from-nav/' + albumId, {});
-  }
-
-  applyNavPosition(albumId: number, navOrder: number) {
-    return this.http.patch<void>(this.apiPortfolioUrl + '/' + albumId + '/modify/nav-order', { navOrder });
-  }
-
-  swapNavOrder(albumId1: number, albumId2: number) {
-    return this.http.patch<void>(this.apiPortfolioUrl + '/modify/nav-order/swap', { albumId1, albumId2 });
-  }
+  // swapNavOrder(albumId1: number, albumId2: number) {
+  //   return this.http.patch<void>(this.apiPortfolioUrl + '/modify/nav-order/swap', { albumId1, albumId2 });
+  // }
 }

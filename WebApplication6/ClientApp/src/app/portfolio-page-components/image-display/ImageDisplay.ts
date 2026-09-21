@@ -1,6 +1,6 @@
 import {Component, input} from '@angular/core';
-import {AlbumPhotoItemDto} from '../../models/AlbumPhotoItemDto';
-import {ImageItem} from '../../models/ImageItem';
+import {PhotoDto} from '../../models/PhotoDto';
+import {ImageDto} from '../../models/ImageDto';
 import {NgOptimizedImage} from '@angular/common';
 
 @Component({
@@ -12,5 +12,5 @@ import {NgOptimizedImage} from '@angular/common';
   styleUrl: './ImageDisplay.css',
 })
 export class ImageDisplay {
-  public displayedImage = input.required<ImageItem>();
+  public displayedImage = input.required<ImageDto>();
 }

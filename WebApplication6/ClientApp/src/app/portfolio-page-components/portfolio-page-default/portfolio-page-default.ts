@@ -1,11 +1,11 @@
 import {Component, computed, inject, input, OnInit, output, signal} from '@angular/core';
 import {AlbumApiService} from '../../api/album-api-service';
 import {PortfolioApiService} from '../../api/portfolio-api-service';
-import {AlbumItem} from '../../models/AlbumItem';
-import {PAGE_LAYOUT_PRESETS} from '../../models/PortfolioPageItemDto';
-import {AlbumPhotoItemDto} from '../../models/AlbumPhotoItemDto';
+import {AlbumDto} from '../../models/AlbumDto';
+import {PAGE_LAYOUT_PRESETS} from '../../models/ApiEnums';
+import {PhotoDto} from '../../models/PhotoDto';
 import {Navbar} from '../navbar/navbar';
-import {ImageItem} from '../../models/ImageItem';
+import {ImageDto} from '../../models/ImageDto';
 import {ImageDisplay} from '../image-display/ImageDisplay';
 
 
@@ -22,12 +22,12 @@ export class PortfolioPageDefault implements OnInit {
   protected readonly albumApi = inject(AlbumApiService);
   protected readonly portfolioApi = inject(PortfolioApiService);
 
-  public album = input.required<AlbumItem>();
-  protected photos = signal<AlbumPhotoItemDto[]>([]);
+  public album = input.required<AlbumDto>();
+  protected photos = signal<PhotoDto[]>([]);
 
   protected displayIndex = signal<number>(0);
-  protected displayedPhoto = computed<AlbumPhotoItemDto | null>(() => this.photos().length > 0 ? this.photos()[this.displayIndex()] : null);
-  protected displayedImage = computed<ImageItem | null>(() => this.displayedPhoto() !== null ? this.displayedPhoto()!.image : null);
+  protected displayedPhoto = computed<PhotoDto | null>(() => this.photos().length > 0 ? this.photos()[this.displayIndex()] : null);
+  protected displayedImage = computed<ImageDto | null>(() => this.displayedPhoto() !== null ? this.displayedPhoto()!.image : null);
 
   protected loadingPhotos = signal<boolean>(true);
   protected loadingPhotosError = signal<boolean>(false);
@@ -50,7 +50,7 @@ export class PortfolioPageDefault implements OnInit {
     })
   }
 
-  shouldIncludeTextContentContainer(photo: AlbumPhotoItemDto): boolean {
+  shouldIncludeTextContentContainer(photo: PhotoDto): boolean {
     return (photo.displaysName && photo.name !== '' && photo.name === null) ||
       (photo.displaysDescription && photo.description !== '' && photo.description !== null) ||
       (photo.displaysYearCC && photo.yearContentCreated !== null);
