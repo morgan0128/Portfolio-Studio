@@ -314,7 +314,7 @@
 //         Assert.Equal(new[] { 0, 1 }, photoDisplays.Select(ag => ag.Order));
 //         Assert.All(photoDisplays, photoDisplay => Assert.Null(photoDisplay.PhotoDisplayCollectionId));
 //
-//         var photos = (await albumItemRepository.GetAlbumPhotosAsync(3002)).ToList();
+//         var photos = (await albumItemRepository.GetAlbumPhotoDisplays(3002)).ToList();
 //         Assert.Equal(new[] { 2, 3 }, photos.Select(p => p.Id));
 //         Assert.Equal(new int?[] { 0, 1 }, photos.Select(p => p.Order));
 //         Assert.False(photos[0].displaysName);

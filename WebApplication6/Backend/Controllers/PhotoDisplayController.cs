@@ -11,7 +11,7 @@ public sealed class PhotoDisplayController(IAlbumRepository albumRepository, IAl
 {
     /* POST */
     [HttpPost]
-    public async Task<IActionResult> UploadPhotoThenPost(int albumId, [FromForm] CombinedPhotoSpecDto combinedPhotoSpec)
+    public async Task<IActionResult> UploadImagePostPhotoPostPhotoDisplay(int albumId, [FromForm] CombinedPhotoSpecDto combinedPhotoSpec)
     {
         var file = combinedPhotoSpec.File;
 
@@ -43,7 +43,7 @@ public sealed class PhotoDisplayController(IAlbumRepository albumRepository, IAl
     [HttpGet]
     public async Task<IEnumerable<IAlbumItemRepository.PhotoDisplayDto>> Get(int albumId)
     {
-        var photos = await albumItemRepository.GetAlbumPhotosAsync(albumId);
+        var photos = await albumItemRepository.GetAlbumPhotoDisplays(albumId);
         return photos;
     }
     

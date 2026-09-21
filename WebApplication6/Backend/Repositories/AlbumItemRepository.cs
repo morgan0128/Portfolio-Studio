@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using WebApplication6.Backend.Data;
 using WebApplication6.Backend.Models;
@@ -6,12 +7,12 @@ namespace WebApplication6.Backend.Repositories;
 
 public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepository
 {
-    public async Task<IEnumerable<IAlbumItemRepository.PhotoDisplayDto>> GetAlbumPhotosAsync(int id)
+    public async Task<IEnumerable<IAlbumItemRepository.PhotoDisplayDto>> GetAlbumPhotoDisplays(int albumId)
     {
         try
         {
             var album = await context.Albums
-                .Where(a => a.Id == id)
+                .Where(a => a.Id == albumId)
                 .SingleAsync();
 
             var photoDisplays = await context.PhotoDisplays
@@ -91,15 +92,23 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
 
         return false;
     }
-    
-    public async Task<bool> ReorderPhotoInAlbum(int albumId, int photoId, int newOrder)
-    {
-        var photoDisplay = await context.PhotoDisplays
-            .SingleOrDefaultAsync(pd => pd.AlbumId == albumId && pd.PhotoId == photoId);
-        if (photoDisplay == null) return false;
 
-        return await ReorderItem(albumId, photoDisplay.Id, newOrder, photoDisplay.PhotoDisplayCollectionId);
+    public async Task<IEnumerable<IAlbumItemRepository.AlbumItemBasicDto>> GetAlbumItems(int albumId)
+    {
+        return await context.AlbumItems
+            .Where(item => item.AlbumId == albumId)
+            .Select(ToBasicDto)
+            .ToListAsync();
     }
+    
+    // public async Task<bool> ReorderPhotoInAlbum(int albumId, int photoId, int newOrder)
+    // {
+    //     var photoDisplay = await context.PhotoDisplays
+    //         .SingleOrDefaultAsync(pd => pd.AlbumId == albumId && pd.PhotoId == photoId);
+    //     if (photoDisplay == null) return false;
+    //
+    //     return await ReorderItem(albumId, photoDisplay.Id, newOrder, photoDisplay.PhotoDisplayCollectionId);
+    // }
     
     public Task<bool> ReorderAlbumItem(int albumId, int itemId, int newOrder)
     {
@@ -298,5 +307,7 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
     //     return displayCollection;
     // }
     
+    private static readonly Expression<Func<AlbumItem, IAlbumItemRepository.AlbumItemBasicDto>> ToBasicDto = albumItem => 
+        new IAlbumItemRepository.AlbumItemBasicDto(albumItem.Id, albumItem.Order);
     
 }

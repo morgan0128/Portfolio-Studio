@@ -36,7 +36,7 @@
 //         await using var context = Fixture.CreateContext();
 //         var repository = new AlbumItemRepository(context);
 //
-//         var photos = (await repository.GetAlbumPhotosAsync(1)).ToList();
+//         var photos = (await repository.GetAlbumPhotoDisplays(1)).ToList();
 //
 //         Assert.Equal(new[] { 4, 2, 3, 64 }, photos.Select(p => p.PhotoId));
 //         Assert.Equal(new int?[] { 0, 1, 2, 4 }, photos.Select(p => p.Order));
@@ -47,7 +47,7 @@
 //             Assert.True(photo.DisplaysDescription);
 //             Assert.True(photo.DisplaysYearContentCreated);
 //         });
-//         Assert.Empty(await repository.GetAlbumPhotosAsync(3002));
+//         Assert.Empty(await repository.GetAlbumPhotoDisplays(3002));
 //     }
 //
 //     [Theory]

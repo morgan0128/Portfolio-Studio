@@ -17,12 +17,12 @@ export class AlbumApiService {
 
 
   /* POST */
-  postAlbum(name: string | null, description: string | null){
+  postAlbum(name: string | null, description: string | null): Observable<number>{
     let requestPath = this.apiAlbumUrl;
     let requestObject = new CreateAlbumRequest();
     requestObject.name = name;
     requestObject.description = description;
-    return this.http.post(requestPath, requestObject);
+    return this.http.post<number>(requestPath, requestObject);
   }
 
 
@@ -63,7 +63,6 @@ export class AlbumApiService {
 
 
   /* PUT, PATCH */
-
   updateAlbumLayoutPreset(albumId: number, layoutPreset: PageLayoutPreset) {
     return this.http.patch<void>(this.apiAlbumUrl + '/' + albumId + '/modify/layout-preset', { layoutPreset });
   }

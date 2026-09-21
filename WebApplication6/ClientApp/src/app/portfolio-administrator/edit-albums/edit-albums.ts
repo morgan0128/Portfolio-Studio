@@ -5,7 +5,8 @@ import {AlbumContents} from './album-contents/album-contents';
 import {AlbumDto} from '../../models/AlbumDto';
 import {PortfolioPageManager} from './portfolio-page-manager/portfolio-page-manager';
 import {PhotoDto} from '../../models/PhotoDto';
-import {AlbumApiService, PhotoSpecDTO, PhotoUploadSpecification} from '../../api/album-api-service';
+import {AlbumApiService} from '../../api/album-api-service';
+import {AlbumItemDto} from '../../models/AlbumItemDto';
 
 @Component({
   selector: 'app-edit-albums',
@@ -55,8 +56,10 @@ export class EditAlbums implements OnInit {
   protected readonly loadingPhotosError = signal<boolean>(false);
 
   protected readonly albumDTOs = signal<AlbumDto[]>([]);
-  protected readonly photos = signal<PhotoDto[]>([]);
 
+  // TODO
+  // protected readonly photos = signal<PhotoDto[]>([]);
+  protected readonly albumItems = signal<AlbumItemDto[]>([]);
 
   protected readonly createPhotoGroupView = signal<boolean>(false);
 
@@ -82,7 +85,9 @@ export class EditAlbums implements OnInit {
 
       this.albumApi.getAlbum(restoreAlbumFromId).subscribe({
         next: album => {
-          this.selectAlbum(album);
+          if (album != null){
+            this.selectAlbum(album);
+          }
           this.restoringAlbumSelection.set(false);
         },
         error: () => {

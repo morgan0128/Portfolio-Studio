@@ -31,7 +31,7 @@ public class AlbumItemTests(TestDatabaseFixture dbFixture) : IClassFixture<TestD
     //
     //     Assert.True(await albumItemRepository.AddPhotoToAlbumAsync(3002, 2, TestContext.Current.CancellationToken));
     //     Assert.True(await albumItemRepository.AddPhotoToAlbumAsync(3002, 3, TestContext.Current.CancellationToken));
-    //     Assert.Equal(new int?[] { 1, 2 }, (await albumItemRepository.GetAlbumPhotosAsync(3002)).Select(p => p.Order));
+    //     Assert.Equal(new int?[] { 1, 2 }, (await albumItemRepository.GetAlbumPhotoDisplays(3002)).Select(p => p.Order));
     //     Assert.True(await albumItemRepository.ReorderPhotoInAlbum(3002, 3, 0));
     //     context.ChangeTracker.Clear();
     //
@@ -41,7 +41,7 @@ public class AlbumItemTests(TestDatabaseFixture dbFixture) : IClassFixture<TestD
     //     Assert.IsType<PhotoDisplay>(items[0]);
     //     Assert.Equal(item.Id, Assert.IsType<NonPhotoAlbumItem>(items[1]).Id);
     //     Assert.IsType<PhotoDisplay>(items[2]);
-    //     Assert.Equal(new[] { 3, 2 }, (await albumItemRepository.GetAlbumPhotosAsync(3002)).Select(p => p.Id));
+    //     Assert.Equal(new[] { 3, 2 }, (await albumItemRepository.GetAlbumPhotoDisplays(3002)).Select(p => p.Id));
     //
     //     Assert.True(await new PhotoRepository(context).DeletePhotoByIdAsync(2));
     //     context.ChangeTracker.Clear();
@@ -120,12 +120,12 @@ public class AlbumItemTests(TestDatabaseFixture dbFixture) : IClassFixture<TestD
     //     Assert.False(await albumItemRepository.ReorderPhotoDisplayInCollection(1, item.Id, toMove.Id, 0));
     //     Assert.False(await albumItemRepository.ReorderPhotoDisplayInCollection(3002, item.Id + 9999, toMove.Id, 0));
     //
-    //     var photos = (await albumItemRepository.GetAlbumPhotosAsync(3002)).ToList();
+    //     var photos = (await albumItemRepository.GetAlbumPhotoDisplays(3002)).ToList();
     //     Assert.Equal(new[] { 4, 3, 2 }, photos.Select(p => p.PhotoId));
     //     Assert.Equal(new int?[] { 0, 1, 1 }, photos.Select(p => p.Order));
     //     Assert.False(photos[2].DisplaysName);
     //     Assert.True(await albumItemRepository.ReorderPhotoInAlbum(3002, 2, 0));
-    //     Assert.Equal(new[] { 4, 2, 3 }, (await albumItemRepository.GetAlbumPhotosAsync(3002)).Select(p => p.Id));
+    //     Assert.Equal(new[] { 4, 2, 3 }, (await albumItemRepository.GetAlbumPhotoDisplays(3002)).Select(p => p.Id));
     //     Assert.Equal(1, item.Order);
     // }
 

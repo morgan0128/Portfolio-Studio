@@ -8,11 +8,13 @@ public interface IAlbumItemRepository
     
     // Task<PhotoDisplayCollection> CreateCarouselPhotoDisplayCollection(int albumId, List<PhotoDisplay> photoDisplays);
     
-    Task<IEnumerable<PhotoDisplayDto>> GetAlbumPhotosAsync(int id);
+    Task<IEnumerable<PhotoDisplayDto>> GetAlbumPhotoDisplays(int albumId);
+
+    Task<IEnumerable<AlbumItemBasicDto>> GetAlbumItems(int albumId);
     
     Task<bool> AddPhotoToAlbumAsync(int albumId, int photoId, CancellationToken cancellationToken = default);
     
-    Task<bool> ReorderPhotoInAlbum(int albumId, int photoId, int newOrder);
+    // Task<bool> ReorderPhotoInAlbum(int albumId, int photoId, int newOrder);
     
     Task<bool> ReorderAlbumItem(int albumId, int itemId, int newOrder);
 
@@ -61,6 +63,9 @@ public interface IAlbumItemRepository
     // public sealed record PhotoDisplayCollectionDto(
     //     
     // );
+
+    public sealed record AlbumItemBasicDto(int AlbumItemId, int Order);
+    
     
     public sealed record PhotoDisplayDto(
         int Id,
