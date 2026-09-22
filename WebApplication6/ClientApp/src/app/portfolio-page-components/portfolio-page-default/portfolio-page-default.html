@@ -6,7 +6,7 @@
   </div>
 
   <div class="portfolio-items">
-      @if (!loadingPhotos() && !loadingPhotosError()){
+      @if (!loadingItems() && !loadingItemsError()){
           <div class="photo-card">
             @if (displayedPhoto() !== null && displayedImage() !== null) {
 
@@ -16,15 +16,15 @@
                     }
                   </div>
 
-                @if (shouldIncludeTextContentContainer(displayedPhoto()!)){
+                @if (shouldIncludeTextContentContainer(displayedPhotoDisplay()!)){
                   <div class="text-content-container">
-                    @if (displayedPhoto()!.displaysName){
+                    @if (displayedPhotoDisplay()!.displaysName){
                       <p class="name">{{ displayedPhoto()!.name }}</p>
                     }
-                    @if (displayedPhoto()!.displaysDescription) {
+                    @if (displayedPhotoDisplay()!.displaysDescription) {
                       <p class="description">{{ displayedPhoto()!.description }}</p>
                     }
-                    @if (displayedPhoto()!.displaysYearCC){
+                    @if (displayedPhotoDisplay()!.displaysYearContentCreated){
                       <p class="year-cc">{{ displayedPhoto()!.yearContentCreated }}</p>
                     }
                   </div>

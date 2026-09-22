@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using WebApplication6.Backend.Data;
 using WebApplication6.Backend.Models;
@@ -9,8 +8,6 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
 {
     public async Task<IEnumerable<IAlbumItemRepository.PhotoDisplayDto>> GetAlbumPhotoDisplays(int albumId)
     {
-        try
-        {
             var album = await context.Albums
                 .Where(a => a.Id == albumId)
                 .SingleAsync();
@@ -24,26 +21,10 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
                 .ToListAsync();
 
             var photos = photoDisplays
-                .Select(pd => new IAlbumItemRepository.PhotoDisplayDto(
-                    pd.Photo.Id,
-                    pd.Photo.Name,
-                    pd.Photo.Description,
-                    pd.Photo.YearContentCreated,
-                    pd.Photo.Image,
-                    pd.PhotoDisplayCollection?.Order ?? pd.Order,
-                    pd.DisplaysName,
-                    pd.DisplaysDescription,
-                    pd.DisplaysYearContentCreated
-                ))
+                .Select(ToPhotoDisplayDto)
                 .ToList();
 
             return photos;
-        }
-        catch (Exception)
-        {
-            // return new List<IAlbumRepository.AlbumPhotoDto>();
-            throw;
-        }
     }
     
     public async Task<bool> AddPhotoToAlbumAsync(int albumId, int photoId, CancellationToken cancellationToken = default)
@@ -93,12 +74,30 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
         return false;
     }
 
-    public async Task<IEnumerable<IAlbumItemRepository.AlbumItemBasicDto>> GetAlbumItems(int albumId)
+    public async Task<IEnumerable<IAlbumItemRepository.AlbumItemDto>> GetAlbumItems(int albumId)
     {
-        return await context.AlbumItems
-            .Where(item => item.AlbumId == albumId)
-            .Select(ToBasicDto)
+        var photoDisplays = await context.PhotoDisplays
+            .AsNoTracking()
+            .Include(photoDisplay => photoDisplay.Photo)
+            .ThenInclude(photo => photo.Image)
+            .Where(photoDisplay =>
+                photoDisplay.AlbumId == albumId &&
+                photoDisplay.PhotoDisplayCollectionId == null)
             .ToListAsync();
+
+        var photoDisplayCollections = await context.PhotoDisplayCollections
+            .AsNoTracking()
+            .Include(collection => collection.PhotoDisplays)
+            .ThenInclude(photoDisplay => photoDisplay.Photo)
+            .ThenInclude(photo => photo.Image)
+            .Where(collection => collection.AlbumId == albumId)
+            .ToListAsync();
+
+        return photoDisplays
+            .Select(ToAlbumItemDto)
+            .Concat(photoDisplayCollections.Select(ToAlbumItemDto))
+            .OrderBy(item => item.Order)
+            .ToList();
     }
     
     // public async Task<bool> ReorderPhotoInAlbum(int albumId, int photoId, int newOrder)
@@ -307,7 +306,56 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
     //     return displayCollection;
     // }
     
-    private static readonly Expression<Func<AlbumItem, IAlbumItemRepository.AlbumItemBasicDto>> ToBasicDto = albumItem => 
-        new IAlbumItemRepository.AlbumItemBasicDto(albumItem.Id, albumItem.Order);
+    private static IAlbumItemRepository.AlbumItemDto ToAlbumItemDto(PhotoDisplay photoDisplay)
+    {
+        return new IAlbumItemRepository.PhotoDisplayAlbumItemDto(
+            photoDisplay.Id,
+            photoDisplay.Order,
+            ToPhotoDisplayDto(photoDisplay));
+    }
+
+    private static IAlbumItemRepository.AlbumItemDto ToAlbumItemDto(PhotoDisplayCollection collection)
+    {
+        var photoDisplays = collection.PhotoDisplays
+            .OrderBy(photoDisplay => photoDisplay.Order)
+            .Select(ToPhotoDisplayDto)
+            .ToList();
+
+        return new IAlbumItemRepository.PhotoDisplayCollectionAlbumItemDto(
+            collection.Id,
+            collection.Order,
+            new IAlbumItemRepository.PhotoDisplayCollectionItemDto(
+                collection.DisplayMode,
+                photoDisplays));
+    }
+
+    private static IAlbumItemRepository.PhotoDisplayDto ToPhotoDisplayDto(PhotoDisplay photoDisplay)
+    {
+        return new IAlbumItemRepository.PhotoDisplayDto(
+            ToPhotoDto(photoDisplay.Photo),
+            photoDisplay.PhotoDisplayCollectionId,
+            photoDisplay.DisplaysName,
+            photoDisplay.DisplaysDescription,
+            photoDisplay.DisplaysYearContentCreated);
+    }
+
+    private static IAlbumItemRepository.PhotoDto ToPhotoDto(Photo photo)
+    {
+        return new IAlbumItemRepository.PhotoDto(
+            photo.Id,
+            new IAlbumItemRepository.ImageDto(
+                photo.Image.Id,
+                photo.Image.FileName,
+                photo.Image.ContentType,
+                photo.Image.FileSize,
+                photo.Image.StorageFileName,
+                photo.Image.Url,
+                photo.Image.AltText,
+                photo.Image.Width,
+                photo.Image.Height),
+            photo.Name,
+            photo.Description,
+            photo.YearContentCreated);
+    }
     
 }

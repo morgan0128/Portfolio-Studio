@@ -3,10 +3,10 @@ import {FormsModule} from '@angular/forms';
 import {toObservable, toSignal} from '@angular/core/rxjs-interop';
 import {of, startWith, Subject, switchMap} from 'rxjs';
 import {Router} from '@angular/router';
-import {PortfolioApiService} from '../../../api/portfolio-api-service';
 import {AlbumDto} from '../../../models/AlbumDto';
 import {PageLayoutPreset} from '../../../models/ApiEnums';
 import {AdminPreviewNavbar} from './admin-preview-navbar/admin-preview-navbar';
+import {AlbumApiService} from '../../../api/album-api-service';
 
 @Component({
   selector: 'app-portfolio-manager',
@@ -16,27 +16,27 @@ import {AdminPreviewNavbar} from './admin-preview-navbar/admin-preview-navbar';
 })
 export class PortfolioPageManager {
   private readonly router = inject(Router);
-  private readonly portfolioApi = inject(PortfolioApiService);
+  private readonly albumApi = inject(AlbumApiService);
 
   public readonly selectedAlbum = input.required<AlbumDto | null>();
   private readonly selectedAlbum$ = toObservable(this.selectedAlbum);
   private readonly refreshAlbum$ = new Subject<void>();
   private readonly refreshNavbar$ = new Subject<void>();
 
-  readonly navbarItems = toSignal(this.refreshNavbar$.pipe(
+  readonly navbarAlbumsOrdered = toSignal(this.refreshNavbar$.pipe(
     startWith(undefined),
-    switchMap(() => this.portfolioApi.getPublishedInNavbarOrdered())
+    switchMap(() => this.albumApi.getNavAlbumsOrdered())
   ), {initialValue: []});
 
   protected readonly album = toSignal(this.selectedAlbum$.pipe(
     switchMap(selected => selected === null ? of(null) : this.refreshAlbum$.pipe(
       startWith(undefined),
-      switchMap(() => this.portfolioApi.getAlbum(selected.id)),
+      switchMap(() => this.albumApi.getAlbum(selected.id)),
       startWith(null)
     ))
   ), {initialValue: null});
 
-  protected readonly stylingLayouts = toSignal(this.portfolioApi.getPageLayoutPresets(), {initialValue: null});
+  protected readonly stylingLayouts = toSignal(this.albumApi.getPageLayoutPresets(), {initialValue: null});
   protected readonly selectedStyleLayout = linkedSignal<AlbumDto | null, PageLayoutPreset | null>({
     source: this.album,
     computation: (album, previous) => {
@@ -52,7 +52,7 @@ export class PortfolioPageManager {
   readonly reorderGlows = signal<Record<number, number>>({});
   readonly selectedMayBeAdded = computed(() => {
     const album = this.album();
-    return album !== null && album.published && album.navbarOrder === -1 && this.navbarItems().length < 5;
+    return album !== null && album.published && album.navbarOrder === -1 && this.navbarAlbumsOrdered().length < 5;
   });
 
   onApplyStyling() {
@@ -60,7 +60,7 @@ export class PortfolioPageManager {
     const layoutPreset = this.selectedStyleLayout();
     if (album === null || layoutPreset === null) return;
 
-    this.portfolioApi.applyPageLayoutPreset(album.id, layoutPreset).subscribe({
+    this.albumApi.updateAlbumLayoutPreset(album.id, layoutPreset).subscribe({
       next: () => this.refreshAlbum$.next()
     });
   }
@@ -68,7 +68,7 @@ export class PortfolioPageManager {
   publish() {
     const album = this.album();
     if (album === null) return;
-    this.portfolioApi.publishAlbum(album.id).subscribe({
+    this.albumApi.publishAlbum(album.id).subscribe({
       next: () => this.refreshPresentationState()
     });
   }
@@ -76,7 +76,7 @@ export class PortfolioPageManager {
   unpublish() {
     const album = this.album();
     if (album === null) return;
-    this.portfolioApi.unpublishAlbum(album.id).subscribe({
+    this.albumApi.unpublishAlbum(album.id).subscribe({
       next: () => this.refreshPresentationState()
     });
   }
@@ -100,7 +100,7 @@ export class PortfolioPageManager {
   }
 
   removeFromNavRequest(albumId: number) {
-    this.portfolioApi.removeFromNavbar(albumId).subscribe({
+    this.albumApi.removeFromNavbar(albumId).subscribe({
       next: () => this.refreshPresentationState()
     });
   }
@@ -108,7 +108,7 @@ export class PortfolioPageManager {
   applyNavPositionRequest(navOrder: number | null) {
     const album = this.album();
     if (album === null || navOrder === null || navOrder < 0 || navOrder > 4) return;
-    this.portfolioApi.applyNavPosition(album.id, navOrder).subscribe({
+    this.albumApi.assignNavOrder(album.id, navOrder).subscribe({
       next: () => this.refreshPresentationState()
     });
   }
@@ -122,12 +122,12 @@ export class PortfolioPageManager {
   }
 
   private swapWithNeighbor(albumId: number, direction: number) {
-    const albums = this.navbarItems();
+    const albums = this.navbarAlbumsOrdered();
     const index = albums.findIndex(album => album.id === albumId);
     const neighbor = index + direction;
     if (index < 0 || neighbor < 0 || neighbor >= albums.length) return;
 
-    this.portfolioApi.swapNavOrder(albumId, albums[neighbor].id).subscribe({
+    this.albumApi.swapNavOrder(albumId, albums[neighbor].id).subscribe({
       next: () => {
         this.reorderGlows.update(counts => ({...counts, [albumId]: (counts[albumId] ?? 0) + 1}));
         this.refreshPresentationState();

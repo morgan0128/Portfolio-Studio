@@ -3,7 +3,7 @@
     <div>
       <p class="eyebrow">Album contents</p>
       <h2>Artwork</h2>
-      @if (!groupingView()){
+      @if (!collectionGroupingView()){
         <button (click)="toggleCreatePhotoGroupView()">Group Photos</button>
       } @else {
         <button (click)="createPhotoGroup()">Add Photo Group</button>
@@ -11,7 +11,7 @@
       }
     </div>
     @if (selectedAlbum() !== null) {
-      <span class="artworks-count">{{ photos().length }} {{ photos().length === 1 ? 'piece' : 'pieces' }}</span>
+      <span class="artworks-count">{{ items().length }} {{ items().length === 1 ? 'item' : 'items' }}</span>
     }
   </div>
 
@@ -20,30 +20,31 @@
       <h3>No album selected</h3>
       <p>Select an album above to view its artwork.</p>
     </div>
-  } @else if (loadingPhotos()) {
+  } @else if (loadingItems()) {
     <div class="empty-state">
       <h3>Loading artwork...</h3>
     </div>
-  } @else if (photos().length === 0) {
+  } @else if (items().length === 0) {
     <div class="empty-state">
-      <h3>No artwork in this album</h3>
+      <h3>No items in this album</h3>
       <p>Upload an image above to add the first piece.</p>
     </div>
   } @else {
 <!--    <br>-->
     <div class="art-grid-container">
       <div class="art-grid">
-        @for (photo of photos(); track photo.id) {
-          <app-admin-view-photo-card
-            [albumId]="selectedAlbumId()"
-            [photo]="photo"
-            (photoStateChange)="photoStateChange.emit($event)"
-            (orderChanged)="itemsStateChange.emit()"
-            (photoDetailedViewRequest)="handleDetailedPhotoViewRequest($event)"
-            [groupingView]="groupingView()"
-            [includeInNewGroup]="photoOptStatus(photo.id)"
-            (includeInNewGroupChange)="handlePhotoOptChangeEvent(photo.id, $event)"
-          />
+        @for (item of items(); track item.id) {
+          @if (item.kind === 'photoDisplay'){
+            <app-admin-view-photo-card
+              [albumId]="selectedAlbumId()"
+              [item]="item"
+              (stateChanged)="itemStateChanged.emit($event)"
+              (photoDetailedViewRequest)="handleDetailedPhotoViewRequest($event)"
+              [groupingView]="collectionGroupingView()"
+              [includeInNewGroup]="getCollectionGroupingOptStatus(item.id)"
+              (collectionGroupingOptStatusChanged)="handlePhotoOptChangeEvent(item.id, $event)"
+            />
+          }
         }
         @if (detailedViewPhoto() != null){
           <app-detailed-photo-view [photo]="detailedViewPhoto()!" (closePreview)="detailedViewPhoto.set(null)" />

@@ -317,12 +317,12 @@
 //         var photos = (await albumItemRepository.GetAlbumPhotoDisplays(3002)).ToList();
 //         Assert.Equal(new[] { 2, 3 }, photos.Select(p => p.Id));
 //         Assert.Equal(new int?[] { 0, 1 }, photos.Select(p => p.Order));
-//         Assert.False(photos[0].displaysName);
-//         Assert.False(photos[0].displaysDescription);
-//         Assert.False(photos[0].displaysYearContentCreated);
-//         Assert.True(photos[1].displaysName);
-//         Assert.True(photos[1].displaysDescription);
-//         Assert.True(photos[1].displaysYearContentCreated);
+//         Assert.False(photos[0].DisplaysName);
+//         Assert.False(photos[0].DisplaysDescription);
+//         Assert.False(photos[0].DisplaysYearContentCreated);
+//         Assert.True(photos[1].DisplaysName);
+//         Assert.True(photos[1].DisplaysDescription);
+//         Assert.True(photos[1].DisplaysYearContentCreated);
 //     }
 //
 //     [Fact]

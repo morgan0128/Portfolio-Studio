@@ -24,9 +24,10 @@ public sealed class AlbumItemController(IAlbumItemRepository albumItemRepository
     // }
 
     [HttpGet]
-    public async Task<ActionResult<AlbumItemDto[]>> Get(int albumId)
+    public async Task<ActionResult<List<IAlbumItemRepository.AlbumItemDto>>> Get(int albumId)
     {
         var items = await albumItemRepository.GetAlbumItems(albumId);
+        return items.ToList();
     }
     
     [HttpPost("reorder")]

@@ -62,7 +62,7 @@ public sealed class PhotoDisplayController(IAlbumRepository albumRepository, IAl
     }
     
     
-    // [HttpPatch("{photoId:int}/displaysName")]
+    // [HttpPatch("{photoId:int}/DisplaysName")]
     // public async Task<IActionResult> ToggleDisplaysName(int albumId, int photoId)
     // {
     //     var request = await albumItemRepository.ToggleDisplaysName(albumId, photoId);
@@ -73,7 +73,7 @@ public sealed class PhotoDisplayController(IAlbumRepository albumRepository, IAl
     //     };
     // }
     //
-    // [HttpPatch("{photoId:int}/displaysDescription")]
+    // [HttpPatch("{photoId:int}/DisplaysDescription")]
     // public async Task<IActionResult> ToggleDisplaysDescription(int albumId, int photoId)
     // {
     //     var request = await albumItemRepository.ToggleDisplaysDescription(albumId, photoId);

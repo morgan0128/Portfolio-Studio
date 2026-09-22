@@ -8,7 +8,7 @@
       <span class="admin-badge">Private area</span>
     </header>
 
-    @if (loadingAlbumsError() || selectingAlbumError() || creatingAlbumError() || loadingPhotosError() || uploadPhotoError) {
+    @if (loadingAlbumsError() || selectingAlbumError() || creatingAlbumError() || loadingItemsError() || uploadPhotoError) {
       <div class="notice" role="alert">
         <span class="notice-icon" aria-hidden="true">!</span>
         <p>
@@ -18,7 +18,7 @@
             That album could not be opened. Please choose another one.
           } @else if (creatingAlbumError()) {
             Failed to create that album. Please try again.
-          } @else if (loadingPhotosError()) {
+          } @else if (loadingItemsError()) {
             Failed to load the photos in that album. Please try again.
           } @else {
             Image could not be uploaded. Please check the file and try again.
@@ -119,8 +119,8 @@
               <p>{{ selectedAlbum()?.description || 'No description' }}</p>
             </div>
             <div class="album-stat">
-              <strong>{{ photos().length }}</strong>
-              <span>{{ photos().length === 1 ? 'photo' : 'photos' }}</span>
+              <strong>{{ albumItems().length }}</strong>
+              <span>{{ albumItems().length === 1 ? 'item' : 'items' }}</span>
               <button (click)="deleteSelected()" class="alert-danger">Delete</button>
             </div>
           </section>
@@ -215,10 +215,10 @@
           <app-album-contents
             [selectedAlbum]="this.selectedAlbum()"
             [selectedAlbumId]="this.selectedAlbumId()!"
-            [loadingPhotos]="this.loadingPhotos()"
-            [photos]="this.photos()"
-            (photoStateChange)="photoChangedStateUpdate($event)"
-            (itemsStateChange)="loadAlbumSelection()"/>
+            [loadingItems]="this.loadingItems()"
+            [items]="this.albumItems()"
+            (itemStateChanged)="albumItemUpdateState($event)"
+            (multipleItemStatesChanged)="loadAlbumSelection()"/>
         }
       </section>
   </div>

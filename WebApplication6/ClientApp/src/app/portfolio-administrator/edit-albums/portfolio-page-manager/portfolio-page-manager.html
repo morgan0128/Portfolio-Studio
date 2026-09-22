@@ -69,7 +69,7 @@
 <!--        </div>-->
 
         <app-admin-preview-navbar
-          [navbarItems]="navbarItems()"
+          [navbarItems]="navbarAlbumsOrdered()"
           [reorderGlows]="reorderGlows()"
           [selectedMayBeAdded] = "selectedMayBeAdded()"
           (navInsertSelectedAtOrder)="applyNavPositionRequest($event)"

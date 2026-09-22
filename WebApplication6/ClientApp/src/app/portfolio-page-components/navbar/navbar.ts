@@ -1,6 +1,6 @@
 import {Component, inject, input, output, signal} from '@angular/core';
-import {PortfolioApiService} from '../../api/portfolio-api-service';
 import {AlbumDto} from '../../models/AlbumDto';
+import {AlbumApiService} from '../../api/album-api-service';
 
 
 interface onInit {
@@ -13,9 +13,9 @@ interface onInit {
   styleUrl: './navbar.css',
 })
 export class Navbar implements onInit {
-  private portfolioApi = inject(PortfolioApiService)
+  private albumApi = inject(AlbumApiService)
 
-  protected navbarItems = signal<AlbumDto[]>([]);
+  protected navbarAlbums = signal<AlbumDto[]>([]);
 
   protected populatingNavbar = signal<boolean>(true);
   protected navbarPopulationFailure = signal<boolean>(false);
@@ -28,9 +28,9 @@ export class Navbar implements onInit {
   public requestNavToEditAlbums = output<void>();
 
   ngOnInit() {
-    this.portfolioApi.getPublishedInNavbarOrdered().subscribe({
+    this.albumApi.getNavAlbumsOrdered().subscribe({
       next: albums => {
-        this.navbarItems.set(albums);
+        this.navbarAlbums.set(albums);
         this.populatingNavbar.set(false);
       },
       error: () => {
@@ -41,7 +41,7 @@ export class Navbar implements onInit {
   }
 
   navigateToPage(order: number) {
-    if (order < 0 || order >= this.navbarItems().length){
+    if (order < 0 || order >= this.navbarAlbums().length){
       return;
     }
 
@@ -51,7 +51,7 @@ export class Navbar implements onInit {
       return;
     }
 
-    this.requestNavToAlbumOfId.emit(this.navbarItems()[order].id);
+    this.requestNavToAlbumOfId.emit(this.navbarAlbums()[order].id);
   }
 
 

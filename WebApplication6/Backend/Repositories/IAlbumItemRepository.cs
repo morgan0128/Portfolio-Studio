@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using WebApplication6.Backend.Models;
 
 namespace WebApplication6.Backend.Repositories;
@@ -10,7 +11,7 @@ public interface IAlbumItemRepository
     
     Task<IEnumerable<PhotoDisplayDto>> GetAlbumPhotoDisplays(int albumId);
 
-    Task<IEnumerable<AlbumItemBasicDto>> GetAlbumItems(int albumId);
+    Task<IEnumerable<AlbumItemDto>> GetAlbumItems(int albumId);
     
     Task<bool> AddPhotoToAlbumAsync(int albumId, int photoId, CancellationToken cancellationToken = default);
     
@@ -64,19 +65,55 @@ public interface IAlbumItemRepository
     //     
     // );
 
-    public sealed record AlbumItemBasicDto(int AlbumItemId, int Order);
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
+    [JsonDerivedType(typeof(PhotoDisplayAlbumItemDto), "photoDisplay")]
+    [JsonDerivedType(typeof(PhotoDisplayCollectionAlbumItemDto), "photoDisplayCollection")]
+    public abstract record AlbumItemDto(int Id, int Order);
+
+    public sealed record PhotoDisplayAlbumItemDto(
+        int Id,
+        int Order,
+        PhotoDisplayDto Content
+    ) : AlbumItemDto(Id, Order);
+
+    public sealed record PhotoDisplayCollectionAlbumItemDto(
+        int Id,
+        int Order,
+        PhotoDisplayCollectionItemDto Content
+    ) : AlbumItemDto(Id, Order);
+
+    public sealed record PhotoDisplayCollectionItemDto(
+        PhotoDisplayCollection.PhotoDisplayMode DisplayMode,
+        IReadOnlyList<PhotoDisplayDto> PhotoDisplays
+    );
+
+    public sealed record PhotoDto(
+        int Id,
+        ImageDto Image,
+        string Name,
+        string Description,
+        int? YearContentCreated
+    );
+
+    public sealed record ImageDto(
+        int Id,
+        string FileName,
+        string ContentType,
+        long? FileSize,
+        string StorageFileName,
+        string Url,
+        string AltText,
+        int Width,
+        int Height
+    );
     
     
     public sealed record PhotoDisplayDto(
-        int Id,
-        string? Name,
-        string? Description,
-        int? YearContentCreated,
-        Image Image,
-        int? Order,
-        bool displaysName = true,
-        bool displaysDescription = true,
-        bool displaysYearContentCreated = true
+        PhotoDto Photo,
+        int? PhotoDisplayCollectionId,
+        bool DisplaysName,
+        bool DisplaysDescription,
+        bool DisplaysYearContentCreated
     );
     
     public sealed record PhotoDisplayFieldsDisplayedRequest(

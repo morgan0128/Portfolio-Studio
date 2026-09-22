@@ -7,6 +7,12 @@ import {PortfolioPageManager} from './portfolio-page-manager/portfolio-page-mana
 import {PhotoDto} from '../../models/PhotoDto';
 import {AlbumApiService} from '../../api/album-api-service';
 import {AlbumItemDto} from '../../models/AlbumItemDto';
+import {AlbumItemApiService} from '../../api/album-item-api-service';
+import {
+  PhotoDisplayApiService,
+  PhotoDisplaySpecification,
+  PhotoUploadSpecification
+} from '../../api/photo-display-api-service';
 
 @Component({
   selector: 'app-edit-albums',
@@ -23,6 +29,8 @@ export class EditAlbums implements OnInit {
   // private readonly apiAlbumUrl = '/api/Album';
 
   private readonly albumApi = inject(AlbumApiService);
+  private readonly albumItemApi = inject(AlbumItemApiService)
+  private readonly photoDisplayApi = inject(PhotoDisplayApiService);
   private readonly location = inject(Location);
 
   protected readonly creatingAlbum = signal<boolean>(false);
@@ -52,8 +60,8 @@ export class EditAlbums implements OnInit {
   protected readonly uploadingPhoto = signal<boolean>(false);
   protected uploadPhotoError: string | null = null;
 
-  protected readonly loadingPhotos = signal<boolean>(false);
-  protected readonly loadingPhotosError = signal<boolean>(false);
+  protected readonly loadingItems = signal<boolean>(false);
+  protected readonly loadingItemsError = signal<boolean>(false);
 
   protected readonly albumDTOs = signal<AlbumDto[]>([]);
 
@@ -61,7 +69,7 @@ export class EditAlbums implements OnInit {
   // protected readonly photos = signal<PhotoDto[]>([]);
   protected readonly albumItems = signal<AlbumItemDto[]>([]);
 
-  protected readonly createPhotoGroupView = signal<boolean>(false);
+  // protected readonly createPhotoGroupView = signal<boolean>(false);
 
 
 
@@ -132,7 +140,7 @@ export class EditAlbums implements OnInit {
     this.selectingAlbumError.set(false);
     this.selectedAlbumId.set(album.id);
     this.selectedAlbum.set(album);
-    this.photos.set([]);
+    this.albumItems.set([]);
     this.loadAlbumSelection();
   }
 
@@ -142,7 +150,7 @@ export class EditAlbums implements OnInit {
 
     if (this.selectedAlbumId() === null){
       this.selectedAlbum.set(null);
-      this.photos.set([]);
+      this.albumItems.set([]);
       return; // default selection value
     }
     if (this.selectedAlbum()?.id === this.selectedAlbumId()){
@@ -164,23 +172,23 @@ export class EditAlbums implements OnInit {
 
   loadAlbumSelection(){
     if (this.selectedAlbumId() === null) {
-      this.loadingPhotosError.set(true);
+      this.loadingItemsError.set(true);
       return;
     }
 
-    this.loadingPhotos.set(true);
-    this.loadingPhotosError.set(false);
-    this.photos.set([]);
+    this.albumItems.set([]);
+    this.loadingItems.set(true);
+    this.loadingItemsError.set(false);
 
-    let request = this.albumApi.getPhotos(<number>this.selectedAlbumId());
+    let request = this.albumItemApi.fetchAlbumItems(this.selectedAlbumId()!);
     request.subscribe({
-      next: photos => {
-        this.photos.set(photos);
-        this.loadingPhotos.set(false);
+      next: items => {
+        this.albumItems.set(items);
+        this.loadingItems.set(false);
       },
       error: () => {
-        this.loadingPhotos.set(false);
-        this.loadingPhotosError.set(true);
+        this.loadingItems.set(false);
+        this.loadingItemsError.set(true);
       }
     })
   }
@@ -218,14 +226,14 @@ export class EditAlbums implements OnInit {
     const description = this.newPhotoDescription.trim();
     let yearContentCreated = 2003;
 
-    const photoSpec = new PhotoSpecDTO();
+    const photoSpec = new PhotoDisplaySpecification();
     photoSpec.name = name;
     photoSpec.description = description;
     photoSpec.yearContentCreated = yearContentCreated;
 
     const uploadSpecification = new PhotoUploadSpecification(this.newPhotoSelectedImageFile, photoSpec);
 
-    let request = this.albumApi.uploadPhoto(<number>this.selectedAlbumId(), uploadSpecification);
+    let request = this.photoDisplayApi.uploadImagePostPhotoPostDisplay(<number>this.selectedAlbumId(), uploadSpecification);
     request.subscribe({
       next: () => {
         this.uploadingPhoto.set(false);
@@ -260,10 +268,10 @@ export class EditAlbums implements OnInit {
 
   }
 
-  photoChangedStateUpdate(updatedPhoto: PhotoDto) {
-    this.photos.update(photos =>
-      photos.map(photo =>
-        photo.id === updatedPhoto.id ? updatedPhoto : photo
+  albumItemUpdateState(updatedItem: AlbumItemDto) {
+    this.albumItems.update(items =>
+      items.map(item =>
+        item.id === updatedItem.id ? updatedItem : item
       )
     );
   }

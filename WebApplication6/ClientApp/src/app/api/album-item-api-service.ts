@@ -1,5 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import type {AlbumItemDto} from '../models/AlbumItemDto';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +19,10 @@ export class AlbumItemApiService {
     return this.http.post(requestPath, requestObject);
   }
 
-
+  fetchAlbumItems(albumId: number): Observable<AlbumItemDto[]> {
+    const requestPath = this.apiPhotoDisplayUrlPrefix + '/' + albumId + '/album-item';
+    return this.http.get<AlbumItemDto[]>(requestPath);
+  }
 
 }
 

@@ -8,7 +8,7 @@ import {PhotoDisplayDto} from '../models/PhotoDisplayDto';
 @Injectable({
   providedIn: 'root',
 })
-export class AlbumApiService {
+export class PhotoDisplayApiService {
 
   constructor() {};
 

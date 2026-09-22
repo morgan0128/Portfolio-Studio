@@ -55,13 +55,13 @@ describe('PortfolioPageManager', () => {
     component.applyNavPositionRequest(4);
     fixture.detectChanges();
     expect(api.applyNavPosition).toHaveBeenCalledWith(42, 4);
-    expect(component.navbarItems()[0].navbarOrder).toBe(0);
+    expect(component.navbarAlbumsOrdered()[0].navbarOrder).toBe(0);
     expect(component.selectedMayBeAdded()).toBeFalse();
 
     component.unpublish();
     fixture.detectChanges();
     expect(api.unpublishAlbum).toHaveBeenCalledWith(42);
-    expect(component.navbarItems()).toEqual([]);
+    expect(component.navbarAlbumsOrdered()).toEqual([]);
     expect(fixture.nativeElement.textContent).toContain('This item is not published');
   });
 

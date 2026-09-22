@@ -1,4 +1,6 @@
+import type {PhotoDisplayDto} from './PhotoDisplayDto';
+
 export type PhotoDisplayCollectionDto = {
-  displayMode: number,
-  // photoDisplays: ???
-}
+  displayMode: number;
+  photoDisplays: PhotoDisplayDto[];
+};
