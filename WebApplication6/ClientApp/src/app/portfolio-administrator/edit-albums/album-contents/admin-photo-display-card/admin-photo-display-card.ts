@@ -3,8 +3,8 @@ import {FormsModule} from '@angular/forms';
 import {NgOptimizedImage} from '@angular/common';
 import {AlbumApiService} from '../../../../api/album-api-service';
 import {PhotoDto} from '../../../../models/PhotoDto';
-import {PhotoDisplayDto} from '../../../../models/PhotoDisplayDto';
-import {AlbumItemDto} from '../../../../models/AlbumItemDto';
+// import {PhotoDisplayDto} from '../../../../models/PhotoDisplayDto';
+import {AlbumItemDto, PhotoDisplayDto, PhotoDisplayItem} from '../../../../models/AlbumItemDto';
 import {PhotoDisplayApiService, PhotoDisplayFieldsDisplayedRequest} from '../../../../api/photo-display-api-service';
 
 @Component({
@@ -21,9 +21,9 @@ export class AdminPhotoDisplayCard {
   private readonly photoDisplayApi = inject(PhotoDisplayApiService);
 
   readonly albumId = input.required<number>();
-  readonly item = input.required<AlbumItemDto>();
+  readonly item = input.required<PhotoDisplayItem>();
 
-  readonly photoDisplay = input.required<PhotoDisplayDto>();
+  readonly photoDisplay = computed(() => this.item().content);
 
   // readonly incompatibleAlbumItemError = computed<boolean>(() => (this.item().kind !== 'photoDisplay'));
 
@@ -41,7 +41,7 @@ export class AdminPhotoDisplayCard {
 
   readonly photo = computed<PhotoDto | null>(() => this.photoDisplay() !== null ? this.photoDisplay()!.photo : null);
 
-  readonly stateChanged = output<AlbumItemDto>();
+  readonly stateChange = output<PhotoDisplayItem>();
   readonly itemStatesChanged = output(); // reload all photos // TODO: operations affecting multiple item states belongs in album-contents
 
   /* TODO: operations affecting multiple item states belongs in album-contents
@@ -51,7 +51,7 @@ export class AdminPhotoDisplayCard {
 
   readonly photoDetailedViewRequest = output<PhotoDto>();
 
-  readonly groupingView = input.required<boolean>();
+  readonly groupingView = input<boolean>(false);
   readonly includeInNewGroup = input<boolean>(false);
   readonly collectionGroupingOptStatusChanged = output<boolean>();
 
@@ -116,15 +116,20 @@ export class AdminPhotoDisplayCard {
     let request = this.photoDisplayApi.modifyFieldsDisplayed(albumId, photoDisplayId, updatedDisplaySettings);
     request.subscribe({
       next: () => {
-        if (this.item().id !== photoDisplayId) return;
-        const updated = this.item();
-        if (updated.kind != 'photoDisplay') return; // incompatibleAlbumItemError incongruency
-
-        updated.content.displaysName = updatedDisplaySettings.displaysName ?? updated.content.displaysName;
-        updated.content.displaysDescription = updatedDisplaySettings.displaysDescription ?? updated.content.displaysDescription;
-        updated.content.displaysYearContentCreated = updatedDisplaySettings.displaysYearContentCreated ?? updated.content.displaysYearContentCreated;
-
-        this.stateChanged.emit(updated);
+        const current = this.item();
+        if (current.id !== photoDisplayId || this.albumId() !== albumId) return;
+        this.stateChange.emit({
+          ...current,
+          content: {
+            ...current.content,
+            displaysName: updatedDisplaySettings.displaysName
+              ?? current.content.displaysName,
+            displaysDescription: updatedDisplaySettings.displaysDescription
+              ?? current.content.displaysDescription,
+            displaysYearContentCreated: updatedDisplaySettings.displaysYearContentCreated
+              ?? current.content.displaysYearContentCreated,
+          },
+        })
       }
     });
   }

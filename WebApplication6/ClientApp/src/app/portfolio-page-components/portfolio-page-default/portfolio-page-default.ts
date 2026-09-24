@@ -7,8 +7,7 @@ import {Navbar} from '../navbar/navbar';
 import {ImageDto} from '../../models/ImageDto';
 import {ImageDisplay} from '../image-display/ImageDisplay';
 import {AlbumItemApiService} from '../../api/album-item-api-service';
-import {AlbumItemDto} from '../../models/AlbumItemDto';
-import {PhotoDisplayDto} from '../../models/PhotoDisplayDto';
+import {AlbumItemDto, PhotoDisplayDto} from '../../models/AlbumItemDto';
 
 
 @Component({

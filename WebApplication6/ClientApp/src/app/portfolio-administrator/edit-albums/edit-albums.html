@@ -217,8 +217,8 @@
             [selectedAlbumId]="this.selectedAlbumId()!"
             [loadingItems]="this.loadingItems()"
             [items]="this.albumItems()"
-            (itemStateChanged)="albumItemUpdateState($event)"
-            (multipleItemStatesChanged)="loadAlbumSelection()"/>
+            (stateChange)="albumItemUpdateState($event)"
+            (multipleItemStatesChange)="loadAlbumSelection()"/>
         }
       </section>
   </div>

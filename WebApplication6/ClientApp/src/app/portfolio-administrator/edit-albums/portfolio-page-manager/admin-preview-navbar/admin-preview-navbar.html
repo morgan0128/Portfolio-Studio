@@ -7,7 +7,7 @@
       @if (n.published){
         <li
           class="pp-nav-title"
-          [appReorderGlow]="reorderGlows()[n.id] ?? 0"
+          [appReorderGlow]="reorderGlows()[n.id]"
         >
           <button class="reorder-button" (click)="reorderInNavBackwardRequest.emit(n.id)"><</button>
           {{ n.navTitle }}

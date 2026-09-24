@@ -1,8 +1,15 @@
 import {Component, computed, input, output, signal} from '@angular/core';
-import {AlbumItemDto} from '../../../../models/AlbumItemDto';
-import {PhotoDisplayDto} from '../../../../models/PhotoDisplayDto';
-import {PhotoDisplayCollectionDto} from '../../../../models/PhotoDisplayCollectionDto';
+// import {AlbumItemDto} from '../../../../models/AlbumItemDto';
+// import {PhotoDisplayDto} from '../../../../models/PhotoDisplayDto';
+// import {PhotoDisplayCollectionDto} from '../../../../models/PhotoDisplayCollectionDto';
+import {
+  AlbumItemDto,
+  PhotoDisplayCollectionDto,
+  PhotoDisplayCollectionItem,
+  PhotoDisplayItem
+} from '../../../../models/AlbumItemDto'
 import {AdminPhotoDisplayCard} from '../admin-photo-display-card/admin-photo-display-card';
+import {PhotoDto} from '../../../../models/PhotoDto';
 
 @Component({
   selector: 'app-admin-photo-display-collection-card',
@@ -14,22 +21,36 @@ import {AdminPhotoDisplayCard} from '../admin-photo-display-card/admin-photo-dis
 })
 export class AdminPhotoDisplayCollectionCard {
   readonly albumId = input.required<number>();
-  readonly item = input.required<AlbumItemDto>();
+  readonly item = input.required<PhotoDisplayCollectionItem>();
+  readonly photoDisplayCollection = computed<PhotoDisplayCollectionDto>(() => this.item().content);
 
-  readonly photoDisplayCollection = input.required<PhotoDisplayCollectionDto>();
+  readonly stateChange = output<PhotoDisplayCollectionItem>();
+  // readonly internalItemStateChange = output<PhotoDisplayItem>();
+  // readonly externalStateChange = output();
 
-  readonly ownStateChange = output<AlbumItemDto>();
-  readonly displayPhotoInternalStateChange = output<AlbumItemDto>();
-  readonly itemStatesChange = output();
+  readonly internalPhotoDetailedViewRequest = output<PhotoDto>();
 
   readonly displayMode = computed<number>(() =>  this.photoDisplayCollection().displayMode);
-  readonly photoDisplays = computed<PhotoDisplayDto[]>(() => this.photoDisplayCollection().photoDisplays);
+  readonly photoDisplays = computed<PhotoDisplayItem[]>(() => this.photoDisplayCollection().photoDisplays);
 
   readonly displayIndex = signal<number>(0);
-  readonly selectedPhotoDisplay = computed<PhotoDisplayDto | null>(() =>
+  readonly selectedPhotoDisplay = computed<PhotoDisplayItem | null>(() =>
     (this.displayIndex() >= 0 && this.displayIndex() < this.photoDisplays().length) ?
       this.photoDisplays()[this.displayIndex()] : null);
 
+
+  internalPhotoDisplayStateChange(changedPhotoDisplay: PhotoDisplayItem){
+    const collection = this.item();
+    this.stateChange.emit({
+      ...collection,
+      content: {
+        ...collection.content,
+        photoDisplays: collection.content.photoDisplays.map(photo =>
+          photo.id === changedPhotoDisplay.id ? changedPhotoDisplay : photo
+        ),
+      },
+    });
+  }
 
   nextPhoto() {
     if (this.photoDisplays().length <= 1){

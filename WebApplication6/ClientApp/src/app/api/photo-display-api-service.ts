@@ -1,9 +1,9 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {AlbumDto} from '../models/AlbumDto';
-import {Observable} from 'rxjs';
-import {PhotoDto} from '../models/PhotoDto';
-import {PhotoDisplayDto} from '../models/PhotoDisplayDto';
+// import {AlbumDto} from '../models/AlbumDto';
+// import {Observable} from 'rxjs';
+// import {PhotoDto} from '../models/PhotoDto';
+// import {PhotoDisplayDto} from '../models/PhotoDisplayDto';
 
 @Injectable({
   providedIn: 'root',
@@ -29,10 +29,10 @@ export class PhotoDisplayApiService {
     return this.http.post(requestPath, formData);
   }
 
-  getPhotoDisplays(albumId: number): (Observable<PhotoDisplayDto[]>) {
-    let requestPath = this.apiPhotoDisplayUrlPrefix + '/' + albumId + '/photo-display'
-    return this.http.get<PhotoDisplayDto[]>(requestPath);
-  }
+  // getPhotoDisplays(albumId: number): (Observable<PhotoDisplayDto[]>) {
+  //   let requestPath = this.apiPhotoDisplayUrlPrefix + '/' + albumId + '/photo-display'
+  //   return this.http.get<PhotoDisplayDto[]>(requestPath);
+  // }
 
   toggleDisplaysName(albumId: number, photoDisplayId: number){
     let request = new PhotoDisplayFieldsDisplayedRequest();

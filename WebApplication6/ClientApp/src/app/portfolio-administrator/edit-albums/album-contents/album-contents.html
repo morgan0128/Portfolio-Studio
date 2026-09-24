@@ -38,15 +38,18 @@
             <app-admin-photo-display-card
               [albumId]="selectedAlbumId()"
               [item]="item"
-              [photoDisplay]="item.content"
-              (stateChanged)="itemStateChanged.emit($event)"
+              (stateChange)="internalPhotoDisplayStateChange($event)"
               (photoDetailedViewRequest)="handleDetailedPhotoViewRequest($event)"
               [groupingView]="collectionGroupingView()"
               [includeInNewGroup]="getCollectionGroupingOptStatus(item.id)"
               (collectionGroupingOptStatusChanged)="handlePhotoOptChangeEvent(item.id, $event)"
             />
           } @else if (item.kind === 'photoDisplayCollection'){
-<!--            <app-admin-view-->
+            <app-admin-photo-display-collection-card
+              [albumId]="selectedAlbumId()"
+              [item]="item"
+              (stateChange)="internalPhotoDisplayCollectionStateChange($event)"
+              />
           }
 
         }

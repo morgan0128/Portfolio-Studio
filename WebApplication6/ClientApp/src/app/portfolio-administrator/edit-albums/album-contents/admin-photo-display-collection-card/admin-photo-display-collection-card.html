@@ -2,13 +2,9 @@
   @if (selectedPhotoDisplay() !== null){
     <app-admin-photo-display-card
       [albumId]="albumId()"
-      [item]="selectedPhotoDisplay()"
-      [photoDisplay]="item.selected"
-      (stateChanged)="itemStateChanged.emit($event)"
-      (photoDetailedViewRequest)="handleDetailedPhotoViewRequest($event)"
-      [groupingView]="collectionGroupingView()"
-      [includeInNewGroup]="getCollectionGroupingOptStatus(item.id)"
-      (collectionGroupingOptStatusChanged)="handlePhotoOptChangeEvent(item.id, $event)
+      [item]="selectedPhotoDisplay()!"
+      (stateChange)="internalPhotoDisplayStateChange($event)"
+      (photoDetailedViewRequest)="internalPhotoDetailedViewRequest.emit($event)"
     />
   }
 </div>

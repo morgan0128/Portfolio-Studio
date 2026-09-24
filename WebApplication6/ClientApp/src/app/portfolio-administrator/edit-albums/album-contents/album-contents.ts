@@ -3,18 +3,19 @@ import {AdminPhotoDisplayCard} from './admin-photo-display-card/admin-photo-disp
 import {AlbumDto} from '../../../models/AlbumDto';
 import {PhotoDto} from '../../../models/PhotoDto';
 import {DetailedPhotoView} from './detailed-photo-view/detailed-photo-view';
-import {AlbumItemDto} from '../../../models/AlbumItemDto';
+import {AlbumItemDto, PhotoDisplayCollectionItem, PhotoDisplayItem} from '../../../models/AlbumItemDto';
+import {
+  AdminPhotoDisplayCollectionCard
+} from './admin-photo-display-collection-card/admin-photo-display-collection-card';
 
 
 @Component({
   selector: 'app-album-contents',
-  imports: [AdminPhotoDisplayCard, DetailedPhotoView],
+  imports: [AdminPhotoDisplayCard, DetailedPhotoView, AdminPhotoDisplayCollectionCard],
   templateUrl: './album-contents.html',
   styleUrl: './album-contents.css',
 })
 export class AlbumContents {
-  // private
-
   public readonly selectedAlbum = input<AlbumDto | null>(null);
   public readonly selectedAlbumId = input.required<number>();
   // public readonly loadingPhotos = input<boolean>(false);
@@ -24,11 +25,35 @@ export class AlbumContents {
   protected readonly detailedViewPhoto = signal<PhotoDto | null>(null);
 
   // readonly photoStateChange = output<PhotoDto>();
-  readonly itemStateChanged = output<AlbumItemDto>();
-  readonly multipleItemStatesChanged = output(); // reload all photos
+  readonly stateChange = output<AlbumItemDto>();
+  readonly multipleItemStatesChange = output(); // reload all photos
 
   protected readonly collectionGroupingView = signal<boolean>(false);
   protected readonly collectionGroupingOptInIds = signal<number[]>([])
+
+  internalPhotoDisplayStateChange(changed: PhotoDisplayItem){
+    const current = this.items().find(
+      item => item.id === changed.id
+    );
+    if (current?.kind !== 'photoDisplay') return;
+
+    this.stateChange.emit({
+      ...changed,
+      kind: 'photoDisplay',
+    });
+  }
+
+  internalPhotoDisplayCollectionStateChange(changed: PhotoDisplayCollectionItem){
+    const current = this.items().find(
+      item => item.id === changed.id
+    );
+    if (current?.kind !== 'photoDisplayCollection') return;
+
+    this.stateChange.emit({
+      ...changed,
+      kind: 'photoDisplayCollection'
+    });
+  }
 
   handleDetailedPhotoViewRequest(requestPhoto: PhotoDto){
     this.detailedViewPhoto.set(requestPhoto);
