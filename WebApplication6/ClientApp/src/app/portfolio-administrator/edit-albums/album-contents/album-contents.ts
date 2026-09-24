@@ -1,5 +1,5 @@
 import {Component, input, output, signal} from '@angular/core';
-import {AdminViewPhotoDisplayCard} from './admin-view-photo-display-card/admin-view-photo-display-card';
+import {AdminPhotoDisplayCard} from './admin-photo-display-card/admin-photo-display-card';
 import {AlbumDto} from '../../../models/AlbumDto';
 import {PhotoDto} from '../../../models/PhotoDto';
 import {DetailedPhotoView} from './detailed-photo-view/detailed-photo-view';
@@ -8,7 +8,7 @@ import {AlbumItemDto} from '../../../models/AlbumItemDto';
 
 @Component({
   selector: 'app-album-contents',
-  imports: [AdminViewPhotoDisplayCard, DetailedPhotoView],
+  imports: [AdminPhotoDisplayCard, DetailedPhotoView],
   templateUrl: './album-contents.html',
   styleUrl: './album-contents.css',
 })

@@ -8,25 +8,29 @@ import {AlbumItemDto} from '../../../../models/AlbumItemDto';
 import {PhotoDisplayApiService, PhotoDisplayFieldsDisplayedRequest} from '../../../../api/photo-display-api-service';
 
 @Component({
-  selector: 'app-admin-view-photo-card',
+  selector: 'app-admin-photo-display-card',
   imports: [
     NgOptimizedImage,
     FormsModule,
   ],
-  templateUrl: './admin-view-photo-display-card.html',
-  styleUrl: './admin-view-photo-display-card.css',
+  templateUrl: './admin-photo-display-card.html',
+  styleUrl: './admin-photo-display-card.css',
 })
-export class AdminViewPhotoDisplayCard {
+export class AdminPhotoDisplayCard {
   // private readonly albumApi = inject(AlbumApiService);
   private readonly photoDisplayApi = inject(PhotoDisplayApiService);
 
   readonly albumId = input.required<number>();
   readonly item = input.required<AlbumItemDto>();
 
-  readonly incompatibleAlbumItemError = computed<boolean>(() => (this.item().kind !== 'photoDisplay'));
+  readonly photoDisplay = input.required<PhotoDisplayDto>();
 
-  readonly photoDisplay = computed<PhotoDisplayDto | null>(() =>
-    !this.incompatibleAlbumItemError() ? <PhotoDisplayDto>this.item().content : null);
+  // readonly incompatibleAlbumItemError = computed<boolean>(() => (this.item().kind !== 'photoDisplay'));
+
+  // readonly photoDisplay = computed<PhotoDisplayDto | null>(() =>
+  //   !this.incompatibleAlbumItemError() ? <PhotoDisplayDto>this.item().content : null);
+
+
 
   readonly displaysNameColor = computed<string | null>(() =>
     this.photoDisplay() !== null ? ((this.photoDisplay()!.displaysName) ? 'green' : 'red') : null);
@@ -82,7 +86,6 @@ export class AdminViewPhotoDisplayCard {
   }
 
   toggleDisplaysName(){
-    if (this.item() === null || this.incompatibleAlbumItemError()) return;
     const displaysName = this.photoDisplay()?.displaysName;
     if (displaysName === undefined) return; // incompatibleAlbumItemError incongruency
 
@@ -92,7 +95,6 @@ export class AdminViewPhotoDisplayCard {
   }
 
   toggleDisplaysDesc(){
-    if (this.item() === null || this.incompatibleAlbumItemError()) return;
     const displaysDescription = this.photoDisplay()?.displaysDescription;
     if (displaysDescription === undefined) return; // incompatibleAlbumItemError incongruency
 
@@ -102,7 +104,6 @@ export class AdminViewPhotoDisplayCard {
   }
 
   toggleDisplaysYearCC(){
-    if (this.item() === null || this.incompatibleAlbumItemError()) return;
     const displaysYearContentCreated = this.photoDisplay()?.displaysYearContentCreated;
     if (displaysYearContentCreated === undefined) return; // incompatibleAlbumItemError incongruency
 

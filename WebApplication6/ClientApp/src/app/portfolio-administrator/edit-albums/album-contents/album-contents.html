@@ -35,16 +35,20 @@
       <div class="art-grid">
         @for (item of items(); track item.id) {
           @if (item.kind === 'photoDisplay'){
-            <app-admin-view-photo-card
+            <app-admin-photo-display-card
               [albumId]="selectedAlbumId()"
               [item]="item"
+              [photoDisplay]="item.content"
               (stateChanged)="itemStateChanged.emit($event)"
               (photoDetailedViewRequest)="handleDetailedPhotoViewRequest($event)"
               [groupingView]="collectionGroupingView()"
               [includeInNewGroup]="getCollectionGroupingOptStatus(item.id)"
               (collectionGroupingOptStatusChanged)="handlePhotoOptChangeEvent(item.id, $event)"
             />
+          } @else if (item.kind === 'photoDisplayCollection'){
+<!--            <app-admin-view-->
           }
+
         }
         @if (detailedViewPhoto() != null){
           <app-detailed-photo-view [photo]="detailedViewPhoto()!" (closePreview)="detailedViewPhoto.set(null)" />
