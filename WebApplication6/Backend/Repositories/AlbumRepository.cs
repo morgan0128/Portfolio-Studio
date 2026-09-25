@@ -236,7 +236,7 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
     
     private static readonly Expression<Func<Album, IAlbumRepository.AlbumDto>> ToDto = album => 
         new IAlbumRepository.AlbumDto(album.Id, album.Name, album.Description,
-            album.NavTitle, album.Published, album.NavbarOrder, album.LayoutPreset);
+            album.NavTitle, album.Published, album.LayoutPreset, album.NavbarOrder);
 
     private static IAlbumRepository.AlbumDto AlbumToDto(Album album)
     {
@@ -247,8 +247,6 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
             Description: album.Description,
             NavTitle: album.NavTitle,
             Published: album.Published,
-            NavbarOrder: album.NavbarOrder,
-            LayoutPreset: album.LayoutPreset
-        );
+            LayoutPreset: album.LayoutPreset, NavbarOrder: album.NavbarOrder);
     }
 }

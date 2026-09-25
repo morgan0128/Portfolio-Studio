@@ -19,3 +19,7 @@ main {
   margin-inline: auto;
   padding: 0.5rem clamp(0.75rem, 3vw, 2rem) 3rem;
 }
+
+.item {
+  margin: 2rem 0;
+}

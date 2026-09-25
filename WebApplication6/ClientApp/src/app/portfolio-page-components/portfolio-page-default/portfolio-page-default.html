@@ -8,6 +8,7 @@
   <div class="portfolio-items">
       @if (!loadingItems() && !loadingItemsError()){
         @for (item of items(); track item.id){
+          <div class="item">
           @switch (item.kind){
             @case ('photoDisplay'){
               <app-portfolio-page-photo-display [item]="item" />
@@ -19,8 +20,10 @@
 
             }
           }
+          </div>
         }
       }
+
   </div>
 
 </main>

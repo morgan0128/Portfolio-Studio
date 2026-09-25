@@ -40,11 +40,11 @@ public interface IAlbumRepository
     public sealed record AlbumDto(
         int Id,
         string? Name,
-        string? Description,
-        string NavTitle,
-        bool Published,
-        int NavbarOrder,
-        PageLayoutPreset LayoutPreset
-    );
+        string? Description = null,
+        string NavTitle = "",
+        bool Published = false,
+        PageLayoutPreset LayoutPreset = PageLayoutPreset.Default,
+        int NavbarOrder = -1
+        );
     
 }
