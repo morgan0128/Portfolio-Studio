@@ -8,13 +8,19 @@ import {ImageDto} from '../../models/ImageDto';
 import {ImageDisplay} from '../image-display/ImageDisplay';
 import {AlbumItemApiService} from '../../api/album-item-api-service';
 import {AlbumItemDto, PhotoDisplayDto} from '../../models/AlbumItemDto';
+import {PortfolioPagePhotoDisplay} from '../portfolio-page-photo-display/portfolio-page-photo-display';
+import {
+  PortfolioPagePhotoDisplayCollection
+} from '../portfolio-page-photo-display-collection/portfolio-page-photo-display-collection';
 
 
 @Component({
   selector: 'app-portfolio-page-default',
   imports: [
     Navbar,
-    ImageDisplay
+    ImageDisplay,
+    PortfolioPagePhotoDisplay,
+    PortfolioPagePhotoDisplayCollection
   ],
   templateUrl: './portfolio-page-default.html',
   styleUrl: './portfolio-page-default.css',
@@ -25,7 +31,7 @@ export class PortfolioPageDefault implements OnInit {
 
   public album = input.required<AlbumDto>();
   protected items = signal<AlbumItemDto[]>([]);
-  protected photos = signal<PhotoDto[]>([]);
+  // protected photos = signal<PhotoDto[]>([]);
 
   protected displayIndex = signal<number>(0);
 
@@ -63,12 +69,12 @@ export class PortfolioPageDefault implements OnInit {
     })
   }
 
-  shouldIncludeTextContentContainer(photoDisplay: PhotoDisplayDto): boolean {
-    const photo = photoDisplay.photo;
-    return (photoDisplay.displaysName && photo.name !== '' && photo.name !== null) ||
-      (photoDisplay.displaysDescription && photo.description !== '' && photo.description !== null) ||
-      (photoDisplay.displaysYearContentCreated && photo.yearContentCreated !== null);
-  }
+  // shouldIncludeTextContentContainer(photoDisplay: PhotoDisplayDto): boolean {
+  //   const photo = photoDisplay.photo;
+  //   return (photoDisplay.displaysName && photo.name !== '' && photo.name !== null) ||
+  //     (photoDisplay.displaysDescription && photo.description !== '' && photo.description !== null) ||
+  //     (photoDisplay.displaysYearContentCreated && photo.yearContentCreated !== null);
+  // }
 
   nextPhoto() {
     if (this.items().length <= 1){

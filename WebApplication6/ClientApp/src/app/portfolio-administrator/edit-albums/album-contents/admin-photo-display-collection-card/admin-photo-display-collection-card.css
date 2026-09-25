@@ -1,0 +1,24 @@
+div.collection-card {
+  /*display: flex;*/
+  position: relative;
+
+  button.collection-nav {
+    /*display: inline;*/
+    position: absolute;
+    top: 40%;
+  }
+
+  button.collection-nav:first-of-type {
+    left: 0;
+  }
+
+  button.collection-nav:last-of-type {
+    right: 0;
+  }
+
+  button.collection-dissolve {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+}

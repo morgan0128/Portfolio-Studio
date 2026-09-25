@@ -6,12 +6,14 @@ import {PhotoDto} from '../../../../models/PhotoDto';
 // import {PhotoDisplayDto} from '../../../../models/PhotoDisplayDto';
 import {AlbumItemDto, PhotoDisplayDto, PhotoDisplayItem} from '../../../../models/AlbumItemDto';
 import {PhotoDisplayApiService, PhotoDisplayFieldsDisplayedRequest} from '../../../../api/photo-display-api-service';
+import {ImageDisplay} from '../../../../portfolio-page-components/image-display/ImageDisplay';
 
 @Component({
   selector: 'app-admin-photo-display-card',
   imports: [
     NgOptimizedImage,
     FormsModule,
+    ImageDisplay,
   ],
   templateUrl: './admin-photo-display-card.html',
   styleUrl: './admin-photo-display-card.css',

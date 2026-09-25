@@ -1,4 +1,4 @@
-<div>
+<div class="collection-card">
   @if (selectedPhotoDisplay() !== null){
     <app-admin-photo-display-card
       [albumId]="albumId()"
@@ -6,5 +6,8 @@
       (stateChange)="internalPhotoDisplayStateChange($event)"
       (photoDetailedViewRequest)="internalPhotoDetailedViewRequest.emit($event)"
     />
+    <button class="collection-nav" (click)="prevPhoto()"><</button>
+    <button class="collection-dissolve">&times;</button>
+    <button class="collection-nav" (click)="nextPhoto()">></button>
   }
 </div>

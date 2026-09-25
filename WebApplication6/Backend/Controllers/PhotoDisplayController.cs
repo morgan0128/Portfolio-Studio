@@ -40,12 +40,12 @@ public sealed class PhotoDisplayController(IAlbumRepository albumRepository, IAl
     
     
     /* GET */
-    [HttpGet]
-    public async Task<IEnumerable<IAlbumItemRepository.PhotoDisplayDto>> Get(int albumId)
-    {
-        var photos = await albumItemRepository.GetAlbumPhotoDisplays(albumId);
-        return photos;
-    }
+    // [HttpGet]
+    // public async Task<IEnumerable<IAlbumItemRepository.PhotoDisplayDto>> Get(int albumId)
+    // {
+    //     var photos = await albumItemRepository.GetAlbumPhotoDisplays(albumId);
+    //     return photos;
+    // }
     
     
     /* PUT, PATCH */

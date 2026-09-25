@@ -1,0 +1,15 @@
+@if (selectedPhotoDisplay() !== null){
+  <div class="collection-wrapper">
+    <app-portfolio-page-photo-display [item]="selectedPhotoDisplay()!"/>
+    <div class="button-nav">
+      <button class="prev-button" (click)="prevPhoto()">
+        <
+      </button>
+      <button class="next-button" (click)="nextPhoto()">
+        >
+      </button>
+    </div>
+  </div>
+
+
+}

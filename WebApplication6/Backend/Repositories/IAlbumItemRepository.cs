@@ -7,9 +7,10 @@ public interface IAlbumItemRepository
 {
     // Task<List<PhotoDisplay>> FetchPhotoDisplaysByIds(int albumId, List<int> photoDisplayIds);
     
-    // Task<PhotoDisplayCollection> CreateCarouselPhotoDisplayCollection(int albumId, List<PhotoDisplay> photoDisplays);
+    Task<PhotoDisplayCollectionAlbumItemDto?> CreateCarouselPhotoDisplayCollection(
+        int albumId, IReadOnlyList<int> photoDisplayIds, CancellationToken cancellationToken = default);
     
-    Task<IEnumerable<PhotoDisplayDto>> GetAlbumPhotoDisplays(int albumId);
+    // Task<IEnumerable<PhotoDisplayDto>> GetAlbumPhotoDisplays(int albumId);
 
     Task<IEnumerable<AlbumItemDto>> GetAlbumItems(int albumId);
     
@@ -29,10 +30,6 @@ public interface IAlbumItemRepository
     // Task<bool> ToggleDisplaysDescription(int albumId, int photoId);
     
     // Task<bool> ToggleDisplaysYearContentCreated(int albumId, int photoId);
-
-    /// <summary>
-    /// ///////////////////////////////
-    /// </summary>
     // public sealed record ImageDto(
     //     int Id,
     //     string FileName,
@@ -79,12 +76,12 @@ public interface IAlbumItemRepository
     public sealed record PhotoDisplayCollectionAlbumItemDto(
         int Id,
         int Order,
-        PhotoDisplayCollectionItemDto Content
+        PhotoDisplayCollectionDto Content
     ) : AlbumItemDto(Id, Order);
 
-    public sealed record PhotoDisplayCollectionItemDto(
+    public sealed record PhotoDisplayCollectionDto(
         PhotoDisplayCollection.PhotoDisplayMode DisplayMode,
-        IReadOnlyList<PhotoDisplayDto> PhotoDisplays
+        IReadOnlyList<PhotoDisplayAlbumItemDto> PhotoDisplays
     );
 
     public sealed record PhotoDto(

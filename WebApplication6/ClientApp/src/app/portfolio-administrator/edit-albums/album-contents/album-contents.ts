@@ -1,4 +1,4 @@
-import {Component, input, output, signal} from '@angular/core';
+import {Component, inject, input, output, signal} from '@angular/core';
 import {AdminPhotoDisplayCard} from './admin-photo-display-card/admin-photo-display-card';
 import {AlbumDto} from '../../../models/AlbumDto';
 import {PhotoDto} from '../../../models/PhotoDto';
@@ -7,6 +7,7 @@ import {AlbumItemDto, PhotoDisplayCollectionItem, PhotoDisplayItem} from '../../
 import {
   AdminPhotoDisplayCollectionCard
 } from './admin-photo-display-collection-card/admin-photo-display-collection-card';
+import {PhotoDisplayCollectionApiService} from '../../../api/photo-display-collection-api-service';
 
 
 @Component({
@@ -16,6 +17,8 @@ import {
   styleUrl: './album-contents.css',
 })
 export class AlbumContents {
+  private readonly photoDisplayCollectionApi = inject(PhotoDisplayCollectionApiService);
+
   public readonly selectedAlbum = input<AlbumDto | null>(null);
   public readonly selectedAlbumId = input.required<number>();
   // public readonly loadingPhotos = input<boolean>(false);
@@ -91,8 +94,11 @@ export class AlbumContents {
   }
 
   protected createPhotoGroup(){
-
-
+    this.photoDisplayCollectionApi.Post(this.selectedAlbumId(), this.collectionGroupingOptInIds()).subscribe({
+      next: () => {
+        this.multipleItemStatesChange.emit();
+      }
+    })
 
     this.toggleCreatePhotoGroupView();
   }

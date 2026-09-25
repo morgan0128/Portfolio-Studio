@@ -1,0 +1,26 @@
+<div class="photo-card">
+  @if (photoDisplay() !== null && image() !== null) {
+
+    <div class="image-container">
+      @for (image of [image()!]; track image.id){
+        <app-image-display [displayedImage]="image"/>
+      }
+    </div>
+
+    @if (shouldIncludeTextContentContainer(photoDisplay())){
+      <div class="text-content-container">
+        @if (photoDisplay().displaysName){
+          <p class="name">{{ photo().name }}</p>
+        }
+        @if (photoDisplay().displaysDescription) {
+          <p class="description">{{ photo().description }}</p>
+        }
+        @if (photoDisplay().displaysYearContentCreated){
+          <p class="year-cc">{{ photo().yearContentCreated }}</p>
+        }
+      </div>
+    }
+
+  }
+
+</div>

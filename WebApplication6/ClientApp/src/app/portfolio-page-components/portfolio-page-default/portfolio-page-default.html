@@ -7,40 +7,19 @@
 
   <div class="portfolio-items">
       @if (!loadingItems() && !loadingItemsError()){
-          <div class="photo-card">
-            @if (displayedPhoto() !== null && displayedImage() !== null) {
-
-                  <div class="image-container">
-                    @for (image of [displayedImage()!]; track image.id){
-                      <app-image-display [displayedImage]="displayedImage()!"/>
-                    }
-                  </div>
-
-                @if (shouldIncludeTextContentContainer(displayedPhotoDisplay()!)){
-                  <div class="text-content-container">
-                    @if (displayedPhotoDisplay()!.displaysName){
-                      <p class="name">{{ displayedPhoto()!.name }}</p>
-                    }
-                    @if (displayedPhotoDisplay()!.displaysDescription) {
-                      <p class="description">{{ displayedPhoto()!.description }}</p>
-                    }
-                    @if (displayedPhotoDisplay()!.displaysYearContentCreated){
-                      <p class="year-cc">{{ displayedPhoto()!.yearContentCreated }}</p>
-                    }
-                  </div>
-              }
-              <div class="button-nav">
-                <button class="prev-button" (click)="prevPhoto()">
-                  <
-                </button>
-                <button class="next-button" (click)="nextPhoto()">
-                  >
-                </button>
-              </div>
+        @for (item of items(); track item.id){
+          @switch (item.kind){
+            @case ('photoDisplay'){
+              <app-portfolio-page-photo-display [item]="item" />
             }
+            @case ('photoDisplayCollection'){
+              <app-portfolio-page-photo-display-collection [item]="item" />
+            }
+            @default {
 
-          </div>
-
+            }
+          }
+        }
       }
   </div>
 

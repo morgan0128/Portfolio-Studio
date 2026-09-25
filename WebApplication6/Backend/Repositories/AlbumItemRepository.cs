@@ -6,26 +6,26 @@ namespace WebApplication6.Backend.Repositories;
 
 public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepository
 {
-    public async Task<IEnumerable<IAlbumItemRepository.PhotoDisplayDto>> GetAlbumPhotoDisplays(int albumId)
-    {
-            var album = await context.Albums
-                .Where(a => a.Id == albumId)
-                .SingleAsync();
-
-            var photoDisplays = await context.PhotoDisplays
-                .Include(pd => pd.Photo).ThenInclude(p => p.Image)
-                .Include(pd => pd.PhotoDisplayCollection)
-                .Where(pd => pd.AlbumId == album.Id)
-                .OrderBy(pd => pd.PhotoDisplayCollection == null ? pd.Order : pd.PhotoDisplayCollection.Order)
-                .ThenBy(pd => pd.Order)
-                .ToListAsync();
-
-            var photos = photoDisplays
-                .Select(ToPhotoDisplayDto)
-                .ToList();
-
-            return photos;
-    }
+    // public async Task<IEnumerable<IAlbumItemRepository.PhotoDisplayDto>> GetAlbumPhotoDisplays(int albumId)
+    // {
+    //         var album = await context.Albums
+    //             .Where(a => a.Id == albumId)
+    //             .SingleAsync();
+    //
+    //         var photoDisplays = await context.PhotoDisplays
+    //             .Include(pd => pd.Photo).ThenInclude(p => p.Image)
+    //             .Include(pd => pd.PhotoDisplayCollection)
+    //             .Where(pd => pd.AlbumId == album.Id)
+    //             .OrderBy(pd => pd.PhotoDisplayCollection == null ? pd.Order : pd.PhotoDisplayCollection.Order)
+    //             .ThenBy(pd => pd.Order)
+    //             .ToListAsync();
+    //
+    //         var photos = photoDisplays
+    //             .Select(ToPhotoDisplayDto)
+    //             .ToList();
+    //
+    //         return photos;
+    // }
     
     public async Task<bool> AddPhotoToAlbumAsync(int albumId, int photoId, CancellationToken cancellationToken = default)
     {
@@ -72,6 +72,65 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
         }
 
         return false;
+    }
+
+    public async Task<IAlbumItemRepository.PhotoDisplayCollectionAlbumItemDto?> CreateCarouselPhotoDisplayCollection(
+        int albumId, IReadOnlyList<int> photoDisplayIds, CancellationToken cancellationToken = default)
+    {
+        if (photoDisplayIds.Count == 0 || photoDisplayIds.Distinct().Count() != photoDisplayIds.Count)
+        {
+            return null;
+        }
+
+        var requestedIds = photoDisplayIds.ToArray();
+        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+
+        // Serialize collection creation for this album before reading its root items.
+        await context.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "Albums" WHERE "Id" = {albumId} FOR UPDATE""", cancellationToken);
+
+        var selectedDisplays = await context.PhotoDisplays
+            .Include(display => display.Photo)
+            .ThenInclude(photo => photo.Image)
+            .Where(display => display.AlbumId == albumId && ((IEnumerable<int>)requestedIds).Contains(display.Id))
+            .OrderBy(display => display.Order)
+            .ToListAsync(cancellationToken);
+
+        if (selectedDisplays.Count != requestedIds.Length ||
+            selectedDisplays.Any(display => display.PhotoDisplayCollectionId != null))
+        {
+            return null;
+        }
+
+        var collectionOrder = selectedDisplays[0].Order;
+        var temporaryOrder = (await ItemsInScope(albumId)
+            .MaxAsync(item => (int?)item.Order, cancellationToken) ?? -1) + 1;
+
+        var collection = new PhotoDisplayCollection
+        {
+            AlbumId = albumId,
+            Order = temporaryOrder,
+            DisplayMode = PhotoDisplayCollection.PhotoDisplayMode.Carousel
+        };
+
+        context.PhotoDisplayCollections.Add(collection);
+        await context.SaveChangesAsync(cancellationToken);
+
+        collection.PhotoDisplays = selectedDisplays;
+        for (var index = 0; index < selectedDisplays.Count; index++)
+        {
+            selectedDisplays[index].PhotoDisplayCollection = collection;
+            selectedDisplays[index].PhotoDisplayCollectionId = collection.Id;
+            selectedDisplays[index].Order = index;
+        }
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        collection.Order = collectionOrder;
+        await context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+
+        return ToPhotoDisplayCollectionAlbumItemDto(collection);
     }
 
     public async Task<IEnumerable<IAlbumItemRepository.AlbumItemDto>> GetAlbumItems(int albumId)
@@ -308,6 +367,11 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
     
     private static IAlbumItemRepository.AlbumItemDto ToAlbumItemDto(PhotoDisplay photoDisplay)
     {
+        return ToPhotoDisplayAlbumItemDto(photoDisplay);
+    }
+
+    private static IAlbumItemRepository.PhotoDisplayAlbumItemDto ToPhotoDisplayAlbumItemDto(PhotoDisplay photoDisplay)
+    {
         return new IAlbumItemRepository.PhotoDisplayAlbumItemDto(
             photoDisplay.Id,
             photoDisplay.Order,
@@ -316,15 +380,21 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
 
     private static IAlbumItemRepository.AlbumItemDto ToAlbumItemDto(PhotoDisplayCollection collection)
     {
+        return ToPhotoDisplayCollectionAlbumItemDto(collection);
+    }
+
+    private static IAlbumItemRepository.PhotoDisplayCollectionAlbumItemDto ToPhotoDisplayCollectionAlbumItemDto(
+        PhotoDisplayCollection collection)
+    {
         var photoDisplays = collection.PhotoDisplays
             .OrderBy(photoDisplay => photoDisplay.Order)
-            .Select(ToPhotoDisplayDto)
+            .Select(ToPhotoDisplayAlbumItemDto)
             .ToList();
 
         return new IAlbumItemRepository.PhotoDisplayCollectionAlbumItemDto(
             collection.Id,
             collection.Order,
-            new IAlbumItemRepository.PhotoDisplayCollectionItemDto(
+            new IAlbumItemRepository.PhotoDisplayCollectionDto(
                 collection.DisplayMode,
                 photoDisplays));
     }

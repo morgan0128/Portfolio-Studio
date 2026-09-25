@@ -82,6 +82,19 @@
   max-height: 560px;
   overflow: hidden;
   background: #e7eeeb;
+
+  .image-container {
+    grid-area: 1 / 1;
+    min-inline-size: 0;
+    min-block-size: 0;
+    /*padding: clamp(0.75rem, 2vw, 1.5rem);*/
+    background: radial-gradient(ellipse at center, #fffefb, #e8e9e0);
+  }
+
+  app-image-display {
+    inline-size: 100%;
+    block-size: 100%;
+  }
 }
 
 /*.art-image > * {*/
