@@ -13,12 +13,12 @@ export class PhotoDisplayApiService {
   constructor() {};
 
   private readonly http = inject(HttpClient);
-  private readonly apiPhotoDisplayUrlPrefix = '/api/album';
+  private readonly apiPhotoDisplayUrlPrefix = '/api/albums';
 
 
   /* POST */
   uploadImagePostPhotoPostDisplay(albumId: number, uploadSpecification: PhotoUploadSpecification){
-    let requestPath = this.apiPhotoDisplayUrlPrefix + '/' + albumId + '/photo-display';
+    let requestPath = this.apiPhotoDisplayUrlPrefix + '/' + albumId + '/photo-display-items';
 
     const formData: FormData = new FormData();
     formData.append('file', uploadSpecification.FileComponent, uploadSpecification.FileComponent.name);
@@ -53,7 +53,7 @@ export class PhotoDisplayApiService {
   }
 
   modifyFieldsDisplayed(albumId: number, photoDisplayId: number, requestObject: PhotoDisplayFieldsDisplayedRequest){
-    let requestPath = this.apiPhotoDisplayUrlPrefix + '/' + albumId + '/photo-display/' + photoDisplayId + '/fields-displayed';
+    let requestPath = this.apiPhotoDisplayUrlPrefix + '/' + albumId + '/photo-display-items/' + photoDisplayId + '/fields-displayed';
     return this.http.patch(requestPath, requestObject);
   }
 

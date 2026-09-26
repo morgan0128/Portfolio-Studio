@@ -5,7 +5,7 @@ namespace WebApplication6.Backend.Controllers;
 
 
 [ApiController]
-[Route("api/album/{albumId:int}/photo-display-collection")]
+[Route("api/albums/{albumId:int}/photo-display-collection-items")]
 public class PhotoDisplayCollectionController(IAlbumItemRepository albumItemRepository) : ControllerBase
 {
     /* POST */

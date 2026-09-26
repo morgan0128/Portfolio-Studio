@@ -13,7 +13,7 @@ export class AlbumApiService {
   constructor() {};
 
   private readonly http = inject(HttpClient);
-  private readonly apiAlbumUrl = '/api/album';
+  private readonly apiAlbumUrl = '/api/albums';
 
 
   /* POST */

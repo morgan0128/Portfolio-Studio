@@ -6,7 +6,7 @@ using WebApplication6.Backend.Repositories;
 namespace WebApplication6.Backend.Controllers;
 
 [ApiController]
-[Route("api/album")]
+[Route("api/albums")]
 public sealed class AlbumController(IAlbumRepository albumRepository)
     : ControllerBase
 {

@@ -6,7 +6,7 @@ using WebApplication6.Backend.Repositories;
 namespace WebApplication6.Backend.Controllers;
 
 [ApiController]
-[Route("api/album/{albumId:int}/album-item")]
+[Route("api/albums/{albumId:int}/items")]
 public sealed class AlbumItemController(IAlbumItemRepository albumItemRepository) : ControllerBase
 {
     // [HttpPost("{albumId:int}/create/photo-display-carousel")]

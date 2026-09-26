@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Angular: serve" type="js.build_tools.npm">
-    <package-json value="$PROJECT_DIR$/WebApplication6/ClientApp/package.json" />
+    <package-json value="$PROJECT_DIR$/WebApplication6/Frontend/package.json" />
     <command value="run" />
     <scripts>
       <script value="start" />

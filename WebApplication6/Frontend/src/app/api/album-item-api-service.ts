@@ -11,16 +11,16 @@ export class AlbumItemApiService {
   constructor() {};
 
   private readonly http = inject(HttpClient);
-  private readonly apiPhotoDisplayUrlPrefix = '/api/album';
+  private readonly apiPhotoDisplayUrlPrefix = '/api/albums';
 
   rootLevelItemReorder(albumId: number, albumItemId: number, orderDestination: number) {
-    let requestPath = this.apiPhotoDisplayUrlPrefix + '/' + albumId + '/album-item/reorder'
+    let requestPath = this.apiPhotoDisplayUrlPrefix + '/' + albumId + '/items/reorder'
     let requestObject = new RootLevelReorderRequest(albumItemId, orderDestination);
     return this.http.post(requestPath, requestObject);
   }
 
   fetchAlbumItems(albumId: number): Observable<AlbumItemDto[]> {
-    const requestPath = this.apiPhotoDisplayUrlPrefix + '/' + albumId + '/album-item';
+    const requestPath = this.apiPhotoDisplayUrlPrefix + '/' + albumId + '/items';
     return this.http.get<AlbumItemDto[]>(requestPath);
   }
 

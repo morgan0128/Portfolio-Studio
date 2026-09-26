@@ -8,8 +8,8 @@ export class PhotoDisplayCollectionApiService {
   constructor(){};
 
   private readonly http = inject(HttpClient);
-  private readonly apiUrlPrefix = '/api/album';
-  private readonly apiUrlSuffix = '/photo-display-collection'
+  private readonly apiUrlPrefix = '/api/albums';
+  private readonly apiUrlSuffix = '/photo-display-collection-items'
 
   /* POST */
   Post(albumId: number, photoDisplayIds: number[]){

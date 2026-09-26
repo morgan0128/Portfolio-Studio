@@ -5,7 +5,7 @@ using WebApplication6.Backend.Services;
 namespace WebApplication6.Backend.Controllers;
 
 [ApiController]
-[Route("api/album/{albumId:int}/photo-display")]
+[Route("api/albums/{albumId:int}/photo-display-items")]
 public sealed class PhotoDisplayController(IAlbumRepository albumRepository, IAlbumItemRepository albumItemRepository,
     IUploadPhotoService uploadPhotoService) : ControllerBase
 {
