@@ -50,19 +50,12 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
     }
 
     
-    public async Task<int?> SaveAlbumAsync(Album album)
+    public async Task<IAlbumRepository.AlbumDto> SaveAlbumAsync(Album album)
     {
         context.Albums.Add(album);
-
-        try
-        {
-            await context.SaveChangesAsync();
-            return album.Id;
-        }
-        catch (Exception)
-        {
-            return null;
-        }
+        
+        await context.SaveChangesAsync();
+        return AlbumToDto(album);
     }
 
     
@@ -104,49 +97,50 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
         => await context.Albums.AsNoTracking().Where(album => album.Published).Select(ToDto).ToListAsync();
 
     
-    public async Task<bool> SetLayoutPresetAsync(int albumId, PageLayoutPreset layout)
+    public async Task<IAlbumRepository.AlbumDto?> SetLayoutPresetAsync(int albumId, PageLayoutPreset layout)
     {
-        if (!Enum.IsDefined(layout)) return false;
         var album = await context.Albums.FindAsync(albumId);
-        if (album == null) return false;
+        if (album == null) return null;
 
         album.LayoutPreset = layout;
         await context.SaveChangesAsync();
-        return true;
+        return AlbumToDto(album);
     }
 
     
-    public async Task<bool> AssignAlbumInNavAsync(int albumId, int newNavOrder)
+    public async Task<(IAlbumRepository.AssignNavOrderOutcome, IEnumerable<IAlbumRepository.AlbumDto>?)> AssignAlbumInNavAsync(int albumId, int newNavOrder)
     {
-        if (newNavOrder is < -1 or > 4) return false;
+        var albums = await GetNavbarAlbumsOrderedAsync();
+        if (newNavOrder is < -1 or > 4) return (IAlbumRepository.AssignNavOrderOutcome.OutOfBounds, albums.Select(AlbumToDto).ToList());
         var album = await context.Albums.FindAsync(albumId);
-        if (album == null || (newNavOrder >= 0 && !album.Published)) return false;
+        if (album == null) return (IAlbumRepository.AssignNavOrderOutcome.NotFound, albums.Select(AlbumToDto).ToList());
+        if (newNavOrder >= 0 && !album.Published) return (IAlbumRepository.AssignNavOrderOutcome.NotPublished, albums.Select(AlbumToDto).ToList());
 
-        var albums = await GetNavbarAlbumsAsync();
+
         albums.Remove(album);
         if (newNavOrder >= 0)
         {
-            if (albums.Count >= 5) return false;
+            if (albums.Count >= 5) return (IAlbumRepository.AssignNavOrderOutcome.NavbarFull, albums.Select(AlbumToDto).ToList());
             albums.Insert(Math.Min(newNavOrder, albums.Count), album);
         }
 
         await SaveNavbarOrderAsync(albums);
-        return true;
+        return (IAlbumRepository.AssignNavOrderOutcome.Success, albums.Select(AlbumToDto).ToList());
     }
 
     
     // TODO: Implement shared navbar locking system
-    public async Task<bool> SwapAlbumsInNavOrderAsync(int albumId1, int albumId2)
+    public async Task<(IAlbumRepository.SwapInNavOutcome, IEnumerable<IAlbumRepository.AlbumDto>?)> SwapAlbumsInNavOrderAsync(int albumId1, int albumId2)
     {
-        if (albumId1 == albumId2) return false;
-        var albums = await GetNavbarAlbumsAsync();
+        var albums = await GetNavbarAlbumsOrderedAsync();
+        if (albumId1 == albumId2) return (IAlbumRepository.SwapInNavOutcome.IgnoredSwapInPlace, albums.Select(AlbumToDto).ToList());
         var index1 = albums.FindIndex(album => album.Id == albumId1);
         var index2 = albums.FindIndex(album => album.Id == albumId2);
-        if (index1 < 0 || index2 < 0) return false;
+        if (index1 < 0 || index2 < 0) return (IAlbumRepository.SwapInNavOutcome.NotFoundInNav, albums.Select(AlbumToDto).ToList());
 
         (albums[index1], albums[index2]) = (albums[index2], albums[index1]);
         await SaveNavbarOrderAsync(albums);
-        return true;
+        return (IAlbumRepository.SwapInNavOutcome.Success, albums.Select(AlbumToDto).ToList());
     }
 
     
@@ -166,7 +160,7 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
         if (album == null) return null;
         if (album.Published) return AlbumToDto(album);
 
-        var albums = await GetNavbarAlbumsAsync();
+        var albums = await GetNavbarAlbumsOrderedAsync();
         if (navOrder is >= 0 and <= 4 && albums.Count < 5)
         {
             albums.Insert(Math.Min(navOrder.Value, albums.Count), album);
@@ -194,7 +188,7 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
 
         if (album.NavbarOrder > -1)
         {
-            var albums = await GetNavbarAlbumsAsync();
+            var albums = await GetNavbarAlbumsOrderedAsync();
             albums.Remove(album);
             album.Published = false;
             await SaveNavbarOrderAsync(albums);
@@ -205,19 +199,19 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
         return AlbumToDto(album);
     }
     
-    private Task<List<Album>> GetNavbarAlbumsAsync()
+    private Task<List<Album>> GetNavbarAlbumsOrderedAsync()
         => context.Albums.Where(album => album.NavbarOrder >= 0)
             .OrderBy(album => album.NavbarOrder).ToListAsync();
 
     
-    private async Task SaveNavbarOrderAsync(List<Album> orderedAlbums)
+    private async Task<IEnumerable<Album>?> SaveNavbarOrderAsync(List<Album> orderedAlbums)
     {
         // Free occupied positions before assigning the new order. Keep both saves atomic.
         await using var transaction = context.Database.CurrentTransaction == null
             ? await context.Database.BeginTransactionAsync()
             : null;
 
-        var currentNavbar = await GetNavbarAlbumsAsync();
+        var currentNavbar = await GetNavbarAlbumsOrderedAsync();
         foreach (var album in currentNavbar)
         {
             album.NavbarOrder = -1;
@@ -230,7 +224,10 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
         }
         await context.SaveChangesAsync();
 
-        if (transaction != null) await transaction.CommitAsync();
+        if (transaction == null) return null;
+        await transaction.CommitAsync();
+        return orderedAlbums;
+
     }
     
     

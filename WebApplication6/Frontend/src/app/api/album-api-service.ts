@@ -17,12 +17,12 @@ export class AlbumApiService {
 
 
   /* POST */
-  postAlbum(name: string | null, description: string | null): Observable<number>{
+  postAlbum(name: string | null, description: string | null): Observable<AlbumDto>{
     let requestPath = this.apiAlbumUrl;
     let requestObject = new CreateAlbumRequest();
     requestObject.name = name;
     requestObject.description = description;
-    return this.http.post<number>(requestPath, requestObject);
+    return this.http.post<AlbumDto>(requestPath, requestObject);
   }
 
 
@@ -43,7 +43,7 @@ export class AlbumApiService {
   }
 
   getPageLayoutPresets() {
-    return this.http.get<PageLayoutPreset[]>(this.apiAlbumUrl + '/styling-enums');
+    return this.http.get<PageLayoutPreset[]>(this.apiAlbumUrl + '/layout-presets');
   }
 
   getPublishedAlbums(): (Observable<AlbumDto[]>){
@@ -57,14 +57,14 @@ export class AlbumApiService {
   }
 
   getNavAlbumsOrdered(): (Observable<AlbumDto[]>){
-    let requestPath = this.apiAlbumUrl + '/nav-ordered';
+    let requestPath = this.apiAlbumUrl + '/nav-items-ordered';
     return this.http.get<AlbumDto[]>(requestPath);
   }
 
 
   /* PUT, PATCH */
   updateAlbumLayoutPreset(albumId: number, layoutPreset: PageLayoutPreset) {
-    return this.http.patch<void>(this.apiAlbumUrl + '/' + albumId + '/modify/layout-preset', { layoutPreset });
+    return this.http.patch<AlbumDto | null>(this.apiAlbumUrl + '/' + albumId + '/layout-preset', { layoutPreset });
   }
 
   publishAlbum(albumId: number, navOrder: number | null = null): Observable<AlbumDto | null> {
@@ -88,9 +88,9 @@ export class AlbumApiService {
   }
 
   swapNavOrder(albumId1: number, albumId2: number) {
-    let requestPath = this.apiAlbumUrl + '/modify/nav-order/swap';
+    let requestPath = this.apiAlbumUrl + '/nav-order/swap';
     let requestObject = new NavOrderSwapRequest(albumId1, albumId2);
-    return this.http.patch<void>(this.apiAlbumUrl + '/modify/nav-order/swap', requestObject);
+    return this.http.patch<void>(this.apiAlbumUrl + '/nav-order/swap', requestObject);
   }
 
 

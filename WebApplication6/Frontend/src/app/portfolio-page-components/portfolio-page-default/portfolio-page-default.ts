@@ -1,11 +1,9 @@
 import {Component, computed, inject, input, OnInit, output, signal} from '@angular/core';
-import {AlbumApiService} from '../../api/album-api-service';
 import {AlbumDto} from '../../models/AlbumDto';
 import {PAGE_LAYOUT_PRESETS} from '../../models/ApiEnums';
 import {PhotoDto} from '../../models/PhotoDto';
 import {Navbar} from '../navbar/navbar';
 import {ImageDto} from '../../models/ImageDto';
-import {ImageDisplay} from '../image-display/ImageDisplay';
 import {AlbumItemApiService} from '../../api/album-item-api-service';
 import {AlbumItemDto, PhotoDisplayDto} from '../../models/AlbumItemDto';
 import {PortfolioPagePhotoDisplay} from '../portfolio-page-photo-display/portfolio-page-photo-display';
@@ -18,7 +16,6 @@ import {
   selector: 'app-portfolio-page-default',
   imports: [
     Navbar,
-    ImageDisplay,
     PortfolioPagePhotoDisplay,
     PortfolioPagePhotoDisplayCollection
   ],

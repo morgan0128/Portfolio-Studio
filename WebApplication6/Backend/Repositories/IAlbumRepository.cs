@@ -14,19 +14,18 @@ public interface IAlbumRepository
     
     Task<AlbumDto?> GetAlbumByIdAsync(int id);
     
-    /// <returns>Id of the saved album on success, or null on exception thrown or failure.</returns>
-    Task<int?> SaveAlbumAsync(Album album);
+    Task<AlbumDto> SaveAlbumAsync(Album album);
     
     /// <returns>true on success, or false on not found</returns>
     Task<bool> DeleteAlbumByIdAsync(int id);
 
     Task<IEnumerable<AlbumDto>> GetAllPublishedAsync();
     
-    Task<bool> SetLayoutPresetAsync(int albumId, PageLayoutPreset layout);
+    Task<AlbumDto?> SetLayoutPresetAsync(int albumId, PageLayoutPreset layout);
     
-    Task<bool> AssignAlbumInNavAsync(int albumId, int newNavOrder);
+    Task<(AssignNavOrderOutcome, IEnumerable<AlbumDto>?)> AssignAlbumInNavAsync(int albumId, int newNavOrder);
     
-    Task<bool> SwapAlbumsInNavOrderAsync(int albumId1, int albumId2);
+    Task<(SwapInNavOutcome, IEnumerable<IAlbumRepository.AlbumDto>?)> SwapAlbumsInNavOrderAsync(int albumId1, int albumId2);
     
     Task<IEnumerable<AlbumDto>> GetPublishedNotInNavbar();
     
@@ -46,5 +45,21 @@ public interface IAlbumRepository
         PageLayoutPreset LayoutPreset = PageLayoutPreset.Default,
         int NavbarOrder = -1
         );
-    
+
+    public enum AssignNavOrderOutcome
+    {
+        Success,
+        OutOfBounds,
+        NotPublished,
+        NotFound,
+        NavbarFull
+    }
+
+
+    public enum SwapInNavOutcome
+    {
+        Success,
+        IgnoredSwapInPlace,
+        NotFoundInNav
+    }
 }

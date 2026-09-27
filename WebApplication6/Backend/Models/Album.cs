@@ -8,6 +8,7 @@ public class Album
     public int Id { get; set; }
     
     [Required]
+    [StringLength(150)]
     public string? Name { get; set; }
     
     [StringLength(400)]

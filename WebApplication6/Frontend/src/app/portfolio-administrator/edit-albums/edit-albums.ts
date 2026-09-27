@@ -127,8 +127,9 @@ export class EditAlbums implements OnInit {
     let request = this.albumApi.postAlbum(name, description);
     this.creatingAlbum.set(false);
     request.subscribe({
-      next: () => {
-        this.loadAlbums(); // TODO: excess load
+      next: albumDto => {
+        this.albumDTOs().push(albumDto)
+        this.selectAlbum(albumDto);
       },
       error: () => {
         this.creatingAlbumError.set(true);

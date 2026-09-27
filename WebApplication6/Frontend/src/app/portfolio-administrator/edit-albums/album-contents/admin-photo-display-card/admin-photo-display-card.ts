@@ -1,17 +1,13 @@
 import {Component, computed, effect, inject, input, output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {NgOptimizedImage} from '@angular/common';
-import {AlbumApiService} from '../../../../api/album-api-service';
 import {PhotoDto} from '../../../../models/PhotoDto';
-// import {PhotoDisplayDto} from '../../../../models/PhotoDisplayDto';
-import {AlbumItemDto, PhotoDisplayDto, PhotoDisplayItem} from '../../../../models/AlbumItemDto';
+import {PhotoDisplayItem} from '../../../../models/AlbumItemDto';
 import {PhotoDisplayApiService, PhotoDisplayFieldsDisplayedRequest} from '../../../../api/photo-display-api-service';
 import {ImageDisplay} from '../../../../portfolio-page-components/image-display/ImageDisplay';
 
 @Component({
   selector: 'app-admin-photo-display-card',
   imports: [
-    NgOptimizedImage,
     FormsModule,
     ImageDisplay,
   ],

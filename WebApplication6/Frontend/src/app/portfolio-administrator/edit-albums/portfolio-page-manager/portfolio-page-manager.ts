@@ -61,7 +61,11 @@ export class PortfolioPageManager {
     if (album === null || layoutPreset === null) return;
 
     this.albumApi.updateAlbumLayoutPreset(album.id, layoutPreset).subscribe({
-      next: () => this.refreshAlbum$.next()
+      next: albumDto => {
+        if (albumDto != null){
+          this.refreshAlbum$.next()
+        }
+      }
     });
   }
 
