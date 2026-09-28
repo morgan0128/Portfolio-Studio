@@ -1,4 +1,4 @@
-name: Unit Tests
+name: Backend Tests
 
 on:
   push:
@@ -61,6 +61,59 @@ jobs:
 #          name: album-controller-test-results
 #          path: TestResults
               
+      - name: Remove temporary license
+        if: always()
+        run: rm -f WebApplication6/sixlabors.lic
+
+  album-item-integration-tests:
+    name: Album Item PostgreSQL Integration Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: morg
+          POSTGRES_DB: webapplication6test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -h localhost -U postgres -d webapplication6test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore WebApplication6.Tests/WebApplication6.Tests.csproj
+
+      - name: Create Six Labors license file
+        env:
+          SIXLABORS_LICENSE_CONTENT: ${{ secrets.SIXLABORS_LICENSE_KEY }}
+        run: |
+          umask 077
+          printf '%s' "$SIXLABORS_LICENSE_CONTENT" > WebApplication6/sixlabors.lic
+
+      - name: Build
+        run: dotnet build WebApplication6.Tests/WebApplication6.Tests.csproj --configuration Release --no-restore
+
+      - name: Run AlbumItem PostgreSQL integration tests
+        run: >
+          dotnet test
+          --project WebApplication6.Tests/WebApplication6.Tests.csproj
+          --configuration Release
+          --no-build
+          --filter-class "WebApplication6.Tests.Tests.Integration.Repositories.AlbumItemTests"
+
       - name: Remove temporary license
         if: always()
         run: rm -f WebApplication6/sixlabors.lic

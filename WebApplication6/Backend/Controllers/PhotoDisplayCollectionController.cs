@@ -13,8 +13,7 @@ public class PhotoDisplayCollectionController(IAlbumItemRepository albumItemRepo
     [HttpPost]
     public async Task<ActionResult<IAlbumItemRepository.AlbumItemDto>> Post(int albumId, CreatePhotoDisplayCollectionRequest request)
     {
-        if (request.DisplayMode != PhotoDisplayCollection.PhotoDisplayMode.Carousel)
-            throw new NotImplementedException();
+        if (request.DisplayMode != PhotoDisplayCollection.PhotoDisplayMode.Carousel) throw new NotImplementedException();
         
         var collection = await albumItemRepository.CreateCarouselPhotoDisplayCollection(albumId, request.PhotoDisplayIds);
         if (collection is null)
@@ -31,7 +30,11 @@ public class PhotoDisplayCollectionController(IAlbumItemRepository albumItemRepo
     
     
     /* PUT, PATCH */
-    
+    [HttpPatch]
+    public async Task DissolveCollection(int albumId, int itemId)
+    {
+        
+    }
     
     /* DELETE */
 
