@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using WebApplication6.Backend.Models;
 using WebApplication6.Backend.Repositories;
 
 namespace WebApplication6.Backend.Controllers;
@@ -12,6 +13,9 @@ public class PhotoDisplayCollectionController(IAlbumItemRepository albumItemRepo
     [HttpPost]
     public async Task<ActionResult<IAlbumItemRepository.AlbumItemDto>> Post(int albumId, CreatePhotoDisplayCollectionRequest request)
     {
+        if (request.DisplayMode != PhotoDisplayCollection.PhotoDisplayMode.Carousel)
+            throw new NotImplementedException();
+        
         var collection = await albumItemRepository.CreateCarouselPhotoDisplayCollection(albumId, request.PhotoDisplayIds);
         if (collection is null)
         {
@@ -36,5 +40,5 @@ public class PhotoDisplayCollectionController(IAlbumItemRepository albumItemRepo
 
 
 
-    public sealed record CreatePhotoDisplayCollectionRequest(IReadOnlyList<int> PhotoDisplayIds);
+    public sealed record CreatePhotoDisplayCollectionRequest(IReadOnlyList<int> PhotoDisplayIds, PhotoDisplayCollection.PhotoDisplayMode DisplayMode = PhotoDisplayCollection.PhotoDisplayMode.Carousel);
 }

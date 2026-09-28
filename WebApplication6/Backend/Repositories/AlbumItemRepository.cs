@@ -6,27 +6,6 @@ namespace WebApplication6.Backend.Repositories;
 
 public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepository
 {
-    // public async Task<IEnumerable<IAlbumItemRepository.PhotoDisplayDto>> GetAlbumPhotoDisplays(int albumId)
-    // {
-    //         var album = await context.Albums
-    //             .Where(a => a.Id == albumId)
-    //             .SingleAsync();
-    //
-    //         var photoDisplays = await context.PhotoDisplays
-    //             .Include(pd => pd.Photo).ThenInclude(p => p.Image)
-    //             .Include(pd => pd.PhotoDisplayCollection)
-    //             .Where(pd => pd.AlbumId == album.Id)
-    //             .OrderBy(pd => pd.PhotoDisplayCollection == null ? pd.Order : pd.PhotoDisplayCollection.Order)
-    //             .ThenBy(pd => pd.Order)
-    //             .ToListAsync();
-    //
-    //         var photos = photoDisplays
-    //             .Select(ToPhotoDisplayDto)
-    //             .ToList();
-    //
-    //         return photos;
-    // }
-    
     public async Task<bool> AddPhotoToAlbumAsync(int albumId, int photoId, CancellationToken cancellationToken = default)
     {
         const int maximumAttempts = 3;
@@ -168,34 +147,34 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
     //     return await ReorderItem(albumId, photoDisplay.Id, newOrder, photoDisplay.PhotoDisplayCollectionId);
     // }
     
-    public Task<bool> ReorderAlbumItem(int albumId, int itemId, int newOrder)
+    public Task<IAlbumItemRepository.ReorderOutcome> ReorderAlbumItem(int albumId, int itemId, int newOrder)
     {
         return ReorderItem(albumId, itemId, newOrder);
     }
 
-    public Task<bool> ReorderPhotoDisplayInCollection(int albumId, int photoDisplayCollectionId, int photoDisplayId, int newOrder)
+    public Task<IAlbumItemRepository.ReorderOutcome> ReorderPhotoDisplayInCollection(int albumId, int photoDisplayCollectionId, int photoDisplayId, int newOrder)
     {
         return ReorderItem(albumId, photoDisplayId, newOrder, photoDisplayCollectionId);
     }
     
-    private async Task<bool> ReorderItem(int albumId, int itemId, int newOrder, int? photoDisplayCollectionId = null)
+    private async Task<IAlbumItemRepository.ReorderOutcome> ReorderItem(int albumId, int itemId, int newOrder, int? photoDisplayCollectionId = null)
     {
         var albumItems = await ItemsInScope(albumId, photoDisplayCollectionId)
             .OrderBy(ai => ai.Order)
             .ToListAsync();
 
-        if (albumItems.Count == 0) return false; // this should not be reached from frontend
+        if (albumItems.Count == 0) return IAlbumItemRepository.ReorderOutcome.NoAlbumItems;
 
         if (newOrder < 0)
         {
             // recognize that an operation occurred by normalizing the order, but violates constraint
             await NormalizeOrder(albumId, photoDisplayCollectionId);
-            return true;
+            return IAlbumItemRepository.ReorderOutcome.Success;
         }
 
         var toMove = albumItems.Find(ai => ai.Id == itemId);
         
-        if (toMove == null) return false; // this should not be reached from frontend
+        if (toMove == null) return IAlbumItemRepository.ReorderOutcome.ItemNotFound;
         
         var ofOrder = albumItems.Find(ai => ai.Order == newOrder);
         
@@ -204,14 +183,14 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
             toMove.Order = newOrder;
             await context.SaveChangesAsync();
             await NormalizeOrder(albumId, photoDisplayCollectionId);
-            return true;
+            return IAlbumItemRepository.ReorderOutcome.Success;
         }
         
         if (ofOrder.Id == toMove.Id)
         {
-            // recognize that an operation occurred by normalizing the order, but do nothing to grant
+            // recognize that an operation occurred by normalizing the order
             await NormalizeOrder(albumId, photoDisplayCollectionId);
-            return true;
+            return IAlbumItemRepository.ReorderOutcome.Success;
         }
         
         var index = albumItems.IndexOf(ofOrder);
@@ -240,7 +219,7 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
             toMove.Order = newOrderNormalized;
             await context.SaveChangesAsync();
 
-            return true; // order already normalized
+            return IAlbumItemRepository.ReorderOutcome.Success; // order already normalized
         }
 
         /* toMove.Order > ofOrder.Order; as such the user expects that this operation moves 'toMove' before 'ofOrder' */
@@ -258,7 +237,7 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
         
         await NormalizeOrder(albumId, photoDisplayCollectionId);
 
-        return true;
+        return IAlbumItemRepository.ReorderOutcome.Success;
     }
         
     private async Task NormalizeOrder(int albumId, int? photoDisplayCollectionId)

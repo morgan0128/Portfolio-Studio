@@ -82,7 +82,7 @@ public sealed class AlbumController(IAlbumRepository albumRepository)
     [HttpGet("nav-items-ordered")]
     public async Task<ActionResult<IEnumerable<IAlbumRepository.AlbumDto>>> GetNavAlbumsOrdered()
     {
-        var navItemsOrdered = albumRepository.GetPublishedInNavbarOrdered();
+        var navItemsOrdered = await albumRepository.GetPublishedInNavbarOrdered();
         return Ok(navItemsOrdered);
     }
     
@@ -168,7 +168,7 @@ public sealed class AlbumController(IAlbumRepository albumRepository)
         
     
     /* request data type objects */
-    public sealed record CreateAlbumRequest([StringLength(150)] string? Name, [StringLength(400)] string? Description);
+    public sealed record CreateAlbumRequest([StringLength(150)] string? Name = null, [StringLength(400)] string? Description = null);
     public sealed record UpdateLayoutPresetRequest(PageLayoutPreset LayoutPreset);
     
     

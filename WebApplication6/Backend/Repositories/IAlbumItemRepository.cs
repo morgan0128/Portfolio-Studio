@@ -18,49 +18,12 @@ public interface IAlbumItemRepository
     
     // Task<bool> ReorderPhotoInAlbum(int albumId, int photoId, int newOrder);
     
-    Task<bool> ReorderAlbumItem(int albumId, int itemId, int newOrder);
+    Task<ReorderOutcome> ReorderAlbumItem(int albumId, int itemId, int newOrder);
 
-    Task<bool> ReorderPhotoDisplayInCollection(int albumId, int photoDisplayCollectionId, int photoDisplayId, int newOrder);
+    Task<ReorderOutcome> ReorderPhotoDisplayInCollection(int albumId, int photoDisplayCollectionId, int photoDisplayId, int newOrder);
     
     Task<bool> ModifyFieldsDisplayed(int albumId, int photoId,
         IAlbumItemRepository.PhotoDisplayFieldsDisplayedRequest request);
-    
-    // Task<bool> ToggleDisplaysName(int albumId, int photoId);
-    
-    // Task<bool> ToggleDisplaysDescription(int albumId, int photoId);
-    
-    // Task<bool> ToggleDisplaysYearContentCreated(int albumId, int photoId);
-    // public sealed record ImageDto(
-    //     int Id,
-    //     string FileName,
-    //     string ContentType,
-    //     long? FileSize,
-    //     string StorageFileName,
-    //     string Url,
-    //     string AltText,
-    //     int Width,
-    //     int Height);
-    // public sealed record PhotoDto(
-    //     int Id,
-    //     ImageDto Image,
-    //     string Name,
-    //     string Description,
-    //     DateTime? CreatedAt,
-    //     int? YearContentCreated
-    //     );
-    // public sealed record PhotoDisplayDto(
-    //     int Id,
-    //     int AlbumId,
-    //     int Order,
-    //     PhotoDto Photo,
-    //     bool DisplaysName = true,
-    //     bool DisplaysDescription = true,
-    //     bool DisplaysYearContentCreated = true
-    // );
-
-    // public sealed record PhotoDisplayCollectionDto(
-    //     
-    // );
 
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
     [JsonDerivedType(typeof(PhotoDisplayAlbumItemDto), "photoDisplay")]
@@ -116,6 +79,16 @@ public interface IAlbumItemRepository
     public sealed record PhotoDisplayFieldsDisplayedRequest(
         bool? DisplaysName,
         bool? DisplaysDescription,
-        bool? DisplaysYearContentCreated);
+        bool? DisplaysYearContentCreated
+    );
+
+    public enum ReorderOutcome
+    {
+        NoAlbumItems,
+        ItemNotFound,
+        Success
+        
+        
+    }
 
 }

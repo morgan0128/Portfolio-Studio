@@ -39,15 +39,6 @@ public sealed class PhotoDisplayController(IAlbumRepository albumRepository, IAl
     }
     
     
-    /* GET */
-    // [HttpGet]
-    // public async Task<IEnumerable<IAlbumItemRepository.PhotoDisplayDto>> Get(int albumId)
-    // {
-    //     var photos = await albumItemRepository.GetAlbumPhotoDisplays(albumId);
-    //     return photos;
-    // }
-    
-    
     /* PUT, PATCH */
     [HttpPatch("{photoId:int}/fields-displayed")]
     public async Task<IActionResult> ModifyFieldsDisplayed(int albumId, int photoId, 
@@ -60,40 +51,6 @@ public sealed class PhotoDisplayController(IAlbumRepository albumRepository, IAl
             false => NotFound()
         };
     }
-    
-    
-    // [HttpPatch("{photoId:int}/DisplaysName")]
-    // public async Task<IActionResult> ToggleDisplaysName(int albumId, int photoId)
-    // {
-    //     var request = await albumItemRepository.ToggleDisplaysName(albumId, photoId);
-    //     return request switch
-    //     {
-    //         true => Ok(),
-    //         false => Problem()
-    //     };
-    // }
-    //
-    // [HttpPatch("{photoId:int}/DisplaysDescription")]
-    // public async Task<IActionResult> ToggleDisplaysDescription(int albumId, int photoId)
-    // {
-    //     var request = await albumItemRepository.ToggleDisplaysDescription(albumId, photoId);
-    //     return request switch
-    //     {
-    //         true => Ok(),
-    //         false => Problem()
-    //     };
-    // }
-    //
-    // [HttpPatch("{photoId:int}/displaysYearCC")]
-    // public async Task<IActionResult> ToggleDisplaysYearContentCreated(int albumId, int photoId)
-    // {
-    //     var request = await albumItemRepository.ToggleDisplaysYearContentCreated(albumId, photoId);
-    //     return request switch
-    //     {
-    //         true => Ok(),
-    //         false => Problem()
-    //     };
-    // }
 
     
 }
