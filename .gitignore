@@ -5,7 +5,6 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
-global.json
 WebApplication6.sln.DotSettings.user
 WebApplication6/appsettings.json
 WebApplication6/appsettings.Development.json
