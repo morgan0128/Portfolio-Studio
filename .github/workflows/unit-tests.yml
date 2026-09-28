@@ -12,8 +12,8 @@ permissions:
   contents: read
 
 jobs:
-  album-controller-tests:
-    name: Controller unit tests
+  controller-unit-tests:
+    name: Controller Unit Tests
     runs-on: ubuntu-latest
 
     steps:
