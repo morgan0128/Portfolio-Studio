@@ -1,4 +1,4 @@
-name: AlbumController Unit Tests
+name: Unit Tests
 
 on:
   push:
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   album-controller-tests:
-    name: AlbumController unit tests
+    name: Controller unit tests
     runs-on: ubuntu-latest
 
     steps:
@@ -26,7 +26,7 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore WebApplication6.sln
+        run: dotnet restore WebApplication6.Tests/WebApplication6.Tests.csproj
 
       - name: Create Six Labors license file
         env:
@@ -36,7 +36,7 @@ jobs:
           printf '%s' "$SIXLABORS_LICENSE_CONTENT" > WebApplication6/sixlabors.lic
     
       - name: Build
-        run: dotnet build WebApplication6.sln --configuration Release --no-restore
+        run: dotnet build WebApplication6.Tests/WebApplication6.Tests.csproj --configuration Release --no-restore
     
       - name: Run AlbumController unit tests
         run: >
@@ -45,6 +45,14 @@ jobs:
           --configuration Release
           --no-build
           --filter-class "WebApplication6.Tests.Tests.Unit.Controllers.AlbumControllerUnitTests"
+
+      - name: Run AlbumItemController unit tests
+        run: >
+          dotnet test
+          --project WebApplication6.Tests/WebApplication6.Tests.csproj
+          --configuration Release
+          --no-build
+          --filter-class "WebApplication6.Tests.Tests.Unit.Controllers.AlbumItemControllerUnitTests"
     
 #      - name: Upload test results
 #        if: always()
