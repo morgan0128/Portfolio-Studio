@@ -1,8 +1,17 @@
 :host {
-  --portfolio-ink: #22384f;
-  --portfolio-accent: #49759f;
-  --portfolio-accent-soft: #dceaf5;
-  --portfolio-glass: rgba(255, 255, 255, 0.34);
+  --portfolio-ink: #283741;
+  --portfolio-accent: #4a7280;
+  --portfolio-accent-soft: #e5eff0;
+  --portfolio-muted: #687579;
+  --portfolio-line: #50606b29;
+  --portfolio-surface: #fffefa;
+  --portfolio-shadow: 0 24px 54px -35px #3c4b5352, 0 6px 22px -14px #3c4b5333;
+  --portfolio-glass: #ffffff47;
+  --portfolio-collection-glass: #ffffff23;
+  --portfolio-background-default:
+    radial-gradient(ellipse 60rem 35rem at 0% 2%, #d9dcd452, transparent 72%),
+    radial-gradient(ellipse 52rem 38rem at 100% 46%, #e8d9c650, transparent 72%),
+    linear-gradient(155deg, #fcfbf8 0%, #f5f3ef 52%, #faf9f6 100%);
 
   display: block;
   min-inline-size: 0;
@@ -14,26 +23,90 @@
 main {
   min-block-size: 100dvh;
   display: flow-root;
-  background:
-    radial-gradient(ellipse at 15% 0%, #f0ede6, transparent 55%),
-    linear-gradient(145deg, #f7f5f1, #faf9f7);
+  background: var(--portfolio-background-default);
+}
+
+.site-navigation {
+  position: relative;
+  z-index: 1;
+}
+
+.portfolio-page-details {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem clamp(2rem, 5vw, 6rem);
+  inline-size: min(100%, 80dvw);
+  margin: clamp(0.75rem, 2vw, 2rem) auto 0;
+  padding: clamp(1.75rem, 3.5vw, 3.75rem) clamp(0.75rem, 3vw, 2rem)
+    clamp(1.75rem, 3vw, 2.75rem);
+  border-block-end: 1px solid var(--portfolio-line);
+}
+
+.portfolio-page-heading {
+  min-inline-size: 0;
+  flex: 1 1 25rem;
+}
+
+.portfolio-page-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-block-end: 1.125rem;
+  color: var(--portfolio-accent);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.portfolio-page-label::before {
+  content: "";
+  inline-size: 2.25rem;
+  block-size: 1px;
+  background: currentColor;
+}
+
+.portfolio-page-details h1 {
+  max-inline-size: 20ch;
+  margin: 0;
+  font-family: "Iowan Old Style", "Baskerville", "Palatino Linotype", Georgia, serif;
+  font-size: clamp(3rem, 5.5vw, 6rem);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.portfolio-page-description {
+  flex: 0 1 31rem;
+  max-inline-size: 56ch;
+  margin: 0;
+  padding-inline-start: clamp(1.25rem, 2vw, 2rem);
+  border-inline-start: 1px solid var(--portfolio-line);
+  color: var(--portfolio-muted);
+  font-size: clamp(0.95rem, 1.15vw, 1.125rem);
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
 }
 
 .portfolio-items {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
-  inline-size: min(100%, 72rem);
+  gap: clamp(2.5rem, 5vw, 5rem);
+  inline-size: min(100%, 80dvw);
   margin-inline: auto;
-  padding: 0.5rem clamp(0.75rem, 3vw, 2rem) 3rem;
+  padding: clamp(2rem, 4vw, 4rem) clamp(0.75rem, 3vw, 2rem) 6rem;
 }
 
 .photo-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
   max-inline-size: 100%;
 }
 
@@ -46,4 +119,51 @@ main {
 .collection-row {
   inline-size: 100%;
   min-inline-size: 0;
+}
+
+.portfolio-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 0;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--portfolio-line);
+  border-radius: 999px;
+  background: var(--portfolio-surface);
+  box-shadow: var(--portfolio-shadow);
+  color: var(--portfolio-muted);
+  font-size: 0.875rem;
+  letter-spacing: 0.01em;
+}
+
+.portfolio-status::before {
+  content: "";
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  border-radius: 50%;
+  background: var(--portfolio-accent);
+}
+
+.portfolio-status-error::before {
+  background: #ae664d;
+}
+
+@media (max-width: 48rem) {
+  .portfolio-page-details,
+  .portfolio-items {
+    inline-size: 100%;
+  }
+
+  .portfolio-page-details {
+    margin-block-start: 0.5rem;
+    padding-inline: clamp(1rem, 4vw, 1.5rem);
+  }
+
+  .portfolio-page-description {
+    flex-basis: 100%;
+  }
+
+  .portfolio-items {
+    padding-inline: clamp(0.75rem, 4vw, 1.5rem);
+  }
 }

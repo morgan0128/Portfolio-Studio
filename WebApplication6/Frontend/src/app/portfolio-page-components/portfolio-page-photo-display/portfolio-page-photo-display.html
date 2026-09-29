@@ -11,14 +11,19 @@
 
     @if (shouldIncludeTextContentContainer(photoDisplay())){
       <div class="text-content-container">
-        @if (photoDisplay().displaysName){
-          <p class="name">{{ photo().name }}</p>
+        @if (photoDisplay().displaysName ||
+             (photoDisplay().displaysYearContentCreated && photo().yearContentCreated !== null)) {
+          <div class="caption-heading">
+            @if (photoDisplay().displaysName){
+              <p class="name">{{ photo().name }}</p>
+            }
+            @if (photoDisplay().displaysYearContentCreated && photo().yearContentCreated !== null){
+              <p class="year-cc">{{ photo().yearContentCreated }}</p>
+            }
+          </div>
         }
         @if (photoDisplay().displaysDescription) {
           <p class="description">{{ photo().description }}</p>
-        }
-        @if (photoDisplay().displaysYearContentCreated){
-          <p class="year-cc">{{ photo().yearContentCreated }}</p>
         }
       </div>
     }

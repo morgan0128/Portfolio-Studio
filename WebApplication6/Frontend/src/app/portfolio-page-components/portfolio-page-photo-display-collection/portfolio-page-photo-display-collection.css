@@ -4,12 +4,15 @@
   grid-template-rows: 32rem clamp(5.5rem, 12vh, 7.5rem) 4.75rem;
   min-inline-size: 0;
   overflow: hidden;
-  border: 1px solid #49759f40;
-  border-radius: 1.5rem;
-  background: #ffffff0a;
-  box-shadow:
-    0 24px 60px -32px #22384f4d,
-    inset 0 1px 0 #ffffffad;
+  border: 1px solid var(--portfolio-line, rgba(46, 72, 87, 0.16));
+  border-radius: 1.25rem;
+  background: var(--portfolio-collection-glass, rgba(255, 255, 255, 0.22));
+  box-shadow: var(
+    --portfolio-shadow,
+    0 24px 48px -32px rgba(26, 39, 50, 0.4),
+    0 5px 18px -12px rgba(26, 39, 50, 0.14)
+  );
+  backdrop-filter: blur(18px) saturate(120%);
 }
 
 .collection-wrapper > app-portfolio-page-photo-display {
@@ -24,41 +27,99 @@
   justify-content: center;
   gap: 0.75rem;
   min-inline-size: 0;
-  border-block-start: 1px solid #49759f2b;
-  background: #ebf4fbb0;
-  backdrop-filter: blur(12px);
+  border-block-start: 1px solid var(--portfolio-line, rgba(46, 72, 87, 0.16));
+  background: rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(18px) saturate(120%);
 }
 
 .button-nav button {
   display: grid;
   place-items: center;
-  flex: 0 0 3rem;
-  inline-size: 3rem;
-  block-size: 3rem;
+  flex: 0 0 2.85rem;
+  inline-size: 2.85rem;
+  block-size: 2.85rem;
   padding: 0;
-  border: 1px solid #49759f40;
+  border: 1px solid var(--portfolio-line, rgba(46, 72, 87, 0.18));
   border-radius: 50%;
-  background: #ffffffbd;
-  color: var(--portfolio-ink, #22384f);
-  font: 500 1.375rem / 1 ui-sans-serif, system-ui, sans-serif;
+  background: var(--portfolio-surface, rgba(255, 253, 250, 0.88));
+  color: var(--portfolio-accent, #507491);
+  box-shadow: 0 3px 10px rgba(26, 39, 50, 0.08);
   cursor: pointer;
-  transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.button-nav button svg {
+  inline-size: 1.15rem;
+  block-size: 1.15rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.collection-position {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.45rem;
+  min-inline-size: 3.2rem;
+  color: var(--portfolio-ink, #263842);
+  font-size: 0.78rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+}
+
+.collection-position-divider {
+  color: var(--portfolio-muted, #687884);
+  font-weight: 400;
+}
+
+.visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 @media (hover: hover) {
-  .button-nav button:hover {
-    border-color: var(--portfolio-accent, #49759f);
-    background: var(--portfolio-accent, #49759f);
+  .button-nav button:not(:disabled):hover {
+    transform: translateY(-2px);
+    border-color: var(--portfolio-accent, #507491);
+    background: var(--portfolio-accent, #507491);
     color: #fff;
+    box-shadow: 0 8px 16px rgba(34, 56, 79, 0.2);
   }
 }
 
 .button-nav button:focus-visible {
-  outline: 3px solid #4c84bc;
+  outline: 3px solid var(--portfolio-accent, #507491);
   outline-offset: 3px;
 }
 
-.button-nav button:active {
-  background: var(--portfolio-accent-soft, #dceaf5);
-  color: var(--portfolio-ink, #22384f);
+.button-nav button:not(:disabled):active {
+  transform: translateY(0);
+  background: var(--portfolio-ink, #263842);
+  color: #fff;
+}
+
+.button-nav button:disabled {
+  opacity: 0.42;
+  cursor: default;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button-nav button {
+    transition: none;
+  }
 }

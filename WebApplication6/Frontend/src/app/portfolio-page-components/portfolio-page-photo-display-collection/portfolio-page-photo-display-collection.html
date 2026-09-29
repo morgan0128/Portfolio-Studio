@@ -1,12 +1,25 @@
 @if (selectedPhotoDisplay() !== null){
   <div class="collection-wrapper">
     <app-portfolio-page-photo-display class="within-collection" [item]="selectedPhotoDisplay()!"/>
-    <div class="button-nav">
-      <button class="prev-button" (click)="prevPhoto()">
-        <
+    <div class="button-nav" role="group" aria-label="Collection navigation">
+      <button class="prev-button" type="button" aria-label="Previous photo"
+              [disabled]="photoDisplays().length <= 1" (click)="prevPhoto()">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="m14.5 5.5-6.5 6.5 6.5 6.5"/>
+        </svg>
       </button>
-      <button class="next-button" (click)="nextPhoto()">
-        >
+      <span class="collection-position" role="status" aria-atomic="true">
+        <span class="visually-hidden">Photo </span>
+        <span>{{ displayIndex() + 1 }}</span>
+        <span class="visually-hidden"> of </span>
+        <span class="collection-position-divider" aria-hidden="true">/</span>
+        <span>{{ photoDisplays().length }}</span>
+      </span>
+      <button class="next-button" type="button" aria-label="Next photo"
+              [disabled]="photoDisplays().length <= 1" (click)="nextPhoto()">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="m9.5 5.5 6.5 6.5-6.5 6.5"/>
+        </svg>
       </button>
     </div>
   </div>

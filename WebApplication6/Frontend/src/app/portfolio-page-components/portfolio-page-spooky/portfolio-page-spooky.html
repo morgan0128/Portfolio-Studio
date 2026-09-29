@@ -1,1 +1,71 @@
-<p>portfolio-page-spooky works!</p>
+<main class="night-page">
+  <header class="site-header">
+    <div class="identity">
+      <span class="identity-mark" aria-hidden="true">✦</span>
+      <span>NOCTURNE</span>
+      <span class="identity-divider" aria-hidden="true"></span>
+      <span class="identity-note">a portfolio after dark</span>
+    </div>
+
+    <nav class="site-nav" aria-label="Page navigation">
+      <a href="#collection">The collection</a>
+      <button type="button" (click)="returnToAlbums()">Return to albums</button>
+    </nav>
+  </header>
+
+  <section class="opening" aria-labelledby="opening-title">
+    <div class="opening-copy">
+      <p class="eyebrow"><span class="eyebrow-line" aria-hidden="true"></span> Portfolio / after dark</p>
+      <h1 id="opening-title">{{ albumTitle() }}</h1>
+      @if (album()?.description) {
+        <p class="opening-description">{{ album()?.description }}</p>
+      }
+      <a class="explore-link" href="#collection">Explore the collection <span aria-hidden="true">↗</span></a>
+    </div>
+
+    <div class="opening-visual" aria-hidden="true">
+      <div class="opening-arch"></div>
+      <div class="opening-orb"></div>
+    </div>
+  </section>
+
+  <section class="collection" id="collection" aria-labelledby="collection-title">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">01 / The collection</p>
+        <h2 id="collection-title">A closer look</h2>
+      </div>
+      <p>A quiet procession of light, form and the spaces between.</p>
+    </div>
+
+    @if (loading()) {
+      <p class="gallery-status" role="status">Gathering the collection…</p>
+    } @else if (loadError()) {
+      <p class="gallery-status" role="alert">This collection could not be loaded.</p>
+    } @else if (items().length === 0) {
+      <p class="gallery-status">This collection is waiting for its first photo.</p>
+    } @else {
+      <div class="gallery">
+        @for (item of items(); track item.id; let index = $index) {
+          @if (item.kind === 'photoDisplay') {
+            <figure class="gallery-entry photo-entry">
+              <div class="entry-label"><span>Nº {{ index + 1 }}</span><span>Photograph</span></div>
+              <app-portfolio-page-photo-display [item]="item" />
+            </figure>
+          } @else {
+            <section class="gallery-entry sequence-entry" aria-label="Photo collection">
+              <div class="entry-label"><span>Nº {{ index + 1 }}</span><span>Sequence</span></div>
+              <app-portfolio-page-photo-display-collection [item]="item" />
+            </section>
+          }
+        }
+      </div>
+    }
+  </section>
+
+  <footer class="closing">
+    <span class="closing-star" aria-hidden="true">✦</span>
+    <p>For everything that reveals itself after the lights go down.</p>
+    <span>NOCTURNE / PORTFOLIO</span>
+  </footer>
+</main>

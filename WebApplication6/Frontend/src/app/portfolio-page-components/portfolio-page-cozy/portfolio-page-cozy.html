@@ -1,1 +1,111 @@
-<p>portfolio-page-cozy works!</p>
+<main class="cozy-page">
+  <div class="masthead">
+    <span class="wordmark"><span aria-hidden="true">✳</span> cozy</span>
+    <span class="masthead-note">Portfolio / a slower way to look</span>
+    <button class="return-button" type="button" (click)="returnToEditor()">
+      <span aria-hidden="true">←</span> Back to editor
+    </button>
+  </div>
+
+  @if (loading()) {
+    <p class="state-message" role="status">Gathering the collection…</p>
+  } @else if (loadError()) {
+    <p class="state-message" role="alert">This collection could not be loaded.</p>
+  } @else {
+    <header class="introduction">
+      <div class="intro-meta"><span>01 / Viewing room</span><span>Cozy edition</span></div>
+      <div class="intro-layout">
+        <div>
+          <span class="eyebrow">An invitation to linger</span>
+          <h1>{{ album()?.name || 'Untitled collection' }}</h1>
+        </div>
+        <div class="intro-aside">
+          @if (album()?.description) {
+            <p>{{ album()?.description }}</p>
+          } @else {
+            <p>A quiet space to spend time with each image.</p>
+          }
+          <span class="intro-glyph" aria-hidden="true">↘</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="gallery" aria-label="Collection images">
+      <div class="section-heading"><span>Selected images</span><span>{{ labelNumber(items().length) }} in this room</span></div>
+
+      @if (items().length === 0) {
+        <p class="empty-message">There are no images in this collection yet.</p>
+      } @else {
+        <div class="gallery-grid">
+          @for (item of items(); track item.id; let index = $index) {
+            @if (item.kind === 'photoDisplay') {
+              <figure class="gallery-card photo-entry">
+                <div class="photo-surface">
+                  @if (item.content.photo.image; as image) {
+                    <img [src]="image.url" [alt]="image.altText || 'Portfolio image'"
+                         [attr.width]="image.width" [attr.height]="image.height" loading="lazy" decoding="async">
+                  }
+                </div>
+                <figcaption class="photo-caption">
+                  <span class="caption-index">{{ labelNumber(index + 1) }}</span>
+                  <div class="caption-copy">
+                    @if (item.content.displaysName && item.content.photo.name) {
+                      <h2>{{ item.content.photo.name }}</h2>
+                    }
+                    @if (item.content.displaysDescription && item.content.photo.description) {
+                      <p>{{ item.content.photo.description }}</p>
+                    }
+                  </div>
+                  @if (item.content.displaysYearContentCreated && item.content.photo.yearContentCreated !== null) {
+                    <span class="caption-year">{{ item.content.photo.yearContentCreated }}</span>
+                  }
+                </figcaption>
+              </figure>
+            } @else {
+              <section class="gallery-card collection-entry" [attr.aria-label]="'Image collection ' + labelNumber(index + 1)">
+                <div class="collection-kicker"><span>{{ labelNumber(index + 1) }} / A sequence</span><span>{{ item.content.photoDisplays.length }} images</span></div>
+                @if (selectedPhoto(item); as selected) {
+                  <div class="collection-layout">
+                    <div class="collection-surface">
+                      @if (selected.content.photo.image; as image) {
+                        <img [src]="image.url" [alt]="image.altText || 'Portfolio image'"
+                             [attr.width]="image.width" [attr.height]="image.height" decoding="async">
+                      }
+                    </div>
+                    <div class="collection-details" aria-live="polite">
+                      <div>
+                        <span class="eyebrow">A closer look</span>
+                        @if (selected.content.displaysName && selected.content.photo.name) {
+                          <h2>{{ selected.content.photo.name }}</h2>
+                        } @else {
+                          <h2>Image {{ labelNumber(collectionPosition(item)) }}</h2>
+                        }
+                        @if (selected.content.displaysDescription && selected.content.photo.description) {
+                          <p>{{ selected.content.photo.description }}</p>
+                        }
+                        @if (selected.content.displaysYearContentCreated && selected.content.photo.yearContentCreated !== null) {
+                          <span class="collection-year">{{ selected.content.photo.yearContentCreated }}</span>
+                        }
+                      </div>
+                      <div class="collection-controls">
+                        <button type="button" aria-label="Previous image"
+                                [disabled]="item.content.photoDisplays.length <= 1"
+                                (click)="moveCollection(item, -1)">←</button>
+                        <span class="collection-count">{{ labelNumber(collectionPosition(item)) }} <span aria-hidden="true">/</span> {{ labelNumber(item.content.photoDisplays.length) }}</span>
+                        <button type="button" aria-label="Next image"
+                                [disabled]="item.content.photoDisplays.length <= 1"
+                                (click)="moveCollection(item, 1)">→</button>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </section>
+            }
+          }
+        </div>
+      }
+    </section>
+  }
+
+  <footer class="cozy-footer"><span>{{ album()?.name || 'Cozy' }}</span><span>Made for looking slowly <span aria-hidden="true">✳</span></span></footer>
+</main>

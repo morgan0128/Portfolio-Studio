@@ -1,15 +1,31 @@
 <main>
 
-  <div>
+  <div class="site-navigation">
     <app-navbar [adminPreviewMode]="true" (requestNavToEditAlbums)="requestNavToEditAlbums.emit(album().id)"
                 (adminModeBlockedNavigation)="alert('Cannot navigate between pages in Admin Preview Mode.')" />
   </div>
 
+  <header class="portfolio-page-details">
+    <div class="portfolio-page-heading">
+      <span class="portfolio-page-label">Collection</span>
+      <h1>{{ album().name }}</h1>
+    </div>
+    @if (album().description){
+      <p class="portfolio-page-description">{{ album().description }}</p>
+    }
+  </header>
+
   <div class="portfolio-items" #portfolioItems>
+      @if (loadingItems()) {
+        <p class="portfolio-status" role="status">Preparing the collection</p>
+      }
+      @if (loadingItemsError()) {
+        <p class="portfolio-status portfolio-status-error" role="alert">The collection could not be loaded.</p>
+      }
       @if (!loadingItems() && !loadingItemsError()){
         @for (row of rows(); track row.key){
           @if (row.kind === 'photos') {
-            <div class="photo-row" [style.inline-size.px]="row.width">
+            <div class="photo-row" [style.inline-size.px]="row.width" [style.gap.px]="row.gap">
               @for (photo of row.photos; track photo.item.id) {
                 <div class="photo-item" [style.inline-size.px]="photo.width">
                   <app-portfolio-page-photo-display [item]="photo.item" />
@@ -17,7 +33,7 @@
               }
             </div>
           } @else {
-            <div class="collection-row">
+            <div class="collection-row" [style.inline-size.px]="row.width">
               <app-portfolio-page-photo-display-collection [item]="row.item" />
             </div>
           }
