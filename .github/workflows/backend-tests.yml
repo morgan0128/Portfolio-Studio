@@ -65,8 +65,8 @@ jobs:
         if: always()
         run: rm -f WebApplication6/sixlabors.lic
 
-  album-item-integration-tests:
-    name: Album Item PostgreSQL Integration Tests
+  integration-tests:
+    name: Integration Tests
     runs-on: ubuntu-latest
 
     services:
@@ -113,6 +113,22 @@ jobs:
           --configuration Release
           --no-build
           --filter-class "WebApplication6.Tests.Tests.Integration.Repositories.AlbumItemTests"
+          
+      - name: Run AlbumRepository PostgreSQL read-only integration tests
+        run: >
+          dotnet test
+          --project WebApplication6.Tests/WebApplication6.Tests.csproj
+          --configuration Release
+          --no-build
+          --filter-class "WebApplication6.Tests.Tests.Integration.Repositories.AlbumRepositoryReadOnlyTests"
+          
+      - name: Run AlbumRepository PostgreSQL integration tests
+        run: >
+          dotnet test
+          --project WebApplication6.Tests/WebApplication6.Tests.csproj
+          --configuration Release
+          --no-build
+          --filter-class "WebApplication6.Tests.Tests.Integration.Repositories.AlbumRepositoryModifyDataTests"
 
       - name: Remove temporary license
         if: always()
