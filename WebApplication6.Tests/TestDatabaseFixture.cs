@@ -9,7 +9,9 @@ namespace WebApplication6.Tests;
 
 public class TestDatabaseFixture
 {
-    private const string ConnectionString = "Host=localhost;Port=5432;Database=webapplication6test;Username=postgres;Password=morg"; // exposed; okay
+    private static readonly string ConnectionString =
+        Environment.GetEnvironmentVariable("WEBAPPLICATION6_TEST_CONNECTION_STRING")
+        ?? "Host=localhost;Port=5432;Database=webapplication6test;Username=postgres;Password=morg";
 
     private static readonly object _lock = new();
     private static bool _databaseInitialized;
@@ -90,8 +92,7 @@ public class TestDatabaseFixture
                     };
                     context.Add(album2);
                     context.SaveChanges();
-
-                    // don't have automatic Order assignment yet in PhotoDisplay TODO?
+                    
                     var albumIdIs1 = context.Albums.Find(1);
                     if (albumIdIs1 != null)
                     {
