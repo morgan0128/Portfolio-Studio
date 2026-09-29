@@ -5,22 +5,22 @@
                 (adminModeBlockedNavigation)="alert('Cannot navigate between pages in Admin Preview Mode.')" />
   </div>
 
-  <div class="portfolio-items">
+  <div class="portfolio-items" #portfolioItems>
       @if (!loadingItems() && !loadingItemsError()){
-        @for (item of items(); track item.id){
-          <div class="item">
-          @switch (item.kind){
-            @case ('photoDisplay'){
-              <app-portfolio-page-photo-display [item]="item" />
-            }
-            @case ('photoDisplayCollection'){
-              <app-portfolio-page-photo-display-collection [item]="item" />
-            }
-            @default {
-
-            }
+        @for (row of rows(); track row.key){
+          @if (row.kind === 'photos') {
+            <div class="photo-row" [style.inline-size.px]="row.width">
+              @for (photo of row.photos; track photo.item.id) {
+                <div class="photo-item" [style.inline-size.px]="photo.width">
+                  <app-portfolio-page-photo-display [item]="photo.item" />
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="collection-row">
+              <app-portfolio-page-photo-display-collection [item]="row.item" />
+            </div>
           }
-          </div>
         }
       }
 

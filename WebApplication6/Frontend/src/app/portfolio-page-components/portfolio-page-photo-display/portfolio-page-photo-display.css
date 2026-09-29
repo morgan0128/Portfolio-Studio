@@ -1,32 +1,37 @@
+:host {
+  display: block;
+  min-inline-size: 0;
+}
+
 .photo-card {
+  --photo-max-height: 32rem;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: 32rem clamp(5.5rem, 12vh, 7.5rem) 4.75rem;
+  grid-template-rows: auto;
+  inline-size: min(
+    100%,
+    var(--photo-source-width, 100%),
+    calc(var(--photo-max-height) * var(--photo-aspect, 1))
+  );
   min-inline-size: 0;
+  margin-inline: auto;
   overflow: hidden;
-  border: 1px solid #314e382b;
   border-radius: 1.5rem;
-  background: #fffdf7;
-  box-shadow: 0 24px 60px -32px #203b324d, 0 3px 12px #203b320a;
+  box-shadow:
+    0 24px 60px -32px #303b4640,
+    0 3px 12px #303b4612;
 }
 
 .image-container {
   grid-area: 1 / 1;
   min-inline-size: 0;
   min-block-size: 0;
-  /*padding: clamp(0.75rem, 2vw, 1.5rem);*/
-  background: radial-gradient(ellipse at center, #fffefb, #e8e9e0);
 }
 
 app-image-display {
   inline-size: 100%;
-  block-size: 100%;
-}
-
-/* An uncaptioned work can use the caption space without moving the frame
-   or the controls. Explicit grid rows also prevent auto-placement jumps. */
-.photo-card:not(:has(.text-content-container)) .image-container {
-  grid-row: 1 / 3;
+  block-size: auto;
+  --image-display-max-height: var(--photo-max-height);
 }
 
 .text-content-container {
@@ -36,9 +41,10 @@ app-image-display {
   overflow: auto;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
-  scrollbar-color: #a5b3a6 #fffdf7;
-  border-block-start: 1px solid #314e3824;
+  scrollbar-color: #b8bdc1 #fcfcfb;
+  border-block-start: 1px solid #56616b21;
   padding: 0.875rem clamp(1rem, 3vw, 2rem);
+  background: #fcfcfb;
   font-size: 0.9375rem;
   line-height: 1.5;
   overflow-wrap: anywhere;
@@ -54,7 +60,7 @@ app-image-display {
 }
 
 .text-content-container .name {
-  color: #243d34;
+  color: var(--portfolio-ink, #22384f);
   font-size: 1.125rem;
   font-weight: 650;
   line-height: 1.3;
@@ -62,12 +68,41 @@ app-image-display {
 }
 
 .text-content-container .description {
-  color: #536258;
+  color: #526579;
 }
 
 .text-content-container .year-cc {
-  color: #75634a;
+  color: #59728a;
   font-size: 0.8125rem;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.08em;
+}
+
+:host(.within-collection) .photo-card {
+  grid-template-rows: 32rem clamp(5.5rem, 12vh, 7.5rem);
+  inline-size: 100%;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+:host(.within-collection) .photo-card:not(:has(.text-content-container)) .image-container {
+  grid-row: 1 / 3;
+}
+
+:host(.within-collection) .image-container {
+  background:
+    radial-gradient(circle at 18% 12%, #ffffff24, transparent 46%),
+    linear-gradient(145deg, #ffffff12, #ffffff05 58%, #ffffff0d);
+  backdrop-filter: blur(3px) saturate(105%);
+}
+
+:host(.within-collection) app-image-display {
+  block-size: 100%;
+  --image-display-max-height: 100%;
+}
+
+:host(.within-collection) .text-content-container {
+  background: #f7fbff9e;
+  backdrop-filter: blur(10px);
 }

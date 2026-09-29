@@ -4,10 +4,17 @@
   grid-template-rows: 32rem clamp(5.5rem, 12vh, 7.5rem) 4.75rem;
   min-inline-size: 0;
   overflow: hidden;
-  border: 1px solid #314e382b;
+  border: 1px solid #49759f40;
   border-radius: 1.5rem;
-  background: #fffdf7;
-  box-shadow: 0 24px 60px -32px #203b324d, 0 3px 12px #203b320a;
+  background: #ffffff0a;
+  box-shadow:
+    0 24px 60px -32px #22384f4d,
+    inset 0 1px 0 #ffffffad;
+}
+
+.collection-wrapper > app-portfolio-page-photo-display {
+  grid-area: 1 / 1 / 3 / 2;
+  min-inline-size: 0;
 }
 
 .button-nav {
@@ -17,8 +24,9 @@
   justify-content: center;
   gap: 0.75rem;
   min-inline-size: 0;
-  border-block-start: 1px solid #314e3824;
-  background: #f6f5ed;
+  border-block-start: 1px solid #49759f2b;
+  background: #ebf4fbb0;
+  backdrop-filter: blur(12px);
 }
 
 .button-nav button {
@@ -28,10 +36,10 @@
   inline-size: 3rem;
   block-size: 3rem;
   padding: 0;
-  border: 1px solid #314e3840;
+  border: 1px solid #49759f40;
   border-radius: 50%;
-  background: #fffdf7;
-  color: #243d34;
+  background: #ffffffbd;
+  color: var(--portfolio-ink, #22384f);
   font: 500 1.375rem / 1 ui-sans-serif, system-ui, sans-serif;
   cursor: pointer;
   transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
@@ -39,20 +47,18 @@
 
 @media (hover: hover) {
   .button-nav button:hover {
-    border-color: #243d34;
-    background: #243d34;
-    color: #fffdf7;
+    border-color: var(--portfolio-accent, #49759f);
+    background: var(--portfolio-accent, #49759f);
+    color: #fff;
   }
 }
 
 .button-nav button:focus-visible {
-  outline: 3px solid #977341;
+  outline: 3px solid #4c84bc;
   outline-offset: 3px;
 }
 
 .button-nav button:active {
-  background: #dce7df;
-  color: #243d34;
+  background: var(--portfolio-accent-soft, #dceaf5);
+  color: var(--portfolio-ink, #22384f);
 }
-
-

@@ -1,8 +1,8 @@
 :host {
-  --nav-text: #dce7e0;
-  --nav-highlight: #f3ecdd;
-  --nav-ink: #203b32;
-  --nav-accent: #ad8550;
+  --nav-text: #e7f0fa;
+  --nav-highlight: #edf5ff;
+  --nav-ink: var(--portfolio-ink, #22384f);
+  --nav-accent: #9bc3e7;
 
   display: block;
   min-inline-size: 0;
@@ -21,22 +21,21 @@ nav {
   border: 1px solid #ffffff24;
   border-radius: 1.75rem;
   background:
-    radial-gradient(ellipse at top left, #54735c45, transparent 65%),
-    linear-gradient(135deg, #233d33, #152b26);
+    radial-gradient(ellipse at top left, #618ab557, transparent 65%),
+    linear-gradient(135deg, #294d70, #152e49);
   box-shadow:
-    0 16px 36px -20px #132d3866,
-    0 4px 10px -6px #132d3833,
+    0 16px 36px -20px #142f4d66,
+    0 4px 10px -6px #142f4d33,
     inset 0 1px 0 #ffffff0d;
 }
 
-/* A fine highlight gives the shell a softly lit, metallic edge. */
 nav::before {
   content: "";
   position: absolute;
   inset-block-start: -1px;
   inset-inline: 18%;
   block-size: 1px;
-  background: linear-gradient(90deg, transparent, #d6c49a99, transparent);
+  background: linear-gradient(90deg, transparent, #c8e2f7a6, transparent);
   pointer-events: none;
 }
 
@@ -96,7 +95,7 @@ nav .pp-nav-title::after {
 
 @media (hover: hover) and (pointer: fine) {
   nav .pp-nav-title:hover {
-    border-color: #fff9ec;
+    border-color: #f2f8ff;
     color: var(--nav-ink);
     background-color: var(--nav-highlight);
     box-shadow: 0 3px 10px #0000001f;

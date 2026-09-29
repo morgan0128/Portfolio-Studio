@@ -1,4 +1,6 @@
-<div class="photo-card">
+<div class="photo-card"
+     [style.--photo-source-width]="image() ? image()!.width + 'px' : null"
+     [style.--photo-aspect]="image() ? image()!.width / (image()!.height || 1) : null">
   @if (photoDisplay() !== null && image() !== null) {
 
     <div class="image-container">
