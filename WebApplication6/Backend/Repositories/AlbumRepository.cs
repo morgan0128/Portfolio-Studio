@@ -29,7 +29,7 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
     }
 
     
-    public async Task<int> GetTotalNumberAlbums()
+    public async Task<int> GetTotalNumberAlbumsAsync()
     {
         var amount = await context.Albums
             .CountAsync();

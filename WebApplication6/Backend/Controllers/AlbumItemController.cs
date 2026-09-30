@@ -30,6 +30,4 @@ public sealed class AlbumItemController(IAlbumItemRepository albumItemRepository
     
     /* request data type objects */
     public sealed record RootLevelReorderRequest(int AlbumItemId, int OrderDestination);
-
-    public sealed record AlbumItemDto(int AlbumItemId, int Order);
 }

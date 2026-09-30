@@ -112,7 +112,7 @@ jobs:
           --project WebApplication6.Tests/WebApplication6.Tests.csproj
           --configuration Release
           --no-build
-          --filter-class "WebApplication6.Tests.Tests.Integration.Repositories.AlbumItemTests"
+          --filter-class "WebApplication6.Tests.Tests.Integration.Repositories.AlbumItemRepositoryModifyDataTests"
           
       - name: Run AlbumRepository PostgreSQL read-only integration tests
         run: >

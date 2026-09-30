@@ -19,7 +19,7 @@ public sealed class AlbumController(IAlbumRepository albumRepository)
         var name = albumRequest.Name?.Trim();
         if (string.IsNullOrEmpty(name))
         {
-            var number = await albumRepository.GetTotalNumberAlbums();
+            var number = await albumRepository.GetTotalNumberAlbumsAsync();
             number++;
             name = "Unnamed Album #" + number;
         }
