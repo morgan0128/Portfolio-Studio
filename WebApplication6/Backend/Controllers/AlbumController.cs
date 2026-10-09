@@ -46,7 +46,7 @@ public sealed class AlbumController(IAlbumRepository albumRepository)
     [HttpGet("ids")]
     public async Task<ActionResult<IEnumerable<int>>> GetIds()
     {
-        var albumIds = await albumRepository.GetAllAlbumsIdsAsync();
+        var albumIds = await albumRepository.GetAllAlbumIdsAsync();
         return Ok(albumIds);
     }
 

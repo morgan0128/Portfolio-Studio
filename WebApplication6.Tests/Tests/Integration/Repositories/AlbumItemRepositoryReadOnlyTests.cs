@@ -1,13 +1,5 @@
-using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
-using Npgsql;
-using WebApplication6.Backend.Data;
-using WebApplication6.Backend.Models;
 using WebApplication6.Backend.Repositories;
 using Xunit;
 

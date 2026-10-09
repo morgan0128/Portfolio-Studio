@@ -18,7 +18,7 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
     }
 
     
-    public async Task<IEnumerable<int>> GetAllAlbumsIdsAsync()
+    public async Task<IEnumerable<int>> GetAllAlbumIdsAsync()
     {
         var albumIds = await context.Albums
             .AsNoTracking()

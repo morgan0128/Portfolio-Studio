@@ -1,6 +1,4 @@
-using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -70,25 +68,25 @@ public class AlbumItemRepositoryModifyDataTests(TestDatabaseFixture dbFixture) :
         var photoDisplay = new PhotoDisplay { AlbumId = 3002, PhotoId = 2, PhotoDisplayCollectionId = item.Id, Order = 0 };
         context.PhotoDisplays.Add(photoDisplay);
         context.Entry(photoDisplay).Property<string>("CollectionItemType").CurrentValue = itemType;
-
+    
         var exception = await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync(TestContext.Current.CancellationToken));
         Assert.Equal(constraintName, Assert.IsType<PostgresException>(exception.InnerException).ConstraintName);
     }
 
-    [Fact]
-    public async Task PhotoDisplayCollection_DatabaseRequiresDisplayMode()
-    {
-        await using var context = Fixture.CreateContext();
-        await using var transaction = await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
-
-        context.PhotoDisplayCollections.Add(new PhotoDisplayCollection { AlbumId = 3002, Order = 0 });
-        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var exception = await Assert.ThrowsAsync<PostgresException>(() => context.Database.ExecuteSqlRawAsync(
+     [Fact]
+     public async Task PhotoDisplayCollection_DatabaseRequiresDisplayMode()
+     {
+         await using var context = Fixture.CreateContext();
+         await using var transaction = await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
+    
+         context.PhotoDisplayCollections.Add(new PhotoDisplayCollection { AlbumId = 3002, Order = 0 });
+         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+    
+         var exception = await Assert.ThrowsAsync<PostgresException>(() => context.Database.ExecuteSqlRawAsync(
             "UPDATE \"AlbumItems\" SET \"DisplayMode\" = NULL WHERE \"AlbumId\" = 3002",
-            TestContext.Current.CancellationToken));
-        Assert.Equal("CK_AlbumItems_PhotoDisplayCollection_Mode", exception.ConstraintName);
-    }
+             TestContext.Current.CancellationToken));
+         Assert.Equal("CK_AlbumItems_PhotoDisplayCollection_Mode", exception.ConstraintName);
+     }
 
     [Fact]
     public async Task PhotoDisplays_RootAndCollectionOrdersRemainIndependent()
@@ -160,7 +158,7 @@ public class AlbumItemRepositoryModifyDataTests(TestDatabaseFixture dbFixture) :
             AlbumId = 1, Order = 5,
             PhotoDisplays = [new PhotoDisplay { PhotoId = 2, Order = 0 }]
         });
-
+    
         var exception = await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync(TestContext.Current.CancellationToken));
         Assert.Equal("UX_AlbumItems_AlbumId_PhotoId", Assert.IsType<PostgresException>(exception.InnerException).ConstraintName);
     }
@@ -196,7 +194,7 @@ public class AlbumItemRepositoryModifyDataTests(TestDatabaseFixture dbFixture) :
         Assert.Equal(!deletePhoto, await context.Photos.AnyAsync(p => p.Id == 2, TestContext.Current.CancellationToken));
         Assert.NotNull(await context.Photos.FindAsync([3], TestContext.Current.CancellationToken));
     }
-
+    
     [Theory]
     [InlineData("PhotoId", "CK_AlbumItems_PhotoDisplay_Required")]
     [InlineData("CollectionItemType", "CK_AlbumItems_CollectionItemType")]
@@ -212,12 +210,12 @@ public class AlbumItemRepositoryModifyDataTests(TestDatabaseFixture dbFixture) :
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
         var columnIdentifier = context.GetService<ISqlGenerationHelper>().DelimitIdentifier(column);
         var sql = "UPDATE \"AlbumItems\" SET " + columnIdentifier + " = NULL WHERE \"AlbumId\" = 3002 AND \"ItemType\" = 'PhotoDisplay'";
-
+    
         var exception = await Assert.ThrowsAsync<PostgresException>(() => context.Database.ExecuteSqlRawAsync(sql, TestContext.Current.CancellationToken));
         Assert.Equal(constraintName, exception.ConstraintName);
     }
     
-        [Theory]
+    [Theory]
     [InlineData(1, -1, 0)]
     [InlineData(1, 63, 0)]
     [InlineData(1, -1, 2)]
@@ -274,7 +272,7 @@ public class AlbumItemRepositoryModifyDataTests(TestDatabaseFixture dbFixture) :
         Assert.Equal(IAlbumItemRepository.ReorderOutcome.ItemNotFound, outcome);
     }
     
-        [Theory]
+    [Theory]
     [InlineData(4, -1)]
     [InlineData(4, -99)]
     [InlineData(3, -7)]
@@ -378,7 +376,7 @@ public class AlbumItemRepositoryModifyDataTests(TestDatabaseFixture dbFixture) :
         await using var transaction =
             await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
         var repository = new AlbumItemRepository(context);
-
+    
         var exception = await Assert.ThrowsAsync<DbUpdateException>(() =>
             repository.AddPhotoToAlbumAsync(1, 2, TestContext.Current.CancellationToken));
         Assert.Equal("UX_AlbumItems_AlbumId_PhotoId",
@@ -473,7 +471,7 @@ public class AlbumItemRepositoryModifyDataTests(TestDatabaseFixture dbFixture) :
         {
             AlbumId = albumId, Order = order, DisplayMode = (PhotoDisplayCollection.PhotoDisplayMode)displayMode
         });
-
+    
         var exception = await Assert.ThrowsAsync<DbUpdateException>(() =>
             context.SaveChangesAsync(TestContext.Current.CancellationToken));
         Assert.Equal(constraintName, Assert.IsType<PostgresException>(exception.InnerException).ConstraintName);
@@ -495,13 +493,13 @@ public class AlbumItemRepositoryModifyDataTests(TestDatabaseFixture dbFixture) :
         {
             AlbumId = 3002, PhotoId = 2, PhotoDisplayCollectionId = collectionId, Order = 1
         });
-
+    
         var exception = await Assert.ThrowsAsync<DbUpdateException>(() =>
             context.SaveChangesAsync(TestContext.Current.CancellationToken));
         Assert.Equal("FK_AlbumItems_AlbumItems_AlbumId_CollectionId_ItemType",
             Assert.IsType<PostgresException>(exception.InnerException).ConstraintName);
     }
-
+    
     [Theory]
     [InlineData(0, "UX_AlbumItems_PhotoDisplayCollectionId_Order")]
     [InlineData(-1, "CK_AlbumItems_Order_NonNegative")]
@@ -525,7 +523,7 @@ public class AlbumItemRepositoryModifyDataTests(TestDatabaseFixture dbFixture) :
         };
         context.PhotoDisplays.Add(display);
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-
+    
         display.Order = order;
         var exception = await Assert.ThrowsAsync<DbUpdateException>(() =>
             context.SaveChangesAsync(TestContext.Current.CancellationToken));
@@ -533,7 +531,7 @@ public class AlbumItemRepositoryModifyDataTests(TestDatabaseFixture dbFixture) :
     }
     
     private sealed class NonPhotoAlbumItem : AlbumItem;
-
+    
     private sealed class AlbumItemModelCustomizer(ModelCustomizerDependencies dependencies) : ModelCustomizer(dependencies)
     {
         public override void Customize(ModelBuilder modelBuilder, DbContext context)

@@ -191,7 +191,7 @@ public class AlbumControllerUnitTests
     public async Task GetIds_EmptyIdList_ReturnsEmptyIdList()
     {
         var repositoryMock = new Mock<IAlbumRepository>();
-        repositoryMock.Setup(r => r.GetAllAlbumsIdsAsync()).ReturnsAsync(new List<int>());
+        repositoryMock.Setup(r => r.GetAllAlbumIdsAsync()).ReturnsAsync(new List<int>());
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.GetIds();
@@ -205,7 +205,7 @@ public class AlbumControllerUnitTests
     public async Task GetIds_SingleIdList_ReturnsSameIdInList()
     {
         var repositoryMock = new Mock<IAlbumRepository>();
-        repositoryMock.Setup(r => r.GetAllAlbumsIdsAsync()).ReturnsAsync(new List<int> { 23 });
+        repositoryMock.Setup(r => r.GetAllAlbumIdsAsync()).ReturnsAsync(new List<int> { 23 });
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.GetIds();
@@ -219,7 +219,7 @@ public class AlbumControllerUnitTests
     public async Task GetIds_MultipleIdList_ReturnsSameIdsInOrder()
     {
         var repositoryMock = new Mock<IAlbumRepository>();
-        repositoryMock.Setup(r => r.GetAllAlbumsIdsAsync()).ReturnsAsync(new List<int> { 4, 12, 23 });
+        repositoryMock.Setup(r => r.GetAllAlbumIdsAsync()).ReturnsAsync(new List<int> { 4, 12, 23 });
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.GetIds();

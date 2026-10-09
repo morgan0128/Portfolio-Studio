@@ -8,7 +8,7 @@ public interface IAlbumRepository
 {
     Task<IEnumerable<AlbumDto>> GetAllAlbumsAsync();
 
-    Task<IEnumerable<int>> GetAllAlbumsIdsAsync();
+    Task<IEnumerable<int>> GetAllAlbumIdsAsync();
 
     Task<int> GetTotalNumberAlbumsAsync();
     

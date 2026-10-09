@@ -1,8 +1,6 @@
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using WebApplication6.Backend.Data;
 using WebApplication6.Backend.Models;
 using WebApplication6.Backend.Repositories;
@@ -13,9 +11,6 @@ namespace WebApplication6.Tests.Tests.Integration.Repositories;
 public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : IClassFixture<TestDatabaseFixture>
 {
     public TestDatabaseFixture Fixture { get; } = dbFixture;
-
-
-
 
     [Fact]
     public async Task AlbumPresentation_PublishAndQuery_UsesAlbumIdentityAndDefaults()
