@@ -7,7 +7,7 @@
       (photoDetailedViewRequest)="internalPhotoDetailedViewRequest.emit($event)"
     />
     <button class="collection-nav" (click)="prevPhoto()"><</button>
-    <button class="collection-dissolve">&times;</button>
+    <button class="collection-dissolve" (click)="dissolve()">&times;</button>
     <button class="collection-nav" (click)="nextPhoto()">></button>
   }
 </div>

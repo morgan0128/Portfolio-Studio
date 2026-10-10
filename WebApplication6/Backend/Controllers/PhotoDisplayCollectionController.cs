@@ -25,15 +25,25 @@ public class PhotoDisplayCollectionController(IAlbumItemRepository albumItemRepo
         return albumItem;
     }
 
+    [HttpPost("dissolve/{photoDisplayCollectionId:int}")]
+    public async Task<ActionResult<IEnumerable<IAlbumItemRepository.PhotoDisplayAlbumItemDto>>> Dissolve(int albumId, int photoDisplayCollectionId)
+    {
+        var orphanedItems = await albumItemRepository.DissolvePhotoDisplayCollection(albumId, photoDisplayCollectionId);
+        
+        if (orphanedItems is null) return NotFound();
+        
+        return Ok(orphanedItems);
+    }
+
     
     /* GET */
     
     
     /* PUT, PATCH */
     [HttpPatch]
-    public async Task DissolveCollection(int albumId, int itemId)
+    public async Task Delete(int albumId, int itemId)
     {
-        
+        throw new NotImplementedException();
     }
     
     /* DELETE */

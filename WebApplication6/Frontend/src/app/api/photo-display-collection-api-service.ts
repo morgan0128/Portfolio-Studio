@@ -18,4 +18,9 @@ export class PhotoDisplayCollectionApiService {
     return this.http.post(requestPath, requestObject);
   }
 
+  Dissolve(albumId: number, id: number){
+    let requestPath = this.apiUrlPrefix + '/' + albumId + this.apiUrlSuffix + '/dissolve/' + id;
+    return this.http.post(requestPath, {});
+  }
+
 }

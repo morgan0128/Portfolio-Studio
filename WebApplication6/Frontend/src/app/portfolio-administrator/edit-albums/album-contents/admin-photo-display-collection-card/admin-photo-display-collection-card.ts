@@ -1,4 +1,4 @@
-import {Component, computed, input, output, signal} from '@angular/core';
+import {Component, computed, inject, input, output, signal} from '@angular/core';
 // import {AlbumItemDto} from '../../../../models/AlbumItemDto';
 // import {PhotoDisplayDto} from '../../../../models/PhotoDisplayDto';
 // import {PhotoDisplayCollectionDto} from '../../../../models/PhotoDisplayCollectionDto';
@@ -10,6 +10,7 @@ import {
 } from '../../../../models/AlbumItemDto'
 import {AdminPhotoDisplayCard} from '../admin-photo-display-card/admin-photo-display-card';
 import {PhotoDto} from '../../../../models/PhotoDto';
+import {PhotoDisplayCollectionApiService} from '../../../../api/photo-display-collection-api-service';
 
 @Component({
   selector: 'app-admin-photo-display-collection-card',
@@ -20,11 +21,14 @@ import {PhotoDto} from '../../../../models/PhotoDto';
   styleUrl: './admin-photo-display-collection-card.css',
 })
 export class AdminPhotoDisplayCollectionCard {
+  private readonly photoDisplayCollectionApi = inject(PhotoDisplayCollectionApiService);
+
   readonly albumId = input.required<number>();
   readonly item = input.required<PhotoDisplayCollectionItem>();
   readonly photoDisplayCollection = computed<PhotoDisplayCollectionDto>(() => this.item().content);
 
   readonly stateChange = output<PhotoDisplayCollectionItem>();
+  readonly debugOnlyPleaseRefreshAlbumThanks = output(); // TODO
   // readonly internalItemStateChange = output<PhotoDisplayItem>();
   // readonly externalStateChange = output();
 
@@ -75,7 +79,14 @@ export class AdminPhotoDisplayCollectionCard {
     } else {
       this.displayIndex.set(this.displayIndex() - 1);
     }
+  }
 
+  dissolve(){
+    this.photoDisplayCollectionApi.Dissolve(this.albumId(), this.item().id).subscribe({
+      next: () => {
+        this.debugOnlyPleaseRefreshAlbumThanks.emit();
+      }
+    });
   }
 
 }

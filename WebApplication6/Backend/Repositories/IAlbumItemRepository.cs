@@ -25,6 +25,9 @@ public interface IAlbumItemRepository
     Task<bool> ModifyFieldsDisplayed(int albumId, int photoId,
         IAlbumItemRepository.PhotoDisplayFieldsDisplayedRequest request);
 
+    Task<IEnumerable<PhotoDisplayAlbumItemDto>?> DissolvePhotoDisplayCollection(int albumId,
+        int photoDisplayCollectionId, CancellationToken cancellationToken = default); 
+
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
     [JsonDerivedType(typeof(PhotoDisplayAlbumItemDto), "photoDisplay")]
     [JsonDerivedType(typeof(PhotoDisplayCollectionAlbumItemDto), "photoDisplayCollection")]

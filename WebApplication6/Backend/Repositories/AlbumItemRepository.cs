@@ -214,7 +214,7 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
                 var moveMeBackward = albumItems[i];
                 moveMeBackward.Order = moveMeBackward.Order - 1;
             }
-            await context.SaveChangesAsync(); // avoid circular dependency
+            await context.SaveChangesAsync();
 
             toMove.Order = newOrderNormalized;
             await context.SaveChangesAsync();
@@ -230,7 +230,7 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
             index++;
         }
         
-        await context.SaveChangesAsync(); // avoid circular dependency
+        await context.SaveChangesAsync();
 
         toMove.Order = newOrder;
         await context.SaveChangesAsync();
@@ -240,7 +240,7 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
         return IAlbumItemRepository.ReorderOutcome.Success;
     }
         
-    private async Task NormalizeOrder(int albumId, int? photoDisplayCollectionId)
+    private async Task NormalizeOrder(int albumId, int? photoDisplayCollectionId = null)
     {
         var albumItems = await ItemsInScope(albumId, photoDisplayCollectionId)
             .OrderBy(ai => ai.Order)
@@ -266,8 +266,7 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
         return context.AlbumItems
             .Where(ai => ai.AlbumId == albumId && (!(ai is PhotoDisplay) || ((PhotoDisplay)ai).PhotoDisplayCollectionId == null));
     }
-
-    // TODO return type
+    
     public async Task<bool> ModifyFieldsDisplayed(int albumId, int photoDisplayId,
         IAlbumItemRepository.PhotoDisplayFieldsDisplayedRequest request)
     {
@@ -282,68 +281,63 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
 
         return true;
     }
+
+    public async Task<IEnumerable<IAlbumItemRepository.PhotoDisplayAlbumItemDto>?> DissolvePhotoDisplayCollection(
+        int albumId, int photoDisplayCollectionId, CancellationToken cancellationToken = default)
+    {
+        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+        
+        var photoDisplayCollection = await context.PhotoDisplayCollections
+            .Where(pdc => pdc.Id == photoDisplayCollectionId)
+            .Include(pdc => pdc.PhotoDisplays)
+            .ThenInclude(pd => pd.Photo)
+            .ThenInclude(p => p.Image)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (photoDisplayCollection == null) return null;
+        
+        var collectionPhotoDisplays = photoDisplayCollection.PhotoDisplays.OrderBy(pd => pd.Order).ToList();
+        
+        var initialPhotoDisplayCollectionOrder = photoDisplayCollection.Order;
+        
+        var maxRootOrder = await ItemsInScope(albumId)
+            .MaxAsync(ai => ai.Order, cancellationToken);
+
+        maxRootOrder += collectionPhotoDisplays.Count;
+        
+        var greaterRootOrderItems = await ItemsInScope(albumId)
+            .Where(ai => ai.Order > initialPhotoDisplayCollectionOrder)
+            .OrderBy(ai => ai.Order)
+            .ToListAsync(cancellationToken);
     
-    // public async Task<bool> ToggleDisplaysName(int albumId, int photoId)
-    // {
-    //     var ap = await context.PhotoDisplays
-    //         .SingleOrDefaultAsync(pd => pd.AlbumId == albumId && pd.PhotoId == photoId);
-    //
-    //     if (ap == null) return false;
-    //     
-    //     ap.DisplaysName = !ap.DisplaysName;
-    //     await context.SaveChangesAsync();
-    //     return true;
-    // }
-    //
-    // public async Task<bool> ToggleDisplaysDescription(int albumId, int photoId)
-    // {
-    //     var ap = await context.PhotoDisplays
-    //         .SingleOrDefaultAsync(pd => pd.AlbumId == albumId && pd.PhotoId == photoId);
-    //
-    //     if (ap == null) return false;
-    //     
-    //     ap.DisplaysDescription = !ap.DisplaysDescription;
-    //     await context.SaveChangesAsync();
-    //     return true;
-    // }
-    //
-    // public async Task<bool> ToggleDisplaysYearContentCreated(int albumId, int photoId)
-    // {
-    //     var ap = await context.PhotoDisplays
-    //         .SingleOrDefaultAsync(pd => pd.AlbumId == albumId && pd.PhotoId == photoId);
-    //
-    //     if (ap == null) return false;
-    //     
-    //     ap.DisplaysYearContentCreated = !ap.DisplaysYearContentCreated;
-    //     await context.SaveChangesAsync();
-    //     return true;
-    // }
-    
-    // public async Task<List<PhotoDisplay>> FetchPhotoDisplaysByIds(int albumId, List<int> photoDisplayIds)
-    // {
-    //     var photoDisplays = await context.PhotoDisplays
-    //         .Where(p => p.AlbumId == albumId && photoDisplayIds.Contains(p.Id))
-    //         .ToListAsync();
-    //
-    //     return photoDisplays;
-    // }
-    
-    // public async Task<PhotoDisplayCollection> CreateCarouselPhotoDisplayCollection(int albumId, List<PhotoDisplay> photoDisplays)
-    // {
-    //     if (photoDisplays.Exists(pd => pd.AlbumId != albumId))
-    //     {
-    //         throw new Exception();
-    //     }
-    //     
-    //     var displayCollection = new PhotoDisplayCollection();
-    //     displayCollection.DisplayMode = PhotoDisplayCollection.PhotoDisplayMode.Carousel;
-    //     displayCollection.PhotoDisplays = photoDisplays;
-    //
-    //     
-    //     await context.SaveChangesAsync();
-    //     return displayCollection;
-    // }
-    
+        foreach (var item in greaterRootOrderItems) item.Order = ++maxRootOrder;
+        photoDisplayCollection.Order = ++maxRootOrder;
+
+
+        await context.SaveChangesAsync(cancellationToken);
+
+
+
+        for (var i = 0; i < collectionPhotoDisplays.Count; i++)
+        {
+            var photoDisplay = collectionPhotoDisplays[i];
+            photoDisplay.Order = initialPhotoDisplayCollectionOrder + i;
+            photoDisplay.PhotoDisplayCollectionId = null;
+        }
+
+        await context.SaveChangesAsync(cancellationToken);
+        
+        await context.AlbumItems
+            .Where(ai => ai.Id == photoDisplayCollection.Id)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        await NormalizeOrder(albumId);
+        await transaction.CommitAsync(cancellationToken);
+        
+        return collectionPhotoDisplays.ConvertAll(ToPhotoDisplayAlbumItemDto);
+    }
+
     private static IAlbumItemRepository.AlbumItemDto ToAlbumItemDto(PhotoDisplay photoDisplay)
     {
         return ToPhotoDisplayAlbumItemDto(photoDisplay);

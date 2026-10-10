@@ -49,6 +49,7 @@
               [albumId]="selectedAlbumId()"
               [item]="item"
               (stateChange)="internalPhotoDisplayCollectionStateChange($event)"
+              (debugOnlyPleaseRefreshAlbumThanks)="multipleItemStatesChange.emit()"
               />
           }
 
