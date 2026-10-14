@@ -14,6 +14,8 @@ public class PhotoDisplayCollectionController(IAlbumItemRepository albumItemRepo
     public async Task<ActionResult<IAlbumItemRepository.AlbumItemDto>> Post(int albumId, CreatePhotoDisplayCollectionRequest request)
     {
         if (request.DisplayMode != PhotoDisplayCollection.PhotoDisplayMode.Carousel) throw new NotImplementedException();
+
+        if (!request.PhotoDisplayIds.Any()) return BadRequest();
         
         var collection = await albumItemRepository.CreateCarouselPhotoDisplayCollection(albumId, request.PhotoDisplayIds);
         if (collection is null)

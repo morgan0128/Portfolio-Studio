@@ -15,7 +15,7 @@ public interface IPhotoRepository
     Task<int?> SavePhotoAsync(Photo photo);
     
     /// <returns>true on success, or false</returns>
-    Task<bool> DeletePhotoByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<bool> DeletePhotoByIdAsync(int id);
     
     public static IPhotoRepository.PhotoDto ToPhotoDto(Photo photo)
     {

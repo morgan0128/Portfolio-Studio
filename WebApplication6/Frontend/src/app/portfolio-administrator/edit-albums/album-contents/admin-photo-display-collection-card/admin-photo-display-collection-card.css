@@ -6,6 +6,8 @@ div.collection-card {
     /*display: inline;*/
     position: absolute;
     top: 40%;
+    border: 1px solid black;
+    border-radius: 1rem;
   }
 
   button.collection-nav:first-of-type {

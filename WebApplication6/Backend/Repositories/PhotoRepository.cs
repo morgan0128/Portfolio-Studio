@@ -48,25 +48,23 @@ public class PhotoRepository(ApplicationDbContext context) : IPhotoRepository
         }
     }
 
-    public async Task<bool> DeletePhotoByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<bool> DeletePhotoByIdAsync(int id)
     {
-        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
-        
-        var photo = await context.Photos.FindAsync(id, cancellationToken);
+        var photo = await context.Photos
+            .FirstOrDefaultAsync(p => p.Id == id);
         if (photo == null) return false;
 
         var photoDisplayCollections = await context.PhotoDisplayCollections
             .Where(apdi => apdi.PhotoDisplays.Any(ap => ap.PhotoId == id)
                          && apdi.PhotoDisplays.All(ap => ap.PhotoId == id))
-            .ToListAsync(cancellationToken);
+            .ToListAsync();
         context.PhotoDisplayCollections.RemoveRange(photoDisplayCollections);
 
         context.Photos.Remove(photo);
 
         try
         {
-            await context.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
+            await context.SaveChangesAsync();
             return true;
         }
         catch (AggregateException)

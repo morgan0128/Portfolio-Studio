@@ -94,11 +94,15 @@ export class AlbumContents {
   }
 
   protected createPhotoGroup(){
-    this.photoDisplayCollectionApi.Post(this.selectedAlbumId(), this.collectionGroupingOptInIds()).subscribe({
-      next: () => {
-        this.multipleItemStatesChange.emit();
-      }
-    })
+    if (this.collectionGroupingOptInIds().length !== 0) {
+      this.photoDisplayCollectionApi.Post(this.selectedAlbumId(), this.collectionGroupingOptInIds()).subscribe({
+        next: () => {
+          this.multipleItemStatesChange.emit();
+        }
+      });
+    } else {
+      // notify user?
+    }
 
     this.toggleCreatePhotoGroupView();
   }
