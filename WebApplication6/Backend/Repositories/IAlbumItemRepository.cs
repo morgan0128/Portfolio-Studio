@@ -50,29 +50,29 @@ public interface IAlbumItemRepository
         IReadOnlyList<PhotoDisplayAlbumItemDto> PhotoDisplays
     );
 
-    public sealed record PhotoDto(
-        int Id,
-        ImageDto Image,
-        string Name,
-        string Description,
-        int? YearContentCreated
-    );
-
-    public sealed record ImageDto(
-        int Id,
-        string FileName,
-        string ContentType,
-        long? FileSize,
-        string StorageFileName,
-        string Url,
-        string AltText,
-        int Width,
-        int Height
-    );
+    // public sealed record PhotoDto(
+    //     int Id,
+    //     ImageDto Image,
+    //     string Name,
+    //     string Description,
+    //     int? YearContentCreated
+    // );
+    //
+    // public sealed record ImageDto(
+    //     int Id,
+    //     string FileName,
+    //     string ContentType,
+    //     long? FileSize,
+    //     string StorageFileName,
+    //     string Url,
+    //     string AltText,
+    //     int Width,
+    //     int Height
+    // );
     
     
     public sealed record PhotoDisplayDto(
-        PhotoDto Photo,
+        IPhotoRepository.PhotoDto Photo,
         int? PhotoDisplayCollectionId,
         bool DisplaysName,
         bool DisplaysDescription,

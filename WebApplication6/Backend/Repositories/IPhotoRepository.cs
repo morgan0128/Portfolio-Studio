@@ -5,15 +5,54 @@ namespace WebApplication6.Backend.Repositories;
 
 public interface IPhotoRepository
 {
-    Task<IEnumerable<Photo>> GetAllPhotosAsync();
+    Task<IEnumerable<PhotoDto>> GetAllPhotosAsync();
 
     Task<IEnumerable<int>> GetAllPhotosIdsAsync();
     
-    Task<Photo?> GetPhotoByIdAsync(int id);
+    Task<PhotoDto?> GetPhotoByIdAsync(int id);
 
     /// <returns>The Id of the saved photo on success, or null on exception thrown or failure.</returns>
     Task<int?> SavePhotoAsync(Photo photo);
     
     /// <returns>true on success, or false</returns>
-    Task<bool> DeletePhotoByIdAsync(int id);
+    Task<bool> DeletePhotoByIdAsync(int id, CancellationToken cancellationToken = default);
+    
+    public static IPhotoRepository.PhotoDto ToPhotoDto(Photo photo)
+    {
+        return new IPhotoRepository.PhotoDto(
+            photo.Id,
+            new IPhotoRepository.ImageDto(
+                photo.Image.Id,
+                photo.Image.FileName,
+                photo.Image.ContentType,
+                photo.Image.FileSize,
+                photo.Image.StorageFileName,
+                photo.Image.Url,
+                photo.Image.AltText,
+                photo.Image.Width,
+                photo.Image.Height),
+            photo.Name,
+            photo.Description,
+            photo.YearContentCreated);
+    }
+    
+    public sealed record PhotoDto(
+        int Id,
+        ImageDto Image,
+        string Name,
+        string Description,
+        int? YearContentCreated
+    );
+
+    public sealed record ImageDto(
+        int Id,
+        string FileName,
+        string ContentType,
+        long? FileSize,
+        string StorageFileName,
+        string Url,
+        string AltText,
+        int Width,
+        int Height
+    );
 }

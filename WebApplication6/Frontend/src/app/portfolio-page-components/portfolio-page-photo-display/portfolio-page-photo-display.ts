@@ -1,5 +1,5 @@
 import {Component, computed, input} from '@angular/core';
-import {ImageDisplay} from "../image-display/ImageDisplay";
+import {ImageDisplay} from "../../common/image-display/ImageDisplay";
 import {PhotoDisplayDto, PhotoDisplayItem} from '../../models/AlbumItemDto';
 
 @Component({

@@ -375,30 +375,30 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
     private static IAlbumItemRepository.PhotoDisplayDto ToPhotoDisplayDto(PhotoDisplay photoDisplay)
     {
         return new IAlbumItemRepository.PhotoDisplayDto(
-            ToPhotoDto(photoDisplay.Photo),
+            IPhotoRepository.ToPhotoDto(photoDisplay.Photo),
             photoDisplay.PhotoDisplayCollectionId,
             photoDisplay.DisplaysName,
             photoDisplay.DisplaysDescription,
             photoDisplay.DisplaysYearContentCreated);
     }
 
-    private static IAlbumItemRepository.PhotoDto ToPhotoDto(Photo photo)
-    {
-        return new IAlbumItemRepository.PhotoDto(
-            photo.Id,
-            new IAlbumItemRepository.ImageDto(
-                photo.Image.Id,
-                photo.Image.FileName,
-                photo.Image.ContentType,
-                photo.Image.FileSize,
-                photo.Image.StorageFileName,
-                photo.Image.Url,
-                photo.Image.AltText,
-                photo.Image.Width,
-                photo.Image.Height),
-            photo.Name,
-            photo.Description,
-            photo.YearContentCreated);
-    }
+    // private static IPhotoRepository.PhotoDto ToPhotoDto(Photo photo)
+    // {
+    //     return new IPhotoRepository.PhotoDto(
+    //         photo.Id,
+    //         new IPhotoRepository.ImageDto(
+    //             photo.Image.Id,
+    //             photo.Image.FileName,
+    //             photo.Image.ContentType,
+    //             photo.Image.FileSize,
+    //             photo.Image.StorageFileName,
+    //             photo.Image.Url,
+    //             photo.Image.AltText,
+    //             photo.Image.Width,
+    //             photo.Image.Height),
+    //         photo.Name,
+    //         photo.Description,
+    //         photo.YearContentCreated);
+    // }
     
 }

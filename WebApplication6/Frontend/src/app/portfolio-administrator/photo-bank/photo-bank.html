@@ -1,0 +1,72 @@
+<section class="artworks-section">
+  <div class="section-heading artwork-heading">
+    <div>
+      <p class="eyebrow">Viewing all photos</p>
+      <h2>Photo Bank</h2>
+      <a routerLink="/edit-albums">Back to Album Manager</a>
+    </div>
+    <span class="artworks-count">{{ photos().length }} {{ photos().length === 1 ? 'item' : 'items' }}</span>
+  </div>
+
+  @if (photos().length === 0) {
+    <div class="empty-state">
+      <h3>You have no photos saved.</h3>
+      <p>Upload an image above to add the first piece.</p>
+    </div>
+  } @else {
+    <div class="art-grid-container">
+      <div class="art-grid">
+        @for (photo of photos(); track photo.id) {
+          <div class="photo-card"
+               [style.--photo-source-width]="photo.image ? photo.image.width + 'px' : null"
+               [style.--photo-aspect]="photo.image ? photo.image.width / (photo.image.height || 1) : null">
+            @if (photo.image !== null) {
+              <div class="image-container">
+                @for (image of [photo.image]; track image.id){
+                  <app-image-display [displayedImage]="image" (click)="handleDetailedPhotoViewRequest(photo.id)"/>
+                }
+              </div>
+                <div class="text-content-container">
+                    <div class="caption-heading">
+                        <p class="name">{{ photo.name }}</p>
+                        <p class="year-cc">{{ photo.yearContentCreated }}</p>
+                    </div>
+                    <p class="description">{{ photo.description }}</p>
+                </div>
+              }
+          </div>
+        }
+        @if (detailedViewPhoto() != null){
+          <app-detailed-photo-view [photo]="detailedViewPhoto()!" (closePreview)="detailedViewPhoto.set(null)" />
+        }
+      </div>
+    </div>
+
+  }
+</section>
+
+
+
+
+<!--<div class="bank">-->
+<!--  <div class="bank-carousel">-->
+<!--    <div class="photo-card"-->
+<!--         [style.&#45;&#45;photo-source-width]="selectedImage() ? selectedImage()!.width + 'px' : null"-->
+<!--         [style.&#45;&#45;photo-aspect]="selectedImage() ? selectedImage()!.width / (selectedImage()!.height || 1) : null">-->
+<!--    @if (selectedPhoto() !== null && selectedImage() !== null){-->
+<!--      <div class="image-container">-->
+<!--        @for (image of [selectedImage()!]; track image.id){-->
+<!--          <app-image-display [displayedImage]="selectedImage()!" />-->
+<!--        }-->
+<!--      </div>-->
+<!--    }-->
+<!--    </div>-->
+<!--  </div>-->
+<!--  <div class="photo-info">-->
+<!--    <h1>Hello Photo</h1>-->
+<!--  </div>-->
+<!--  <div class="photo-nav">-->
+<!--    <button class="photo-nav" (click)="prevPhoto()"><</button>-->
+<!--    <button class="photo-nav" (click)="nextPhoto()">></button>-->
+<!--  </div>-->
+<!--</div>-->

@@ -54,9 +54,9 @@ public class AlbumItemControllerUnitTests
             new IAlbumItemRepository.PhotoDisplayCollectionDto(
                 PhotoDisplayCollection.PhotoDisplayMode.Carousel,
                 new List<IAlbumItemRepository.PhotoDisplayAlbumItemDto>()));
-        var image = new IAlbumItemRepository.ImageDto(30, "photo.jpg", "image/jpeg", 100,
+        var image = new IPhotoRepository.ImageDto(30, "photo.jpg", "image/jpeg", 100,
             "stored.jpg", "/photos/stored.jpg", "A photo", 800, 600);
-        var photo = new IAlbumItemRepository.PhotoDto(31, image, "Portrait", "Description", 2024);
+        var photo = new IPhotoRepository.PhotoDto(31, image, "Portrait", "Description", 2024);
         var display = new IAlbumItemRepository.PhotoDisplayAlbumItemDto(7, 1,
             new IAlbumItemRepository.PhotoDisplayDto(photo, null, true, true, true));
         repositoryMock.Setup(r => r.GetAlbumItems(23))

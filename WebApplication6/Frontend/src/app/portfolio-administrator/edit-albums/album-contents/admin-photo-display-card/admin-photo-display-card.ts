@@ -3,7 +3,7 @@ import {FormsModule} from '@angular/forms';
 import {PhotoDto} from '../../../../models/PhotoDto';
 import {PhotoDisplayItem} from '../../../../models/AlbumItemDto';
 import {PhotoDisplayApiService, PhotoDisplayFieldsDisplayedRequest} from '../../../../api/photo-display-api-service';
-import {ImageDisplay} from '../../../../portfolio-page-components/image-display/ImageDisplay';
+import {ImageDisplay} from '../../../../common/image-display/ImageDisplay';
 
 @Component({
   selector: 'app-admin-photo-display-card',

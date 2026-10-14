@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal, Signal} from '@angular/core';
+ import {Component, inject, OnInit, signal, Signal} from '@angular/core';
 import {Location} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {AlbumContents} from './album-contents/album-contents';
@@ -8,11 +8,9 @@ import {PhotoDto} from '../../models/PhotoDto';
 import {AlbumApiService} from '../../api/album-api-service';
 import {AlbumItemDto} from '../../models/AlbumItemDto';
 import {AlbumItemApiService} from '../../api/album-item-api-service';
-import {
-  PhotoDisplayApiService,
-  PhotoDisplaySpecification,
-  PhotoUploadSpecification
-} from '../../api/photo-display-api-service';
+import { PhotoDisplayApiService } from '../../api/photo-display-api-service';
+import {RouterLink} from '@angular/router';
+import {PhotoSpecification, PhotoUploadSpecification} from '../../models/PhotoUploadSpecification';
 
 @Component({
   selector: 'app-edit-albums',
@@ -20,6 +18,7 @@ import {
     FormsModule,
     AlbumContents,
     PortfolioPageManager,
+    RouterLink,
   ],
   templateUrl: './edit-albums.html',
   styleUrl: './edit-albums.css',
@@ -227,7 +226,7 @@ export class EditAlbums implements OnInit {
     const description = this.newPhotoDescription.trim();
     let yearContentCreated = 2003;
 
-    const photoSpec = new PhotoDisplaySpecification();
+    const photoSpec = new PhotoSpecification();
     photoSpec.name = name;
     photoSpec.description = description;
     photoSpec.yearContentCreated = yearContentCreated;
