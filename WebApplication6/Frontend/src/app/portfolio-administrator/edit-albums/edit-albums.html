@@ -222,8 +222,8 @@
             [selectedAlbumId]="this.selectedAlbumId()!"
             [loadingItems]="this.loadingItems()"
             [items]="this.albumItems()"
-            (stateChange)="albumItemUpdateState($event)"
-            (multipleItemStatesChange)="loadAlbumSelection()"/>
+            (photoDisplayFieldsChanged)="applyPhotoDisplayFieldsChange($event)"
+            (refreshRequested)="refreshAlbumContents($event)"/>
         }
       </section>
   </div>

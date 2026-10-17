@@ -1,0 +1,27 @@
+.admin-root-item-wrapper {
+  border: 1px solid black;
+}
+
+.admin-wrapper-buttons {
+  width: 100%;
+
+  p {
+    padding: 0;
+    margin: 0.3rem;
+  }
+
+  div {
+    width: 100%;
+    display: inline-flex;
+    /*border: 1px solid black;*/
+  }
+
+  .reordering {
+    justify-content: space-between;
+  }
+
+  .photo-collection-grouping {
+    justify-content: left;
+  }
+
+}

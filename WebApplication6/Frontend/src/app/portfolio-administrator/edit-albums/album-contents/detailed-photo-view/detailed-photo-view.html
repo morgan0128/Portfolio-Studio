@@ -1,4 +1,4 @@
-<div class="detailed-photo-view">
+<div class="detailed-photo-view" (click)="closePreview.emit()">
   <button (click)="closePreview.emit()">&times;</button>
   @if (photo().image != null){
     @let image = photo().image!;

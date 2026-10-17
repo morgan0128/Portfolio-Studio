@@ -1,13 +1,9 @@
 import {Component, computed, inject, input, OnInit, output, signal} from '@angular/core';
-import {AdminPhotoDisplayCard} from '../edit-albums/album-contents/admin-photo-display-card/admin-photo-display-card';
 import {PhotoDto} from '../../models/PhotoDto';
 import {NgOptimizedImage} from '@angular/common';
 import {ImageDto} from '../../models/ImageDto';
 import {ImageDisplay} from '../../common/image-display/ImageDisplay';
 import {PhotoApiService} from '../../api/photo-api-service';
-import {
-  AdminPhotoDisplayCollectionCard
-} from '../edit-albums/album-contents/admin-photo-display-collection-card/admin-photo-display-collection-card';
 import {DetailedPhotoView} from '../edit-albums/album-contents/detailed-photo-view/detailed-photo-view';
 import {RouterLink} from '@angular/router';
 

@@ -1,0 +1,25 @@
+@let image = photo().image;
+@if (image !== null) {
+  @let i = image!;
+  <article class="art-card">
+    <div class="art-image">
+      @for (img of [i]; track img.id){
+        <app-image-display [displayedImage]="image" (click)="sendPhotoViewRequest()"/>
+      }
+    </div>
+    <div class="art-card-details">
+      <div class="art-card-user-field">
+        <h3>{{ photo().name }}</h3>
+        <button [disabled]="mutationPending()" [style]="'background-color: ' + displaysNameColor()" (click)="toggleDisplaysName()"></button>
+      </div>
+      <div class="art-card-user-field">
+        <p>{{ photo().description || 'No description' }}</p>
+        <button [disabled]="mutationPending()" [style]="'background-color: ' + displaysDescColor()" (click)="toggleDisplaysDesc()"></button>
+      </div>
+      <div class="art-card-user-field">
+        <p>{{ photo().yearContentCreated || '' }} </p>
+        <button [disabled]="mutationPending()" [style]="'background-color: ' + displaysYearColor()" (click)="toggleDisplaysYearCC()"></button>
+      </div>
+    </div>
+  </article>
+}

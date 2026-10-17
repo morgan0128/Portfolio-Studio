@@ -11,6 +11,7 @@ import {AlbumItemApiService} from '../../api/album-item-api-service';
 import { PhotoDisplayApiService } from '../../api/photo-display-api-service';
 import {RouterLink} from '@angular/router';
 import {PhotoSpecification, PhotoUploadSpecification} from '../../models/PhotoUploadSpecification';
+import {AlbumPhotoDisplayFieldsChange} from './album-contents/album-item-actions';
 
 @Component({
   selector: 'app-edit-albums',
@@ -67,6 +68,7 @@ export class EditAlbums implements OnInit {
   // TODO
   // protected readonly photos = signal<PhotoDto[]>([]);
   protected readonly albumItems = signal<AlbumItemDto[]>([]);
+  private albumItemsLoadVersion = 0;
 
   // protected readonly createPhotoGroupView = signal<boolean>(false);
 
@@ -149,8 +151,11 @@ export class EditAlbums implements OnInit {
     // this.proposingDelete.set(false);
 
     if (this.selectedAlbumId() === null){
+      ++this.albumItemsLoadVersion;
       this.selectedAlbum.set(null);
       this.albumItems.set([]);
+      this.loadingItems.set(false);
+      this.loadingItemsError.set(false);
       return; // default selection value
     }
     if (this.selectedAlbum()?.id === this.selectedAlbumId()){
@@ -171,7 +176,10 @@ export class EditAlbums implements OnInit {
   }
 
   loadAlbumSelection(){
-    if (this.selectedAlbumId() === null) {
+    const albumId = this.selectedAlbumId();
+    const loadVersion = ++this.albumItemsLoadVersion;
+    if (albumId === null) {
+      this.loadingItems.set(false);
       this.loadingItemsError.set(true);
       return;
     }
@@ -180,13 +188,18 @@ export class EditAlbums implements OnInit {
     this.loadingItems.set(true);
     this.loadingItemsError.set(false);
 
-    let request = this.albumItemApi.fetchAlbumItems(this.selectedAlbumId()!);
+    const isCurrentLoad = () => loadVersion === this.albumItemsLoadVersion
+      && this.selectedAlbumId() === albumId
+      && this.selectedAlbum()?.id === albumId;
+    const request = this.albumItemApi.fetchAlbumItems(albumId);
     request.subscribe({
       next: items => {
+        if (!isCurrentLoad()) return;
         this.albumItems.set(items);
         this.loadingItems.set(false);
       },
       error: () => {
+        if (!isCurrentLoad()) return;
         this.loadingItems.set(false);
         this.loadingItemsError.set(true);
       }
@@ -268,13 +281,42 @@ export class EditAlbums implements OnInit {
 
   }
 
-  albumItemUpdateState(updatedItem: AlbumItemDto) {
+  applyPhotoDisplayFieldsChange(change: AlbumPhotoDisplayFieldsChange) {
+    if (change.albumId !== this.selectedAlbumId()) return;
+
+    // A read started before this save may still contain the previous field values.
+    if (this.loadingItems()) {
+      this.loadAlbumSelection();
+      return;
+    }
+
     this.albumItems.update(items =>
-      items.map(item =>
-        item.id === updatedItem.id ? updatedItem : item
-      )
+      items.map(item => {
+        if (item.id !== change.rootItemId) return item;
+
+        if (item.kind === 'photoDisplay') {
+          return item.id === change.photoDisplayId
+            ? {...item, content: {...item.content, ...change.changes}}
+            : item;
+        }
+
+        return {
+          ...item,
+          content: {
+            ...item.content,
+            photoDisplays: item.content.photoDisplays.map(photoDisplay =>
+              photoDisplay.id === change.photoDisplayId
+                ? {...photoDisplay, content: {...photoDisplay.content, ...change.changes}}
+                : photoDisplay
+            ),
+          },
+        };
+      })
     );
   }
 
+  refreshAlbumContents(albumId: number) {
+    if (albumId === this.selectedAlbumId()) this.loadAlbumSelection();
+  }
 
 }

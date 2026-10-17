@@ -1,0 +1,12 @@
+<div class="collection-card">
+  @if (selectedPhotoDisplay() !== null){
+    <app-admin-photo-display-card
+      [item]="selectedPhotoDisplay()!"
+      [mutationPending]="mutationPending()"
+      (photoDisplayFieldsChangeRequested)="photoDisplayFieldsChangeRequested.emit($event)"
+      (photoDetailedViewRequest)="photoDetailedViewRequest.emit($event)"
+    />
+    <button class="collection-nav" (click)="prevPhoto()"><</button>
+    <button class="collection-nav" (click)="nextPhoto()">></button>
+  }
+</div>

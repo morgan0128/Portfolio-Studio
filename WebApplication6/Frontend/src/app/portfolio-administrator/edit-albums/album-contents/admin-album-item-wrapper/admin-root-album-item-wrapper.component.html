@@ -1,0 +1,39 @@
+@for (i of [item()]; track i.id){
+  <div class="admin-root-item-wrapper">
+  @if (i.kind === 'photoDisplay'){
+      <app-admin-photo-display-card
+        [item]="i"
+        [mutationPending]="mutationPending()"
+        (photoDisplayFieldsChangeRequested)="photoDisplayFieldsChangeRequested.emit($event)"
+        (photoDetailedViewRequest)="photoDetailedViewRequest.emit($event)"
+      />
+    } @else if (i.kind === 'photoDisplayCollection'){
+      <app-admin-photo-display-collection-card
+        [item]="i"
+        [mutationPending]="mutationPending()"
+        (photoDisplayFieldsChangeRequested)="photoDisplayFieldsChangeRequested.emit($event)"
+        (photoDetailedViewRequest)="photoDetailedViewRequest.emit($event)"
+      />
+    }
+
+    <div class="admin-wrapper-buttons">
+      <div class="reordering">
+        <button><</button>
+        <p>Reorder</p>
+        <button>></button>
+      </div>
+      <div class="photo-collection-grouping">
+        @if (collectionGroupingView() && i.kind === 'photoDisplay'){
+          <p>Include photo in new collection?</p>
+          <button [disabled]="mutationPending()" (click)="handleGroupingOptChange()">{{ collectionGroupingOptStatus() ? 'Exclude' : 'Include'}}</button>
+        }
+        @if (i.kind === 'photoDisplayCollection'){
+          <button class="collection-dissolve" [disabled]="mutationPending()" (click)="dissolve()">Dissolve Collection</button>
+        }
+      </div>
+
+    </div>
+
+  </div>
+  }
+

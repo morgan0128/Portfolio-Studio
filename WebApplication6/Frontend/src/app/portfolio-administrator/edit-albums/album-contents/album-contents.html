@@ -3,11 +3,12 @@
     <div>
       <p class="eyebrow">Album contents</p>
       <h2>Artwork</h2>
-      @if (!collectionGroupingView()){
-        <button (click)="toggleCreatePhotoGroupView()">Group Photos</button>
+      @if (!collectionGroupingView()) {
+        <button (click)="startGrouping()" [disabled]="loadingItems() || mutationPending()">Group Photos</button>
       } @else {
-        <button (click)="createPhotoGroup()">Add Photo Group</button>
-        <button (click)="toggleCreatePhotoGroupView()">Cancel</button>
+        <button (click)="createPhotoGroup()"
+                [disabled]="collectionGroupingOptInIds().length === 0 || loadingItems() || mutationPending()">Add Photo Group</button>
+        <button (click)="cancelGrouping()" [disabled]="mutationPending()">Cancel</button>
       }
     </div>
     @if (selectedAlbum() !== null) {
@@ -15,12 +16,14 @@
     }
   </div>
 
-  @if (selectedAlbumId === null) {
-    <div class="empty-state">
-      <h3>No album selected</h3>
-      <p>Select an album above to view its artwork.</p>
-    </div>
-  } @else if (loadingItems()) {
+  @if (mutationPending()) {
+    <p role="status">{{ creatingPhotoGroup() ? 'Creating photo group...' : 'Saving changes...' }}</p>
+  }
+  @if (mutationError(); as error) {
+    <p role="alert">{{ error }}</p>
+  }
+
+  @if (loadingItems()) {
     <div class="empty-state">
       <h3>Loading artwork...</h3>
     </div>
@@ -30,35 +33,23 @@
       <p>Upload an image above to add the first piece.</p>
     </div>
   } @else {
-<!--    <br>-->
     <div class="art-grid-container">
       <div class="art-grid">
         @for (item of items(); track item.id) {
-          @if (item.kind === 'photoDisplay'){
-            <app-admin-photo-display-card
-              [albumId]="selectedAlbumId()"
-              [item]="item"
-              (stateChange)="internalPhotoDisplayStateChange($event)"
-              (photoDetailedViewRequest)="handleDetailedPhotoViewRequest($event)"
-              [groupingView]="collectionGroupingView()"
-              [includeInNewGroup]="getCollectionGroupingOptStatus(item.id)"
-              (collectionGroupingOptStatusChanged)="handlePhotoOptChangeEvent(item.id, $event)"
-            />
-          } @else if (item.kind === 'photoDisplayCollection'){
-            <app-admin-photo-display-collection-card
-              [albumId]="selectedAlbumId()"
-              [item]="item"
-              (stateChange)="internalPhotoDisplayCollectionStateChange($event)"
-              (debugOnlyPleaseRefreshAlbumThanks)="multipleItemStatesChange.emit()"
-              />
-          }
-
+          <app-admin-root-album-item-wrapper
+            [item]="item"
+            [collectionGroupingView]="collectionGroupingView()"
+            [collectionGroupingOptStatus]="getCollectionGroupingOptStatus(item.id)"
+            [mutationPending]="mutationPending()"
+            (photoDetailedViewRequest)="handleDetailedPhotoViewRequest($event)"
+            (collectionGroupingOptStatusChanged)="handlePhotoOptChangeEvent(item.id, $event)"
+            (photoDisplayFieldsChangeRequested)="changePhotoDisplayFields(item.id, $event)"
+            (dissolveRequested)="dissolveCollection($event)" />
         }
-        @if (detailedViewPhoto() != null){
-          <app-detailed-photo-view [photo]="detailedViewPhoto()!" (closePreview)="detailedViewPhoto.set(null)" />
+        @if (detailedViewPhoto(); as photo) {
+          <app-detailed-photo-view [photo]="photo" (closePreview)="detailedViewPhoto.set(null)" />
         }
       </div>
     </div>
-
   }
 </section>
