@@ -18,9 +18,9 @@
 
     <div class="admin-wrapper-buttons">
       <div class="reordering">
-        <button><</button>
+        <button (click)="rootReorderLeftRequested.emit(i)"><</button>
         <p>Reorder</p>
-        <button>></button>
+        <button (click)="rootReorderRightRequested.emit(i)">></button>
       </div>
       <div class="photo-collection-grouping">
         @if (collectionGroupingView() && i.kind === 'photoDisplay'){

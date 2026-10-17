@@ -44,7 +44,9 @@
             (photoDetailedViewRequest)="handleDetailedPhotoViewRequest($event)"
             (collectionGroupingOptStatusChanged)="handlePhotoOptChangeEvent(item.id, $event)"
             (photoDisplayFieldsChangeRequested)="changePhotoDisplayFields(item.id, $event)"
-            (dissolveRequested)="dissolveCollection($event)" />
+            (dissolveRequested)="dissolveCollection($event)"
+            (rootReorderLeftRequested)="rootReorderLeft($event)"
+            (rootReorderRightRequested)="rootReorderRight($event)"/>
         }
         @if (detailedViewPhoto(); as photo) {
           <app-detailed-photo-view [photo]="photo" (closePreview)="detailedViewPhoto.set(null)" />

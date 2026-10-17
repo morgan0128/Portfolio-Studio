@@ -15,7 +15,7 @@ public sealed class AlbumItemController(IAlbumItemRepository albumItemRepository
     }
     
     [HttpPost("reorder")]
-    public async Task<IActionResult> RootLevelReorder(int albumId, RootLevelReorderRequest request)
+    public async Task<ActionResult> RootLevelReorder(int albumId, RootLevelReorderRequest request)
     {
         var reordering = await albumItemRepository.ReorderAlbumItem(albumId, request.AlbumItemId, request.OrderDestination);
         return reordering switch

@@ -90,8 +90,6 @@ public interface IAlbumItemRepository
         NoAlbumItems,
         ItemNotFound,
         Success
-        
-        
     }
 
 }

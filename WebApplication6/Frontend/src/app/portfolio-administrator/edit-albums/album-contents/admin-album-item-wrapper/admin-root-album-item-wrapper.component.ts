@@ -27,6 +27,8 @@ export class AdminRootAlbumItemWrapper {
   public readonly photoDetailedViewRequest = output<PhotoDto>();
   public readonly photoDisplayFieldsChangeRequested = output<PhotoDisplayFieldsChange>();
   public readonly dissolveRequested = output<number>();
+  public readonly rootReorderLeftRequested = output<AlbumItemDto>();
+  public readonly rootReorderRightRequested = output<AlbumItemDto>();
 
   protected handleGroupingOptChange(){
     if (this.mutationPending() || this.item().kind !== 'photoDisplay') return;

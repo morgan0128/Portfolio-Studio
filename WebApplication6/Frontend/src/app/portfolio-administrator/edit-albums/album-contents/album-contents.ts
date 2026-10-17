@@ -7,6 +7,7 @@ import {PhotoDisplayCollectionApiService} from '../../../api/photo-display-colle
 import {PhotoDisplayApiService, PhotoDisplayFieldsDisplayedRequest} from '../../../api/photo-display-api-service';
 import {AdminRootAlbumItemWrapper} from './admin-album-item-wrapper/admin-root-album-item-wrapper.component';
 import {AlbumPhotoDisplayFieldsChange, PhotoDisplayFieldsChange} from './album-item-actions';
+import {AlbumItemApiService} from '../../../api/album-item-api-service';
 
 @Component({
   selector: 'app-album-contents',
@@ -15,6 +16,7 @@ import {AlbumPhotoDisplayFieldsChange, PhotoDisplayFieldsChange} from './album-i
   styleUrl: './album-contents.css',
 })
 export class AlbumContents implements OnChanges, OnDestroy {
+  private readonly albumItemApi = inject(AlbumItemApiService);
   private readonly photoDisplayCollectionApi = inject(PhotoDisplayCollectionApiService);
   private readonly photoDisplayApi = inject(PhotoDisplayApiService);
   private albumSession = 0;
@@ -31,7 +33,7 @@ export class AlbumContents implements OnChanges, OnDestroy {
   protected readonly detailedViewPhoto = signal<PhotoDto | null>(null);
   protected readonly collectionGroupingView = signal(false);
   protected readonly collectionGroupingOptInIds = signal<number[]>([]);
-  private readonly pendingMutation = signal<'createGroup' | 'fields' | 'dissolve' | null>(null);
+  private readonly pendingMutation = signal<'createGroup' | 'fields' | 'dissolve' | 'rootReorder' | null>(null);
   protected readonly mutationPending = computed(() => this.pendingMutation() !== null);
   protected readonly creatingPhotoGroup = computed(() => this.pendingMutation() === 'createGroup');
   protected readonly mutationError = signal<string | null>(null);
@@ -80,6 +82,36 @@ export class AlbumContents implements OnChanges, OnDestroy {
     this.collectionGroupingOptInIds.update(ids => selected
       ? ids.includes(photoDisplayId) ? ids : [...ids, photoDisplayId]
       : ids.filter(id => id !== photoDisplayId));
+  }
+
+  protected rootReorderLeft(albumItem: AlbumItemDto){
+    if (albumItem.order == 0) return;
+    this.rootReorder(albumItem, albumItem.order - 1)
+  }
+
+  protected rootReorderRight(albumItem: AlbumItemDto){
+    this.rootReorder(albumItem, albumItem.order + 1)
+  }
+
+  protected rootReorder(albumItem: AlbumItemDto, toOrder: number){
+    if (this.mutationPending() || this.loadingItems()) return;
+    if (albumItem.order == toOrder) return;
+    const albumId = this.selectedAlbumId();
+    const session = this.albumSession;
+    this.pendingMutation.set('rootReorder');
+    this.mutationError.set(null);
+
+    this.albumItemApi.rootLevelItemReorder(this.selectedAlbumId(), albumItem.id, toOrder).subscribe({
+      next: () => {
+        if (!this.completeMutation(albumId, session)) return;
+        this.refreshRequested.emit(albumId);
+      },
+      error: () => {
+        if (!this.isCurrentSession(albumId, session)) return;
+        this.pendingMutation.set(null);
+        this.mutationError.set('Failed to perform reordering.');
+      }
+    });
   }
 
   protected createPhotoGroup() {
