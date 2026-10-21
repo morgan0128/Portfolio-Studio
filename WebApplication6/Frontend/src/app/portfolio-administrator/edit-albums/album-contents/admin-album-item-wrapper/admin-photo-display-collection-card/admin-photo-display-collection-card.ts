@@ -1,4 +1,4 @@
-import {Component, computed, input, output, signal} from '@angular/core';
+import {Component, computed, input, linkedSignal, output} from '@angular/core';
 import {AdminPhotoDisplayCard} from '../admin-photo-display-card/admin-photo-display-card';
 import {
   PhotoDisplayCollectionDto,
@@ -28,35 +28,37 @@ export class AdminPhotoDisplayCollectionCard {
   readonly displayMode = computed<number>(() =>  this.photoDisplayCollection().displayMode);
   readonly photoDisplays = computed<PhotoDisplayItem[]>(() => this.photoDisplayCollection().photoDisplays);
 
-  readonly displayIndex = signal<number>(0);
-  readonly selectedPhotoDisplay = computed<PhotoDisplayItem | null>(() =>
-    (this.displayIndex() >= 0 && this.displayIndex() < this.photoDisplays().length) ?
-      this.photoDisplays()[this.displayIndex()] : null);
-
+  // Keep the selected member when a refresh replaces or reorders this collection.
+  private readonly selectedPhotoDisplayId = linkedSignal<PhotoDisplayCollectionItem, number | null>({
+    source: this.item,
+    computation: (item, previous) => {
+      const photoDisplays = item.content.photoDisplays;
+      return previous?.source.id === item.id && photoDisplays.some(photo => photo.id === previous.value)
+        ? previous.value
+        : photoDisplays[0]?.id ?? null;
+    },
+  });
+  readonly selectedPhotoDisplay = computed<PhotoDisplayItem | null>(() => {
+    const selectedId = this.selectedPhotoDisplayId();
+    return this.photoDisplays().find(photo => photo.id === selectedId) ?? null;
+  });
+  readonly displayIndex = computed(() =>
+    this.photoDisplays().findIndex(photo => photo.id === this.selectedPhotoDisplayId()));
 
   nextPhoto() {
-    if (this.photoDisplays().length <= 1){
-      return;
-    }
-
-    if (this.displayIndex() + 1 >= this.photoDisplays().length){
-      this.displayIndex.set(0);
-    } else {
-      this.displayIndex.set(this.displayIndex() + 1);
-    }
-
+    this.navigate(1);
   }
 
   prevPhoto() {
-    if (this.photoDisplays().length <= 1){
-      return;
-    }
+    this.navigate(-1);
+  }
 
-    if (this.displayIndex() -1 < 0){
-      this.displayIndex.set(this.photoDisplays().length - 1);
-    } else {
-      this.displayIndex.set(this.displayIndex() - 1);
-    }
+  private navigate(direction: number) {
+    const photoDisplays = this.photoDisplays();
+    if (photoDisplays.length <= 1) return;
+
+    const nextIndex = (this.displayIndex() + direction + photoDisplays.length) % photoDisplays.length;
+    this.selectedPhotoDisplayId.set(photoDisplays[nextIndex].id);
   }
 
 }

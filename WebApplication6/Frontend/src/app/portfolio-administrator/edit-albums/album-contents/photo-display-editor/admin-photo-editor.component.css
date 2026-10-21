@@ -1,0 +1,79 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+.editor-backdrop {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 24px;
+  background: rgb(0 0 0 / 65%);
+}
+
+.photo-editor {
+  width: min(100%, 560px);
+  max-height: 100%;
+  overflow: auto;
+  padding: 24px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  color: #262626;
+  background: #faf9f6;
+  box-shadow: 0 16px 48px rgb(0 0 0 / 30%);
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+h2 { margin: 0 0 8px; }
+header p { margin: 0; overflow-wrap: anywhere; }
+fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
+.field + .field { margin-top: 16px; }
+label { display: block; font-weight: 600; margin-bottom: 6px; }
+
+input, textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #888;
+  border-radius: 4px;
+  color: #222;
+  background: #fff;
+  font: inherit;
+}
+
+textarea { resize: vertical; }
+.field-help { margin: 5px 0 0; color: #666; font-size: 0.85rem; }
+.validation-error, .save-error { color: #a02121; }
+.validation-error { margin: 5px 0 0; }
+.save-error { padding: 10px; background: #ffeded; border-radius: 4px; }
+footer { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+
+button {
+  padding: 10px 16px;
+  border: 1px solid #666;
+  border-radius: 4px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.close-button { padding: 0 8px; border: 0; font-size: 1.8rem; background: transparent; }
+.cancel-button { background: transparent; color: #333; }
+.save-button { background: #252525; color: #fff; }
+button:disabled { opacity: 0.5; cursor: default; }
+input:focus-visible, textarea:focus-visible, button:focus-visible { outline: 3px solid #6b7da7; outline-offset: 2px; }
+
+@media (max-width: 480px) {
+  .editor-backdrop { padding: 12px; }
+  .photo-editor { padding: 18px; }
+}

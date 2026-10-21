@@ -48,6 +48,21 @@ public class PhotoRepository(ApplicationDbContext context) : IPhotoRepository
         }
     }
 
+    public async Task<IPhotoRepository.PhotoDto?> PatchPhotoFieldsAsync(int id, IPhotoRepository.PhotoEditFieldsRequestDto request)
+    {
+        var photo = await context.Photos
+            .Include(p => p.Image)
+            .FirstOrDefaultAsync(p => p.Id == id);
+        if (photo == null) return null;
+
+        if (request.Name is not null) photo.Name = request.Name;
+        if (request.Description is not null) photo.Description = request.Description;
+        if (request.YearContentCreated is not null) photo.YearContentCreated = request.YearContentCreated;
+
+        await context.SaveChangesAsync();
+        return IPhotoRepository.ToPhotoDto(photo);
+    }
+
     public async Task<bool> DeletePhotoByIdAsync(int id)
     {
         var photo = await context.Photos

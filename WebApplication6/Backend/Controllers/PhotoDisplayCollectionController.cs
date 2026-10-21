@@ -42,11 +42,6 @@ public class PhotoDisplayCollectionController(IAlbumItemRepository albumItemRepo
     
     
     /* PUT, PATCH */
-    [HttpPatch]
-    public async Task Delete(int albumId, int itemId)
-    {
-        throw new NotImplementedException();
-    }
     
     /* DELETE */
 

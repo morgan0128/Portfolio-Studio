@@ -8,7 +8,7 @@ import {PhotoBank} from './portfolio-administrator/photo-bank/photo-bank';
 export const routes: Routes = [
   { path: '', component: DeveloperLanding },
   { path: 'edit-albums', component: EditAlbums },
-  { path: 'photo-bank', component: PhotoBank },
+  // { path: 'photo-bank', component: PhotoBank },
   { path: 'admin-view-page-preview/:albumId/:style', component: AdminViewPagePreview },
   { path: '**', redirectTo: '' },
 ];

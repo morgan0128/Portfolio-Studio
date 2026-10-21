@@ -101,7 +101,7 @@ describe('AdminRootAlbumItemWrapper', () => {
   it('requests dissolution only for an available collection', () => {
     const requested = jasmine.createSpy('requested');
     component.dissolveRequested.subscribe(requested);
-    component.dissolve();
+    component.dissolveCollection();
     expect(requested).not.toHaveBeenCalled();
 
     fixture.componentRef.setInput('item', collectionItem());
@@ -112,7 +112,7 @@ describe('AdminRootAlbumItemWrapper', () => {
     fixture.componentRef.setInput('mutationPending', true);
     fixture.detectChanges();
     expect(groupingButton().disabled).toBeTrue();
-    component.dissolve();
+    component.dissolveCollection();
     expect(requested).toHaveBeenCalledTimes(1);
   });
 

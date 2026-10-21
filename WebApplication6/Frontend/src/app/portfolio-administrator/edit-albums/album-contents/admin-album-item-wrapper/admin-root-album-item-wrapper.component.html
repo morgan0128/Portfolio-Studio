@@ -17,18 +17,27 @@
     }
 
     <div class="admin-wrapper-buttons">
+      <div class="photo-editing">
+        <button class="photo-display-edit" type="button"
+                [disabled]="mutationPending() || ((i.kind !== 'photoDisplay') && (i.kind === 'photoDisplayCollection' && i.content.photoDisplays.length === 0))"
+                (click)="editPhotoDisplay()">Edit</button>
+      </div>
       <div class="reordering">
         <button (click)="rootReorderLeftRequested.emit(i)"><</button>
         <p>Reorder</p>
         <button (click)="rootReorderRightRequested.emit(i)">></button>
       </div>
       <div class="photo-collection-grouping">
-        @if (collectionGroupingView() && i.kind === 'photoDisplay'){
-          <p>Include photo in new collection?</p>
-          <button [disabled]="mutationPending()" (click)="handleGroupingOptChange()">{{ collectionGroupingOptStatus() ? 'Exclude' : 'Include'}}</button>
+        @if (i.kind == 'photoDisplay'){
+          @if (collectionGroupingView()){
+            <p>Include photo in new collection?</p>
+            <button [disabled]="mutationPending()" (click)="handleGroupingOptChange()">{{ collectionGroupingOptStatus() ? 'Exclude' : 'Include'}}</button>
+          } @else {
+            <button [disabled]="mutationPending()" (click)="removePhotoDisplay()">Remove</button>
+          }
         }
         @if (i.kind === 'photoDisplayCollection'){
-          <button class="collection-dissolve" [disabled]="mutationPending()" (click)="dissolve()">Dissolve Collection</button>
+          <button class="collection-dissolve" [disabled]="mutationPending()" (click)="dissolveCollection()">Dissolve Collection</button>
         }
       </div>
 

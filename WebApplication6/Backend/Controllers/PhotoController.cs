@@ -44,6 +44,15 @@ public sealed class PhotoController(IPhotoRepository photoRepository, IUploadPho
         var photo = await photoRepository.GetPhotoByIdAsync(id);
         return (photo != null) ? Ok(photo) : NotFound();
     }
+    
+    /* PUT, PATCH */
+    [HttpPatch("{id:int}")]
+    public async Task<ActionResult> Patch(int id, IPhotoRepository.PhotoEditFieldsRequestDto requestDto)
+    {
+        var modifiedPhoto = await photoRepository.PatchPhotoFieldsAsync(id, requestDto);
+        if (modifiedPhoto is null) return NotFound();
+        return Ok(modifiedPhoto);
+    }
 
 
     /* DELETE */

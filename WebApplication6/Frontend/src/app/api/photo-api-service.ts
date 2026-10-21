@@ -1,17 +1,17 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {PhotoUploadSpecification} from '../models/PhotoUploadSpecification';
-import {Observable} from 'rxjs';
+import {Observable, throwError} from 'rxjs';
 import {PhotoDto} from '../models/PhotoDto';
-
+import {PhotoEditFieldsRequest} from '../models/PhotoEditFieldsRequest';
+import {AlbumItemDto} from '../models/AlbumItemDto';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PhotoApiService {
 
-  constructor() {
-  };
+  constructor() {};
 
   private readonly http = inject(HttpClient);
   private readonly apiPhotoUrl = '/api/photos';
@@ -49,7 +49,10 @@ export class PhotoApiService {
   // }
 
   /* PUT, PATCH */
-
+  editFields(id: number, request: PhotoEditFieldsRequest): Observable<PhotoDto> {
+    let requestPath = this.apiPhotoUrl + '/' + id;
+    return this.http.patch<PhotoDto>(requestPath, request);
+  }
 
   /* DELETE */
 }

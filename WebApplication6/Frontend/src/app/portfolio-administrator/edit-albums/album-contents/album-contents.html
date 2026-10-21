@@ -6,8 +6,8 @@
       @if (!collectionGroupingView()) {
         <button (click)="startGrouping()" [disabled]="loadingItems() || mutationPending()">Group Photos</button>
       } @else {
-        <button (click)="createPhotoGroup()"
-                [disabled]="collectionGroupingOptInIds().length === 0 || loadingItems() || mutationPending()">Add Photo Group</button>
+        <button (click)="createPhotoCollection()"
+                [disabled]="collectionGroupingOptInIds().length === 0 || loadingItems() || mutationPending()">Create Collection</button>
         <button (click)="cancelGrouping()" [disabled]="mutationPending()">Cancel</button>
       }
     </div>
@@ -44,6 +44,8 @@
             (photoDetailedViewRequest)="handleDetailedPhotoViewRequest($event)"
             (collectionGroupingOptStatusChanged)="handlePhotoOptChangeEvent(item.id, $event)"
             (photoDisplayFieldsChangeRequested)="changePhotoDisplayFields(item.id, $event)"
+            (photoDisplayRemoveRequested)="handlePhotoDisplayRemoval($event)"
+            (photoDisplayEditRequested)="editPhotoDisplay($event)"
             (dissolveRequested)="dissolveCollection($event)"
             (rootReorderLeftRequested)="rootReorderLeft($event)"
             (rootReorderRightRequested)="rootReorderRight($event)"/>
@@ -53,5 +55,14 @@
         }
       </div>
     </div>
+  }
+
+  @if (photoDisplayEdit(); as edit) {
+    <app-admin-photo-editor
+      [photoDisplay]="edit.photoDisplay"
+      [mutationPending]="mutationPending()"
+      [saveError]="photoDisplayEditError()"
+      (saveRequested)="savePhotoDisplayDetails($event)"
+      (cancelRequested)="cancelPhotoDisplayEdit()" />
   }
 </section>

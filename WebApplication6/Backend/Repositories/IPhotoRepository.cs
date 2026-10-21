@@ -13,15 +13,17 @@ public interface IPhotoRepository
 
     /// <returns>The Id of the saved photo on success, or null on exception thrown or failure.</returns>
     Task<int?> SavePhotoAsync(Photo photo);
+
+    Task<PhotoDto?> PatchPhotoFieldsAsync(int id, PhotoEditFieldsRequestDto request);
     
     /// <returns>true on success, or false</returns>
     Task<bool> DeletePhotoByIdAsync(int id);
     
-    public static IPhotoRepository.PhotoDto ToPhotoDto(Photo photo)
+    public static PhotoDto ToPhotoDto(Photo photo)
     {
-        return new IPhotoRepository.PhotoDto(
+        return new PhotoDto(
             photo.Id,
-            new IPhotoRepository.ImageDto(
+            new ImageDto(
                 photo.Image.Id,
                 photo.Image.FileName,
                 photo.Image.ContentType,
@@ -54,5 +56,11 @@ public interface IPhotoRepository
         string AltText,
         int Width,
         int Height
+    );
+
+    public sealed record PhotoEditFieldsRequestDto(
+        string? Name,
+        string? Description,
+        int? YearContentCreated
     );
 }

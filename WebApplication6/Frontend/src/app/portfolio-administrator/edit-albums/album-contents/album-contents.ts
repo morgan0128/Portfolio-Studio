@@ -2,16 +2,21 @@ import {Component, computed, inject, input, OnChanges, OnDestroy, output, signal
 import {AlbumDto} from '../../../models/AlbumDto';
 import {PhotoDto} from '../../../models/PhotoDto';
 import {DetailedPhotoView} from './detailed-photo-view/detailed-photo-view';
-import {AlbumItemDto} from '../../../models/AlbumItemDto';
+import {AlbumItemDto, PhotoDisplayItem} from '../../../models/AlbumItemDto';
 import {PhotoDisplayCollectionApiService} from '../../../api/photo-display-collection-api-service';
 import {PhotoDisplayApiService, PhotoDisplayFieldsDisplayedRequest} from '../../../api/photo-display-api-service';
 import {AdminRootAlbumItemWrapper} from './admin-album-item-wrapper/admin-root-album-item-wrapper.component';
-import {AlbumPhotoDisplayFieldsChange, PhotoDisplayFieldsChange} from './album-item-actions';
+import {AlbumPhotoDisplayFieldsChange, PhotoDisplayFieldsChange, PhotoDisplayTarget, resolvePhotoDisplay} from './album-item-actions';
 import {AlbumItemApiService} from '../../../api/album-item-api-service';
+import {PhotoEditFieldsRequest} from '../../../models/PhotoEditFieldsRequest';
+import {AdminPhotoEditor} from './photo-display-editor/admin-photo-editor.component';
+import {PhotoApiService} from '../../../api/photo-api-service';
+
+type PhotoDisplayEdit = PhotoDisplayTarget & {photoDisplay: PhotoDisplayItem};
 
 @Component({
   selector: 'app-album-contents',
-  imports: [DetailedPhotoView, AdminRootAlbumItemWrapper],
+  imports: [DetailedPhotoView, AdminRootAlbumItemWrapper, AdminPhotoEditor],
   templateUrl: './album-contents.html',
   styleUrl: './album-contents.css',
 })
@@ -19,6 +24,7 @@ export class AlbumContents implements OnChanges, OnDestroy {
   private readonly albumItemApi = inject(AlbumItemApiService);
   private readonly photoDisplayCollectionApi = inject(PhotoDisplayCollectionApiService);
   private readonly photoDisplayApi = inject(PhotoDisplayApiService);
+  private readonly photoApi = inject(PhotoApiService);
   private albumSession = 0;
   private destroyed = false;
 
@@ -33,10 +39,12 @@ export class AlbumContents implements OnChanges, OnDestroy {
   protected readonly detailedViewPhoto = signal<PhotoDto | null>(null);
   protected readonly collectionGroupingView = signal(false);
   protected readonly collectionGroupingOptInIds = signal<number[]>([]);
-  private readonly pendingMutation = signal<'createGroup' | 'fields' | 'dissolve' | 'rootReorder' | null>(null);
+  private readonly pendingMutation = signal<'createGroup' | 'fields' | 'dissolve' | 'rootReorder' | 'edit' | null>(null);
   protected readonly mutationPending = computed(() => this.pendingMutation() !== null);
   protected readonly creatingPhotoGroup = computed(() => this.pendingMutation() === 'createGroup');
   protected readonly mutationError = signal<string | null>(null);
+  protected readonly photoDisplayEdit = signal<PhotoDisplayEdit | null>(null);
+  protected readonly photoDisplayEditError = signal<string | null>(null);
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['selectedAlbumId']) {
@@ -45,6 +53,14 @@ export class AlbumContents implements OnChanges, OnDestroy {
       this.mutationError.set(null);
       this.resetGrouping();
       this.detailedViewPhoto.set(null);
+      this.photoDisplayEdit.set(null);
+      this.photoDisplayEditError.set(null);
+    }
+
+    const edit = this.photoDisplayEdit();
+    if (edit && changes['items'] && !this.loadingItems() && !this.resolveEditTarget(edit)) {
+      this.photoDisplayEdit.set(null);
+      this.photoDisplayEditError.set(null);
     }
   }
 
@@ -55,6 +71,65 @@ export class AlbumContents implements OnChanges, OnDestroy {
 
   protected handleDetailedPhotoViewRequest(photo: PhotoDto) {
     this.detailedViewPhoto.set(photo);
+  }
+
+  protected editPhotoDisplay(target: PhotoDisplayTarget) {
+    if (this.mutationPending() || this.loadingItems()) return;
+    const photoDisplay = resolvePhotoDisplay(
+      this.items().find(item => item.id === target.rootItemId), target.photoDisplayId);
+    if (!photoDisplay) return;
+
+    this.photoDisplayEdit.set({
+      ...target,
+      photoDisplay: {
+        ...photoDisplay,
+        content: {...photoDisplay.content, photo: {...photoDisplay.content.photo}},
+      },
+    });
+    this.photoDisplayEditError.set(null);
+    this.mutationError.set(null);
+    this.detailedViewPhoto.set(null);
+  }
+
+  protected cancelPhotoDisplayEdit() {
+    if (this.mutationPending()) return;
+    this.photoDisplayEdit.set(null);
+    this.photoDisplayEditError.set(null);
+  }
+
+  protected savePhotoDisplayDetails(request: PhotoEditFieldsRequest) {
+    const edit = this.photoDisplayEdit();
+    if (!edit || this.mutationPending() || this.loadingItems()) return;
+    const photoDisplay = this.resolveEditTarget(edit);
+    if (!photoDisplay) {
+      this.photoDisplayEditError.set('This photo display is no longer available in this album.');
+      return;
+    }
+
+    const albumId = this.selectedAlbumId();
+    const session = this.albumSession;
+    this.pendingMutation.set('edit');
+    this.photoDisplayEditError.set(null);
+    this.photoApi.editFields(photoDisplay.content.photo.id, {...request}).subscribe({
+      next: () => {
+        if (!this.completeMutation(albumId, session)) return;
+        this.photoDisplayEdit.set(null);
+        // Photo metadata may be shared by multiple displays; reload every occurrence.
+        this.refreshRequested.emit(albumId);
+      },
+      error: (error: unknown) => {
+        if (!this.isCurrentSession(albumId, session)) return;
+        this.pendingMutation.set(null);
+        this.photoDisplayEditError.set('Could not save the photo details. Please try again.');
+      },
+    });
+  }
+
+  private resolveEditTarget(edit: PhotoDisplayEdit): PhotoDisplayItem | undefined {
+    const photoDisplay = resolvePhotoDisplay(
+      this.items().find(item => item.id === edit.rootItemId), edit.photoDisplayId);
+    return photoDisplay?.content.photo.id === edit.photoDisplay.content.photo.id
+      ? photoDisplay : undefined;
   }
 
   protected startGrouping() {
@@ -114,7 +189,7 @@ export class AlbumContents implements OnChanges, OnDestroy {
     });
   }
 
-  protected createPhotoGroup() {
+  protected createPhotoCollection() {
     const ids = [...this.collectionGroupingOptInIds()];
     if (!this.collectionGroupingView() || ids.length === 0 || this.mutationPending() || this.loadingItems()) return;
 
@@ -139,9 +214,7 @@ export class AlbumContents implements OnChanges, OnDestroy {
   protected changePhotoDisplayFields(rootItemId: number, change: PhotoDisplayFieldsChange) {
     if (this.mutationPending() || this.loadingItems()) return;
     const rootItem = this.items().find(item => item.id === rootItemId);
-    const photoDisplay = rootItem?.kind === 'photoDisplay'
-      ? rootItem.id === change.photoDisplayId ? rootItem : undefined
-      : rootItem?.content.photoDisplays.find(photo => photo.id === change.photoDisplayId);
+    const photoDisplay = resolvePhotoDisplay(rootItem, change.photoDisplayId);
     if (!photoDisplay || Object.keys(change.changes).length === 0) return;
 
     const albumId = this.selectedAlbumId();
@@ -166,6 +239,28 @@ export class AlbumContents implements OnChanges, OnDestroy {
         this.mutationError.set('Could not save the photo display settings. Please try again.');
       },
     });
+  }
+
+  protected handlePhotoDisplayRemoval(photoDisplayId: number){
+    if (this.mutationPending() || this.loadingItems()) return;
+    const item = this.items().find(item => item.id === photoDisplayId);
+    if (item?.kind !== 'photoDisplay') return;
+
+    const albumId = this.selectedAlbumId();
+    const session = this.albumSession;
+    this.pendingMutation.set('dissolve');
+    this.mutationError.set(null);
+    this.photoDisplayApi.deletePhotoDisplay(albumId, photoDisplayId).subscribe({
+      next: () => {
+          if (!this.completeMutation(albumId, session)) return;
+          this.refreshRequested.emit(albumId);
+        },
+      error: ()=> {
+        if (!this.isCurrentSession(albumId, session)) return;
+        this.pendingMutation.set(null);
+        this.mutationError.set('Failed to delete the PhotoDisplay AlbumItem. Please try again.')
+      }
+    })
   }
 
   protected dissolveCollection(itemId: number) {

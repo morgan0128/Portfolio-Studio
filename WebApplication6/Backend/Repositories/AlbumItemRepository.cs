@@ -107,6 +107,7 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
 
         collection.Order = collectionOrder;
         await context.SaveChangesAsync(cancellationToken);
+        await NormalizeOrder(albumId);
         await transaction.CommitAsync(cancellationToken);
 
         return ToPhotoDisplayCollectionAlbumItemDto(collection);
@@ -277,6 +278,19 @@ public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepos
         photoDisplay.DisplaysName = request.DisplaysName ?? photoDisplay.DisplaysName;
         photoDisplay.DisplaysDescription = request.DisplaysDescription ?? photoDisplay.DisplaysDescription;
         photoDisplay.DisplaysYearContentCreated = request.DisplaysYearContentCreated ?? photoDisplay.DisplaysYearContentCreated;
+        await context.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<bool> DeletePhotoDisplay(int photoDisplayId)
+    {
+        var albumItem = await context.PhotoDisplays
+            .FindAsync(photoDisplayId);
+
+        if (albumItem == null) return false;
+
+        context.Remove(albumItem);
         await context.SaveChangesAsync();
 
         return true;

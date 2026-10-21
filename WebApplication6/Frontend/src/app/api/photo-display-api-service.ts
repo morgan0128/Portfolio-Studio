@@ -59,6 +59,11 @@ export class PhotoDisplayApiService {
     return this.http.patch(requestPath, requestObject);
   }
 
+  deletePhotoDisplay(albumId: number, photoDisplayId: number){
+    let requestPath = this.apiPhotoDisplayUrlPrefix + '/' + albumId + '/photo-display-items/' + photoDisplayId;
+    return this.http.delete(requestPath)
+  }
+
 }
 
 

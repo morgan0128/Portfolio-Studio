@@ -22,8 +22,10 @@ public interface IAlbumItemRepository
 
     Task<ReorderOutcome> ReorderPhotoDisplayInCollection(int albumId, int photoDisplayCollectionId, int photoDisplayId, int newOrder);
     
-    Task<bool> ModifyFieldsDisplayed(int albumId, int photoId,
+    Task<bool> ModifyFieldsDisplayed(int albumId, int photoDisplayId,
         IAlbumItemRepository.PhotoDisplayFieldsDisplayedRequest request);
+
+    Task<bool> DeletePhotoDisplay(int photoDisplayId);
 
     Task<IEnumerable<PhotoDisplayAlbumItemDto>?> DissolvePhotoDisplayCollection(int albumId,
         int photoDisplayCollectionId, CancellationToken cancellationToken = default); 

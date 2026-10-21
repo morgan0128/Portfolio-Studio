@@ -40,16 +40,23 @@ public sealed class PhotoDisplayController(IAlbumRepository albumRepository, IAl
     
     
     /* PUT, PATCH */
-    [HttpPatch("{photoId:int}/fields-displayed")]
-    public async Task<IActionResult> ModifyFieldsDisplayed(int albumId, int photoId, 
+    [HttpPatch("{photoDisplayId:int}/fields-displayed")]
+    public async Task<IActionResult> ModifyFieldsDisplayed(int albumId, int photoDisplayId, 
         IAlbumItemRepository.PhotoDisplayFieldsDisplayedRequest request)
     {
-        var result = await albumItemRepository.ModifyFieldsDisplayed(albumId, photoId, request);
+        var result = await albumItemRepository.ModifyFieldsDisplayed(albumId, photoDisplayId, request);
         return result switch
         {
             true => Ok(),
             false => NotFound()
         };
+    }
+    
+    [HttpDelete("{photoDisplayId:int}")]
+    public async Task<ActionResult> Delete(int albumId, int photoDisplayId)
+    {
+        var wasDeleted = await albumItemRepository.DeletePhotoDisplay(photoDisplayId);
+        return wasDeleted ? NoContent() : NotFound();
     }
 
     

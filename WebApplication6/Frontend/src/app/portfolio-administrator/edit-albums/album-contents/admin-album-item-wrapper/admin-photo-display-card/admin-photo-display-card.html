@@ -9,15 +9,18 @@
     </div>
     <div class="art-card-details">
       <div class="art-card-user-field">
+        <p>name</p>
         <h3>{{ photo().name }}</h3>
         <button [disabled]="mutationPending()" [style]="'background-color: ' + displaysNameColor()" (click)="toggleDisplaysName()"></button>
       </div>
       <div class="art-card-user-field">
-        <p>{{ photo().description || 'No description' }}</p>
+        <p>description</p>
+        <h4>{{ photo().description || 'No description' }}</h4>
         <button [disabled]="mutationPending()" [style]="'background-color: ' + displaysDescColor()" (click)="toggleDisplaysDesc()"></button>
       </div>
       <div class="art-card-user-field">
-        <p>{{ photo().yearContentCreated || '' }} </p>
+        <p>year created</p>
+        <h4>{{ photo().yearContentCreated || '' }} </h4>
         <button [disabled]="mutationPending()" [style]="'background-color: ' + displaysYearColor()" (click)="toggleDisplaysYearCC()"></button>
       </div>
     </div>

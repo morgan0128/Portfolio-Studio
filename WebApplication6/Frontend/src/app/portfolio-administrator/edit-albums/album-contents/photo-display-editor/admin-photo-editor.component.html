@@ -1,0 +1,55 @@
+<div class="editor-backdrop">
+  <section class="photo-editor" role="dialog" aria-modal="true"
+           aria-labelledby="photo-editor-title" aria-describedby="photo-editor-target"
+           [attr.aria-busy]="mutationPending()" cdkTrapFocus [cdkTrapFocusAutoCapture]="true"
+           (keydown.escape)="$event.stopPropagation(); cancel()">
+    <header>
+      <div>
+        <h2 id="photo-editor-title">Edit photo</h2>
+        <p id="photo-editor-target">{{ photoDisplay().content.photo.name || 'Untitled photo' }}</p>
+      </div>
+      <button class="close-button" type="button" aria-label="Close photo editor"
+              [disabled]="mutationPending()" (click)="cancel()">&times;</button>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <fieldset [disabled]="mutationPending()">
+        <div class="field">
+          <label for="photo-editor-name">Title</label>
+          <input id="photo-editor-name" type="text" formControlName="name" maxlength="50"
+                 cdkFocusInitial [attr.aria-invalid]="form.controls.name.invalid"
+                 aria-describedby="photo-editor-name-help">
+          <p class="field-help" id="photo-editor-name-help">Optional. Up to 50 characters.</p>
+        </div>
+        <div class="field">
+          <label for="photo-editor-description">Description</label>
+          <textarea id="photo-editor-description" formControlName="description" maxlength="400" rows="5"
+                    [attr.aria-invalid]="form.controls.description.invalid"
+                    aria-describedby="photo-editor-description-help"></textarea>
+          <p class="field-help" id="photo-editor-description-help">Optional. Up to 400 characters.</p>
+        </div>
+        <div class="field">
+          <label for="photo-editor-year">Year created</label>
+          <input id="photo-editor-year" type="text" inputmode="numeric" formControlName="yearContentCreated"
+                 [attr.aria-invalid]="form.controls.yearContentCreated.invalid"
+                 aria-describedby="photo-editor-year-help">
+          <p class="field-help" id="photo-editor-year-help">Optional. Enter a whole year or leave blank.</p>
+          @if (form.controls.yearContentCreated.invalid) {
+            <p class="validation-error" role="alert">Year must be a whole number.</p>
+          }
+        </div>
+      </fieldset>
+
+      @if (saveError()) {
+        <p class="save-error" role="alert">{{ saveError() }}</p>
+      }
+
+      <footer>
+        <button class="cancel-button" type="button" [disabled]="mutationPending()" (click)="cancel()">Cancel</button>
+        <button class="save-button" type="submit" [disabled]="!canSave">
+          {{ mutationPending() ? 'Saving changes…' : 'Save changes' }}
+        </button>
+      </footer>
+    </form>
+  </section>
+</div>
