@@ -7,7 +7,7 @@ namespace WebApplication6.Backend.Repositories;
 
 public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
 {
-    public async Task<IEnumerable<IAlbumRepository.AlbumDto>> GetAllAlbumsAsync()
+    public async Task<IEnumerable<IAlbumRepository.AlbumDto>> GetAlbumsAsync()
     {
         var albums = await context.Albums
             .AsNoTracking()
@@ -18,7 +18,7 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
     }
 
     
-    public async Task<IEnumerable<int>> GetAllAlbumIdsAsync()
+    public async Task<IEnumerable<int>> GetAlbumIdsAsync()
     {
         var albumIds = await context.Albums
             .AsNoTracking()
@@ -29,7 +29,7 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
     }
 
     
-    public async Task<int> GetTotalNumberAlbumsAsync()
+    public async Task<int> GetAlbumsCountAsync()
     {
         var amount = await context.Albums
             .CountAsync();
@@ -93,13 +93,13 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
     }
 
     
-    public async Task<IEnumerable<IAlbumRepository.AlbumDto>> GetAllPublishedAsync()
+    public async Task<IEnumerable<IAlbumRepository.AlbumDto>> GetPublishedAlbumsAsync()
         => await context.Albums.AsNoTracking().Where(album => album.Published).Select(ToDto).ToListAsync();
 
     
-    public async Task<IAlbumRepository.AlbumDto?> SetLayoutPresetAsync(int albumId, PageLayoutPreset layout)
+    public async Task<IAlbumRepository.AlbumDto?> SetLayoutPresetAsync(int id, PageLayoutPreset layout)
     {
-        var album = await context.Albums.FindAsync(albumId);
+        var album = await context.Albums.FindAsync(id);
         if (album == null) return null;
 
         album.LayoutPreset = layout;
@@ -108,11 +108,12 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
     }
 
     
-    public async Task<(IAlbumRepository.AssignNavOrderOutcome, IEnumerable<IAlbumRepository.AlbumDto>?)> AssignAlbumInNavAsync(int albumId, int newNavOrder)
+    public async Task<(IAlbumRepository.AssignNavOrderOutcome, IEnumerable<IAlbumRepository.AlbumDto>?)> AssignAlbumInNavAsync(int id, int newNavOrder)
     {
+        // TODO explicitly handle case of newNavOrder == -1, with a new AssignNavOrderOutcome. Update docs and tests.
         var albums = await GetNavbarAlbumsOrderedAsync();
         if (newNavOrder is < -1 or > 4) return (IAlbumRepository.AssignNavOrderOutcome.OutOfBounds, albums.Select(AlbumToDto).ToList());
-        var album = await context.Albums.FindAsync(albumId);
+        var album = await context.Albums.FindAsync(id);
         if (album == null) return (IAlbumRepository.AssignNavOrderOutcome.NotFound, albums.Select(AlbumToDto).ToList());
         if (newNavOrder >= 0 && !album.Published) return (IAlbumRepository.AssignNavOrderOutcome.NotPublished, albums.Select(AlbumToDto).ToList());
 
@@ -130,7 +131,7 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
 
     
     // TODO: Implement shared navbar locking system
-    public async Task<(IAlbumRepository.SwapInNavOutcome, IEnumerable<IAlbumRepository.AlbumDto>?)> SwapAlbumsInNavOrderAsync(int albumId1, int albumId2)
+    public async Task<(IAlbumRepository.SwapInNavOutcome, IEnumerable<IAlbumRepository.AlbumDto>?)> SwapAlbumsInNavAsync(int albumId1, int albumId2)
     {
         var albums = await GetNavbarAlbumsOrderedAsync();
         if (albumId1 == albumId2) return (IAlbumRepository.SwapInNavOutcome.IgnoredSwapInPlace, albums.Select(AlbumToDto).ToList());
@@ -144,19 +145,19 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
     }
 
     
-    public async Task<IEnumerable<IAlbumRepository.AlbumDto>> GetPublishedNotInNavbar()
+    public async Task<IEnumerable<IAlbumRepository.AlbumDto>> GetPublishedNavExcludedAlbumsAsync()
         => await context.Albums.AsNoTracking().Where(album => album.Published && album.NavbarOrder == -1)
             .Select(ToDto).ToListAsync();
 
     
-    public async Task<IEnumerable<IAlbumRepository.AlbumDto>> GetPublishedInNavbarOrdered()
+    public async Task<IEnumerable<IAlbumRepository.AlbumDto>> GetNavIncludedAlbumsAsync()
         => await context.Albums.AsNoTracking().Where(album => album.Published && album.NavbarOrder >= 0)
             .OrderBy(album => album.NavbarOrder).Select(ToDto).ToListAsync();
 
     
-    public async Task<IAlbumRepository.AlbumDto?> PublishAlbumAsync(int albumId, int? navOrder)
+    public async Task<IAlbumRepository.AlbumDto?> PublishAlbumAsync(int id, int? navOrder)
     {
-        var album = await context.Albums.FindAsync(albumId);
+        var album = await context.Albums.FindAsync(id);
         if (album == null) return null;
         if (album.Published) return AlbumToDto(album);
 
@@ -180,9 +181,9 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
     }
 
     
-    public async Task<IAlbumRepository.AlbumDto?> UnpublishAlbumAsync(int albumId)
+    public async Task<IAlbumRepository.AlbumDto?> UnpublishAlbumAsync(int id)
     {
-        var album = await context.Albums.FindAsync(albumId);
+        var album = await context.Albums.FindAsync(id);
         if (album == null) return null;
         if (!album.Published) return AlbumToDto(album);
 

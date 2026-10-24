@@ -127,7 +127,7 @@ public class AlbumControllerUnitTests
     public async Task GetAllAlbums_EmptyAlbumList_ReturnsEmptyAlbumList()
     {
         var repositoryMock = new Mock<IAlbumRepository>();
-        repositoryMock.Setup(r => r.GetAllAlbumsAsync()).ReturnsAsync(new List<IAlbumRepository.AlbumDto>());
+        repositoryMock.Setup(r => r.GetAlbumsAsync()).ReturnsAsync(new List<IAlbumRepository.AlbumDto>());
         var controller = new AlbumController(repositoryMock.Object);
         
         var albums = await controller.Get();
@@ -143,7 +143,7 @@ public class AlbumControllerUnitTests
         var repositoryMock = new Mock<IAlbumRepository>();
         var album = new IAlbumRepository.AlbumDto(1, "album");
         var myAlbums = new List<IAlbumRepository.AlbumDto> { album };
-        repositoryMock.Setup(r => r.GetAllAlbumsAsync()).ReturnsAsync(myAlbums);
+        repositoryMock.Setup(r => r.GetAlbumsAsync()).ReturnsAsync(myAlbums);
         var controller = new AlbumController(repositoryMock.Object);
         
         var albums = await controller.Get();
@@ -162,7 +162,7 @@ public class AlbumControllerUnitTests
         var album2 = new IAlbumRepository.AlbumDto(2, "hello album");
         var album3 = new IAlbumRepository.AlbumDto(4, "album album");
         var myAlbums = new List<IAlbumRepository.AlbumDto> { album1, album2, album3 };
-        repositoryMock.Setup(r => r.GetAllAlbumsAsync()).ReturnsAsync(myAlbums);
+        repositoryMock.Setup(r => r.GetAlbumsAsync()).ReturnsAsync(myAlbums);
         var controller = new AlbumController(repositoryMock.Object);
         
         var albums = await controller.Get();
@@ -191,7 +191,7 @@ public class AlbumControllerUnitTests
     public async Task GetIds_EmptyIdList_ReturnsEmptyIdList()
     {
         var repositoryMock = new Mock<IAlbumRepository>();
-        repositoryMock.Setup(r => r.GetAllAlbumIdsAsync()).ReturnsAsync(new List<int>());
+        repositoryMock.Setup(r => r.GetAlbumIdsAsync()).ReturnsAsync(new List<int>());
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.GetIds();
@@ -205,7 +205,7 @@ public class AlbumControllerUnitTests
     public async Task GetIds_SingleIdList_ReturnsSameIdInList()
     {
         var repositoryMock = new Mock<IAlbumRepository>();
-        repositoryMock.Setup(r => r.GetAllAlbumIdsAsync()).ReturnsAsync(new List<int> { 23 });
+        repositoryMock.Setup(r => r.GetAlbumIdsAsync()).ReturnsAsync(new List<int> { 23 });
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.GetIds();
@@ -219,7 +219,7 @@ public class AlbumControllerUnitTests
     public async Task GetIds_MultipleIdList_ReturnsSameIdsInOrder()
     {
         var repositoryMock = new Mock<IAlbumRepository>();
-        repositoryMock.Setup(r => r.GetAllAlbumIdsAsync()).ReturnsAsync(new List<int> { 4, 12, 23 });
+        repositoryMock.Setup(r => r.GetAlbumIdsAsync()).ReturnsAsync(new List<int> { 4, 12, 23 });
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.GetIds();
@@ -274,7 +274,7 @@ public class AlbumControllerUnitTests
     public async Task GetAllPublishedAlbums_EmptyAlbumList_ReturnsEmptyAlbumList()
     {
         var repositoryMock = new Mock<IAlbumRepository>();
-        repositoryMock.Setup(r => r.GetAllPublishedAsync()).ReturnsAsync(new List<IAlbumRepository.AlbumDto>());
+        repositoryMock.Setup(r => r.GetPublishedAlbumsAsync()).ReturnsAsync(new List<IAlbumRepository.AlbumDto>());
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.GetAllPublishedAlbums();
@@ -290,7 +290,7 @@ public class AlbumControllerUnitTests
         var repositoryMock = new Mock<IAlbumRepository>();
         var album1 = new IAlbumRepository.AlbumDto(1, "First", Published: true);
         var album2 = new IAlbumRepository.AlbumDto(2, "Second", Published: true);
-        repositoryMock.Setup(r => r.GetAllPublishedAsync()).ReturnsAsync(new List<IAlbumRepository.AlbumDto> { album1, album2 });
+        repositoryMock.Setup(r => r.GetPublishedAlbumsAsync()).ReturnsAsync(new List<IAlbumRepository.AlbumDto> { album1, album2 });
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.GetAllPublishedAlbums();
@@ -306,7 +306,7 @@ public class AlbumControllerUnitTests
     public async Task GetPublishedNotInNav_EmptyAlbumList_ReturnsEmptyAlbumList()
     {
         var repositoryMock = new Mock<IAlbumRepository>();
-        repositoryMock.Setup(r => r.GetPublishedNotInNavbar()).ReturnsAsync(new List<IAlbumRepository.AlbumDto>());
+        repositoryMock.Setup(r => r.GetPublishedNavExcludedAlbumsAsync()).ReturnsAsync(new List<IAlbumRepository.AlbumDto>());
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.GetPublishedNotInNav();
@@ -322,7 +322,7 @@ public class AlbumControllerUnitTests
         var repositoryMock = new Mock<IAlbumRepository>();
         var album1 = new IAlbumRepository.AlbumDto(1, "First", Published: true);
         var album2 = new IAlbumRepository.AlbumDto(2, "Second", Published: true);
-        repositoryMock.Setup(r => r.GetPublishedNotInNavbar()).ReturnsAsync(new List<IAlbumRepository.AlbumDto> { album1, album2 });
+        repositoryMock.Setup(r => r.GetPublishedNavExcludedAlbumsAsync()).ReturnsAsync(new List<IAlbumRepository.AlbumDto> { album1, album2 });
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.GetPublishedNotInNav();
@@ -338,7 +338,7 @@ public class AlbumControllerUnitTests
     public async Task GetNavAlbumsOrdered_EmptyAlbumList_ReturnsEmptyAlbumList()
     {
         var repositoryMock = new Mock<IAlbumRepository>();
-        repositoryMock.Setup(r => r.GetPublishedInNavbarOrdered()).ReturnsAsync(new List<IAlbumRepository.AlbumDto>());
+        repositoryMock.Setup(r => r.GetNavIncludedAlbumsAsync()).ReturnsAsync(new List<IAlbumRepository.AlbumDto>());
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.GetNavAlbumsOrdered();
@@ -354,7 +354,7 @@ public class AlbumControllerUnitTests
         var repositoryMock = new Mock<IAlbumRepository>();
         var album1 = new IAlbumRepository.AlbumDto(3, "First", Published: true, NavbarOrder: 0);
         var album2 = new IAlbumRepository.AlbumDto(1, "Second", Published: true, NavbarOrder: 1);
-        repositoryMock.Setup(r => r.GetPublishedInNavbarOrdered()).ReturnsAsync(new List<IAlbumRepository.AlbumDto> { album1, album2 });
+        repositoryMock.Setup(r => r.GetNavIncludedAlbumsAsync()).ReturnsAsync(new List<IAlbumRepository.AlbumDto> { album1, album2 });
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.GetNavAlbumsOrdered();
@@ -643,7 +643,7 @@ public class AlbumControllerUnitTests
             new(12, "Second", Published: true, NavbarOrder: 0),
             new(23, "First", Published: true, NavbarOrder: 1)
         };
-        repositoryMock.Setup(r => r.SwapAlbumsInNavOrderAsync(23, 12))
+        repositoryMock.Setup(r => r.SwapAlbumsInNavAsync(23, 12))
             .ReturnsAsync((IAlbumRepository.SwapInNavOutcome.Success, albums));
         var controller = new AlbumController(repositoryMock.Object);
 
@@ -651,7 +651,7 @@ public class AlbumControllerUnitTests
 
         var okResult = Assert.IsType<OkObjectResult>(response);
         Assert.Same(albums, okResult.Value);
-        repositoryMock.Verify(r => r.SwapAlbumsInNavOrderAsync(23, 12), Times.Once());
+        repositoryMock.Verify(r => r.SwapAlbumsInNavAsync(23, 12), Times.Once());
     }
 
     [Theory]
@@ -660,21 +660,21 @@ public class AlbumControllerUnitTests
     public async Task SwapAlbumsInNav_SwapRejected_ReturnsBadRequest(IAlbumRepository.SwapInNavOutcome outcome)
     {
         var repositoryMock = new Mock<IAlbumRepository>();
-        repositoryMock.Setup(r => r.SwapAlbumsInNavOrderAsync(23, 12))
+        repositoryMock.Setup(r => r.SwapAlbumsInNavAsync(23, 12))
             .ReturnsAsync((outcome, (IEnumerable<IAlbumRepository.AlbumDto>)null));
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.SwapAlbumsInNav(new AlbumController.NavOrderSwapRequest(23, 12));
 
         Assert.IsType<BadRequestResult>(response);
-        repositoryMock.Verify(r => r.SwapAlbumsInNavOrderAsync(23, 12), Times.Once());
+        repositoryMock.Verify(r => r.SwapAlbumsInNavAsync(23, 12), Times.Once());
     }
 
     [Fact]
     public async Task SwapAlbumsInNav_UnexpectedOutcome_ReturnsServerError()
     {
         var repositoryMock = new Mock<IAlbumRepository>();
-        repositoryMock.Setup(r => r.SwapAlbumsInNavOrderAsync(23, 12))
+        repositoryMock.Setup(r => r.SwapAlbumsInNavAsync(23, 12))
             .ReturnsAsync(((IAlbumRepository.SwapInNavOutcome)999, (IEnumerable<IAlbumRepository.AlbumDto>)null));
         var controller = new AlbumController(repositoryMock.Object);
 

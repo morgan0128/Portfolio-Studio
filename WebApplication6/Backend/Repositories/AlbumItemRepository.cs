@@ -6,7 +6,7 @@ namespace WebApplication6.Backend.Repositories;
 
 public class AlbumItemRepository(ApplicationDbContext context) : IAlbumItemRepository
 {
-    public async Task<bool> AddPhotoToAlbumAsync(int albumId, int photoId, CancellationToken cancellationToken = default)
+    public async Task<bool> SavePhotoDisplayAsync(int albumId, int photoId, CancellationToken cancellationToken = default)
     {
         const int maximumAttempts = 3;
         for (var attempt = 1; attempt <= maximumAttempts; attempt++)

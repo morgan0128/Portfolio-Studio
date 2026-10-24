@@ -19,7 +19,7 @@ public sealed class AlbumController(IAlbumRepository albumRepository)
         var name = albumRequest.Name?.Trim();
         if (string.IsNullOrEmpty(name))
         {
-            var number = await albumRepository.GetTotalNumberAlbumsAsync();
+            var number = await albumRepository.GetAlbumsCountAsync();
             number++;
             name = "Unnamed Album #" + number;
         }
@@ -38,7 +38,7 @@ public sealed class AlbumController(IAlbumRepository albumRepository)
     [HttpGet]
     public async Task<ActionResult<IEnumerable<IAlbumRepository.AlbumDto>>> Get()
     {
-        var albums = await albumRepository.GetAllAlbumsAsync();
+        var albums = await albumRepository.GetAlbumsAsync();
         return Ok(albums);
     }
 
@@ -46,7 +46,7 @@ public sealed class AlbumController(IAlbumRepository albumRepository)
     [HttpGet("ids")]
     public async Task<ActionResult<IEnumerable<int>>> GetIds()
     {
-        var albumIds = await albumRepository.GetAllAlbumIdsAsync();
+        var albumIds = await albumRepository.GetAlbumIdsAsync();
         return Ok(albumIds);
     }
 
@@ -66,7 +66,7 @@ public sealed class AlbumController(IAlbumRepository albumRepository)
     [HttpGet("published")]
     public async Task<ActionResult<IEnumerable<IAlbumRepository.AlbumDto>>> GetAllPublishedAlbums()
     {
-        var published = await albumRepository.GetAllPublishedAsync();
+        var published = await albumRepository.GetPublishedAlbumsAsync();
         return Ok(published);
     }
 
@@ -74,7 +74,7 @@ public sealed class AlbumController(IAlbumRepository albumRepository)
     [HttpGet("published/not-in-nav")]
     public async Task<ActionResult<IEnumerable<IAlbumRepository.AlbumDto>>> GetPublishedNotInNav()
     {
-        var publishedExcludedInNav = await albumRepository.GetPublishedNotInNavbar();
+        var publishedExcludedInNav = await albumRepository.GetPublishedNavExcludedAlbumsAsync();
         return Ok(publishedExcludedInNav);
     }
 
@@ -82,7 +82,7 @@ public sealed class AlbumController(IAlbumRepository albumRepository)
     [HttpGet("nav-items-ordered")]
     public async Task<ActionResult<IEnumerable<IAlbumRepository.AlbumDto>>> GetNavAlbumsOrdered()
     {
-        var navItemsOrdered = await albumRepository.GetPublishedInNavbarOrdered();
+        var navItemsOrdered = await albumRepository.GetNavIncludedAlbumsAsync();
         return Ok(navItemsOrdered);
     }
     
@@ -142,7 +142,7 @@ public sealed class AlbumController(IAlbumRepository albumRepository)
     [HttpPatch("nav-order/swap")]
     public async Task<IActionResult> SwapAlbumsInNav([FromBody] NavOrderSwapRequest request)
     {
-        var swapped = await albumRepository.SwapAlbumsInNavOrderAsync(request.AlbumId1, request.AlbumId2);
+        var swapped = await albumRepository.SwapAlbumsInNavAsync(request.AlbumId1, request.AlbumId2);
         return swapped.Item1 switch
         {
             IAlbumRepository.SwapInNavOutcome.Success => Ok(swapped.Item2),

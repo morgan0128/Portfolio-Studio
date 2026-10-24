@@ -6,34 +6,42 @@ namespace WebApplication6.Backend.Repositories;
 
 public interface IAlbumRepository
 {
-    Task<IEnumerable<AlbumDto>> GetAllAlbumsAsync();
+    /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="get-albums-async"]/*' />
+    Task<IEnumerable<AlbumDto>> GetAlbumsAsync();
 
-    Task<IEnumerable<int>> GetAllAlbumIdsAsync();
+    /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="get-album-ids-async"]/*' />
+    Task<IEnumerable<int>> GetAlbumIdsAsync();
 
-    Task<int> GetTotalNumberAlbumsAsync();
+    /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="get-albums-count-async"]/*' />
+    Task<int> GetAlbumsCountAsync();
     
+    /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="get-album-by-id-async"]/*' />
     Task<AlbumDto?> GetAlbumByIdAsync(int id);
     
+    /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="save-album-async"]/*' />
     Task<AlbumDto> SaveAlbumAsync(Album album);
     
-    /// <returns>true on success, or false on not found</returns>
+    /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="delete-album-by-id-async"]/*' />
     Task<bool> DeleteAlbumByIdAsync(int id);
 
-    Task<IEnumerable<AlbumDto>> GetAllPublishedAsync();
+    /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="get-published-albums-async"]/*' />
+    Task<IEnumerable<AlbumDto>> GetPublishedAlbumsAsync();
     
-    Task<AlbumDto?> SetLayoutPresetAsync(int albumId, PageLayoutPreset layout);
+    /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="set-layout-preset-async"]/*' />
+    Task<AlbumDto?> SetLayoutPresetAsync(int id, PageLayoutPreset layout);
     
-    Task<(AssignNavOrderOutcome, IEnumerable<AlbumDto>?)> AssignAlbumInNavAsync(int albumId, int newNavOrder);
+    Task<(AssignNavOrderOutcome, IEnumerable<AlbumDto>?)> AssignAlbumInNavAsync(int id, int newNavOrder);
     
-    Task<(SwapInNavOutcome, IEnumerable<IAlbumRepository.AlbumDto>?)> SwapAlbumsInNavOrderAsync(int albumId1, int albumId2);
+    Task<(SwapInNavOutcome, IEnumerable<AlbumDto>?)> SwapAlbumsInNavAsync(int albumId1, int albumId2);
     
-    Task<IEnumerable<AlbumDto>> GetPublishedNotInNavbar();
+    Task<IEnumerable<AlbumDto>> GetPublishedNavExcludedAlbumsAsync();
     
-    Task<IEnumerable<AlbumDto>> GetPublishedInNavbarOrdered();
+    /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="get-nav-included-albums-async"]/*' />
+    Task<IEnumerable<AlbumDto>> GetNavIncludedAlbumsAsync();
     
-    Task<AlbumDto?> PublishAlbumAsync(int albumId, int? navOrder);
+    Task<AlbumDto?> PublishAlbumAsync(int id, int? navOrder);
     
-    Task<AlbumDto?> UnpublishAlbumAsync(int albumId);
+    Task<AlbumDto?> UnpublishAlbumAsync(int id);
 
     
     public sealed record AlbumDto(
@@ -54,7 +62,6 @@ public interface IAlbumRepository
         NotFound,
         NavbarFull
     }
-
 
     public enum SwapInNavOutcome
     {

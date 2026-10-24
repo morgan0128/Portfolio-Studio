@@ -11,14 +11,14 @@ public class AlbumRepositoryReadOnlyTests(TestDatabaseFixture dbFixture) : IClas
 {
     public TestDatabaseFixture Fixture { get; } = dbFixture;
     
-    /* GetAllAlbumsAsync */
+    /* GetAlbumsAsync */
     [Fact]
-    public async Task GetAllAlbumsAsync_ReturnsExpected()
+    public async Task GetAlbumsAsync_ReturnsExpected()
     {
         await using var context = Fixture.CreateContext();
         var repository = new AlbumRepository(context);
 
-        var albums = await repository.GetAllAlbumsAsync();
+        var albums = await repository.GetAlbumsAsync();
         var albumsList = albums.OrderBy(album => album.Id).ToList();
 
         Assert.NotNull(albums);
@@ -30,12 +30,12 @@ public class AlbumRepositoryReadOnlyTests(TestDatabaseFixture dbFixture) : IClas
     
     /* GetAllAlbumsIdsAsync */
     [Fact]
-    public async Task GetAllAlbumIdsAsync_ReturnsExpected()
+    public async Task GetAlbumIdsAsync_ReturnsExpected()
     {
         await using var context = Fixture.CreateContext();
         var repository = new AlbumRepository(context);
 
-        var albumIds = await repository.GetAllAlbumIdsAsync();
+        var albumIds = await repository.GetAlbumIdsAsync();
 
         Assert.NotNull(albumIds);
         Assert.Collection(albumIds,
@@ -44,14 +44,14 @@ public class AlbumRepositoryReadOnlyTests(TestDatabaseFixture dbFixture) : IClas
         );
     }
     
-    /* GetTotalNumberAlbumsAsync */
+    /* GetAlbumsCountAsync */
     [Fact]
-    public async Task GetTotalNumberAlbumsAsync_ReturnsExpected()
+    public async Task GetAlbumsCountAsync_ReturnsExpected()
     {
         await using var context = Fixture.CreateContext();
         var repository = new AlbumRepository(context);
 
-        var numAlbums = await repository.GetTotalNumberAlbumsAsync();
+        var numAlbums = await repository.GetAlbumsCountAsync();
 
         Assert.Equal(2, numAlbums);
     }

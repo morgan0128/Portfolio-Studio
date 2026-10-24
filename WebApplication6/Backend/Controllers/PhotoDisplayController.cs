@@ -32,7 +32,7 @@ public sealed class PhotoDisplayController(IAlbumRepository albumRepository, IAl
         var photoResult = await uploadPhotoService.UploadPhoto(file, photoSpec);
         if (photoResult == null) return Problem();
 
-        var photoToAlbum = await albumItemRepository.AddPhotoToAlbumAsync(album.Id, photoResult.Value);
+        var photoToAlbum = await albumItemRepository.SavePhotoDisplayAsync(album.Id, photoResult.Value);
         if (!photoToAlbum) return Problem();
 
         return Ok();

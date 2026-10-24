@@ -14,7 +14,8 @@ public interface IAlbumItemRepository
 
     Task<IEnumerable<AlbumItemDto>> GetAlbumItems(int albumId);
     
-    Task<bool> AddPhotoToAlbumAsync(int albumId, int photoId, CancellationToken cancellationToken = default);
+    /// <include file='../Documentation/repositories.xml' path='Repositories/AlbumItem[@name="save-photo-display-async"]/*'/>
+    Task<bool> SavePhotoDisplayAsync(int albumId, int photoId, CancellationToken cancellationToken = default);
     
     // Task<bool> ReorderPhotoInAlbum(int albumId, int photoId, int newOrder);
     
@@ -22,8 +23,7 @@ public interface IAlbumItemRepository
 
     Task<ReorderOutcome> ReorderPhotoDisplayInCollection(int albumId, int photoDisplayCollectionId, int photoDisplayId, int newOrder);
     
-    Task<bool> ModifyFieldsDisplayed(int albumId, int photoDisplayId,
-        IAlbumItemRepository.PhotoDisplayFieldsDisplayedRequest request);
+    Task<bool> ModifyFieldsDisplayed(int albumId, int photoDisplayId, PhotoDisplayFieldsDisplayedRequest request);
 
     Task<bool> DeletePhotoDisplay(int photoDisplayId);
 

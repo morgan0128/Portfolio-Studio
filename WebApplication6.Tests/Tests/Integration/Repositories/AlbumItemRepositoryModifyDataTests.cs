@@ -27,8 +27,8 @@ public class AlbumItemRepositoryModifyDataTests(TestDatabaseFixture dbFixture) :
     //     var albumRepository = new AlbumRepository(context);
     //     var albumItemRepository = new AlbumItemRepository(context);
     //
-    //     Assert.True(await albumItemRepository.AddPhotoToAlbumAsync(3002, 2, TestContext.Current.CancellationToken));
-    //     Assert.True(await albumItemRepository.AddPhotoToAlbumAsync(3002, 3, TestContext.Current.CancellationToken));
+    //     Assert.True(await albumItemRepository.SavePhotoDisplayAsync(3002, 2, TestContext.Current.CancellationToken));
+    //     Assert.True(await albumItemRepository.SavePhotoDisplayAsync(3002, 3, TestContext.Current.CancellationToken));
     //     Assert.Equal(new[] { 1, 2 }, (await albumItemRepository.GetAlbumItems(3002)).Select(photo => photo.Order));
     //     var photoDisplayId = await context.PhotoDisplays.Where(pd => pd.AlbumId == 3002 && pd.PhotoId == 3)
     //         .Select(pd => pd.Id).SingleAsync(TestContext.Current.CancellationToken);
@@ -106,7 +106,7 @@ public class AlbumItemRepositoryModifyDataTests(TestDatabaseFixture dbFixture) :
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
         var repository = new AlbumItemRepository(context);
 
-        Assert.True(await repository.AddPhotoToAlbumAsync(3002, 4, TestContext.Current.CancellationToken));
+        Assert.True(await repository.SavePhotoDisplayAsync(3002, 4, TestContext.Current.CancellationToken));
         Assert.Equal(1, await context.PhotoDisplays.Where(pd => pd.AlbumId == 3002 && pd.PhotoId == 4)
             .Select(pd => pd.Order).SingleAsync(TestContext.Current.CancellationToken));
         Assert.Equal(IAlbumItemRepository.ReorderOutcome.Success,
@@ -263,7 +263,7 @@ public class AlbumItemRepositoryModifyDataTests(TestDatabaseFixture dbFixture) :
         var repository = new AlbumItemRepository(context);
         
         Assert.NotNull(await context.Albums.FindAsync([albumId], TestContext.Current.CancellationToken));
-        Assert.True(await repository.AddPhotoToAlbumAsync(albumId, 2, TestContext.Current.CancellationToken));
+        Assert.True(await repository.SavePhotoDisplayAsync(albumId, 2, TestContext.Current.CancellationToken));
         var item = await context.PhotoDisplays.SingleAsync(
             display => display.AlbumId == 1 && display.PhotoId == photoId,
             TestContext.Current.CancellationToken);
@@ -345,8 +345,8 @@ public class AlbumItemRepositoryModifyDataTests(TestDatabaseFixture dbFixture) :
             await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
         var repository = new AlbumItemRepository(context);
 
-        Assert.True(await repository.AddPhotoToAlbumAsync(3002, 2, TestContext.Current.CancellationToken));
-        Assert.True(await repository.AddPhotoToAlbumAsync(3002, 3, TestContext.Current.CancellationToken));
+        Assert.True(await repository.SavePhotoDisplayAsync(3002, 2, TestContext.Current.CancellationToken));
+        Assert.True(await repository.SavePhotoDisplayAsync(3002, 3, TestContext.Current.CancellationToken));
         var firstDisplayId = await GetRootPhotoDisplayId(context, 3002, 2);
         Assert.True(await repository.ModifyFieldsDisplayed(3002, firstDisplayId,
             new IAlbumItemRepository.PhotoDisplayFieldsDisplayedRequest(false, false, false)));
@@ -378,7 +378,7 @@ public class AlbumItemRepositoryModifyDataTests(TestDatabaseFixture dbFixture) :
         var repository = new AlbumItemRepository(context);
     
         var exception = await Assert.ThrowsAsync<DbUpdateException>(() =>
-            repository.AddPhotoToAlbumAsync(1, 2, TestContext.Current.CancellationToken));
+            repository.SavePhotoDisplayAsync(1, 2, TestContext.Current.CancellationToken));
         Assert.Equal("UX_AlbumItems_AlbumId_PhotoId",
             Assert.IsType<PostgresException>(exception.InnerException).ConstraintName);
         Assert.Equal(4,
@@ -387,7 +387,7 @@ public class AlbumItemRepositoryModifyDataTests(TestDatabaseFixture dbFixture) :
             await context.PhotoDisplays.CountAsync(display => display.AlbumId == 1,
                 TestContext.Current.CancellationToken));
         Assert.DoesNotContain(context.ChangeTracker.Entries(), entry => entry.State == EntityState.Added);
-        Assert.True(await repository.AddPhotoToAlbumAsync(3002, 2, TestContext.Current.CancellationToken));
+        Assert.True(await repository.SavePhotoDisplayAsync(3002, 2, TestContext.Current.CancellationToken));
     }
 
     private ApplicationDbContext CreateContextWithNonPhotoItems()

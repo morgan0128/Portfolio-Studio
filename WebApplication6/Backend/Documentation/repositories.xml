@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Repositories>
+    <Album name="get-albums-async">
+        <returns>
+            A task that represents the asynchronous operation. 
+            The task result contains an <c>IEnumerable</c> of all Albums, with each <c>Album</c> depicted as <c>AlbumDto</c>.
+        </returns>    
+    </Album>
+
+    <Album name="get-album-ids-async">
+        <returns>
+            A task that represents the asynchronous operation.
+            The task result contains an <c>IEnumerable</c> containing the primary key <c>Album.Id</c> values for every <c>Album</c>.
+        </returns>
+    </Album>
+
+    <Album name="get-albums-count-async">
+        <returns>
+            A task that represents the asynchronous operation.
+            The task result contains the total number of Albums.
+        </returns>
+    </Album>
+    
+    <Album name="get-album-by-id-async">
+        <param name="id">The value of the primary key <c>Album.Id</c> for the Album to be found.</param>
+        <returns>
+            A task that represents the asynchronous operation.
+            The task result contains the <c>Album</c> of <paramref name="id"/> depicted as <c>AlbumDto</c> on success,
+            and null on failure.
+        </returns>
+    </Album>
+    
+    <Album name="save-album-async">
+        <returns>
+            A task that represents the asynchronous operation.
+            The task result contains an AlbumDto depicting the saved <c>Album</c> on success.
+        </returns>
+    </Album>
+    
+    <Album name="delete-album-by-id-async">
+        <summary>
+            Deletes the Album, and upon completion: ensures that contiguous <c>Album.Order</c> sequencing beginning at first
+            index of the Navbar ordering is maintained, along with the relative Ordering prior to deletion. 
+            Performs operations to maintain these properties where necessary.
+        </summary>
+        <param name="id">The value of the primary key <c>Album.Id</c> for the Album to be deleted.</param>
+        <returns>
+            A task that represents the asynchronous operation.
+            The task result contains true on success and false on not found.
+        </returns>
+        <remarks>
+            <para>
+                <include file="../Documentation/Properties/navbar-and-order.xml" path='NavbarAndOrder/Backend[@name="assumptions"]/*' />
+            </para>
+            <para>
+                <include file="../Documentation/Properties/navbar-and-order.xml" path='NavbarAndOrder/Database[@name="constraints"]/*' />
+            </para>
+        </remarks>
+    </Album>
+    
+    <Album name="get-published-albums-async">
+        <returns>
+            A task that represents the asynchronous operation.
+            The task result contains an <c>IEnumerable</c> of all Albums where <c>Album.Published</c>, 
+            depicting each as <c>AlbumDto</c>.
+        </returns>
+    </Album>
+    
+    <Album name="set-layout-preset-async">
+        <summary>
+            Setter for <c>Album.LayoutPreset</c>.
+        </summary>
+        <param name="id">The value of the primary key <c>Album.Id</c> of the Album to be modified.</param>
+        <param name="layout">The <c>PageLayoutPreset</c> used to set.</param>
+        <returns>
+            A task that represents the asynchronous operation.
+            The task result contains the <c>Album</c> depicted as <c>AlbumDto</c> on success and null on not found.
+        </returns>
+    </Album>
+    
+<!--    TODO: rest of file.   -->
+    <Album name="assign-album-in-nav-async">
+        <summary>
+            Includes the <c>Album</c> in the Navbar if <paramref name="newNavOrder"/> is positive and adheres to the 
+            bounds constraint of the database, the <c>Album</c> is <c>Published</c>, and the Navbar is not full.
+            Give preference to assigning <c>Album.Order</c> to <paramref name="newNavOrder"/>, but include <c>Album</c>
+            in Navbar even where <paramref name="newNavOrder"/> is occupied if above conditions are met.
+        </summary>
+    </Album>
+    
+    <Album name="swap-albums-in-nav-async">
+    </Album>
+    
+    <Album name="get-published-nav-excluded-albums-async">
+    </Album>
+    
+    <Album name="get-nav-included-albums-async">
+        <summary>
+            Retrieves all Albums that are included in the Navbar (strictly), ordered by <c>Album.Order</c> (ascending).
+        </summary>
+        <remarks>
+            <para>
+                <include file="../Documentation/Properties/navbar-and-order.xml" path='NavbarAndOrder/Backend[@name="assumptions"]/*' />
+            </para>
+            <para>
+                <include file="../Documentation/Properties/navbar-and-order.xml" path='NavbarAndOrder/Database[@name="constraints"]/*' />
+            </para>
+        </remarks>
+    </Album>
+
+    <Album name="publish-album-async">
+    </Album>
+
+    <Album name="unpublish-album-async">
+    </Album>
+    
+    
+
+    <AlbumItem name="save-photo-display-async">
+        <summary>
+            Inserts new <c>AlbumItem</c> of child class <c>PhotoDisplay</c>, initialized at root level of <c>Album</c>
+            with highest <c>AlbumItem.Order</c> among all root level AlbumItems of <c>Album</c>.
+        </summary>
+        <remarks>
+            An AlbumItem which belongs to no Collection (that is, <c>AlbumItem.CollectionId == null</c>) is considered
+            to be at <b>root level</b> of <c>Album</c>.
+        </remarks>
+        <param name="albumId">The primary key of the <c>Album</c> to save new AlbumItem to.</param>
+        <param name="photoId">The primary key of the <c>Photo</c> to associate with this PhotoDisplay.</param>
+        <param name="cancellationToken">Optionally may pass CancellationToken. If none specified, uses <c>default</c>.</param>
+        <returns>
+            true on success and false on cases of failures not resulting in an <c>Exception</c> being thrown.
+        </returns>
+        <exception cref="DbUpdateException">
+            <i>May</i> be propagated when upon encountering <c>DbUpdateException</c> while attempting Database insertion.
+        </exception>
+    </AlbumItem>
+</Repositories>

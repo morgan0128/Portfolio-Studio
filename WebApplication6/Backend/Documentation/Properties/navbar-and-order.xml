@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<NavbarAndOrder>
+    <Backend name="assumptions">
+        <b>Backend adheres to rule that Albums of Album.Order > -1 are considered 'included in the Navbar'.</b>
+    </Backend>
+    
+    <Database name="constraints">
+        <b>Database enforces constraints such that:</b>
+        <list type="table">
+            <item>Album.Order is -1 or greater</item>
+            <item>If Album.Order of -1 then !Album.Published</item>
+            <item>A non-negative Album.Order tuple has unique Album.Order</item>
+        </list>
+    </Database>
+</NavbarAndOrder>
