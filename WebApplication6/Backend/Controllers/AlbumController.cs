@@ -112,14 +112,14 @@ public sealed class AlbumController(IAlbumRepository albumRepository)
     [HttpPatch("{id:int}/nav-order")]
     public async Task<ActionResult<IEnumerable<IAlbumRepository.AlbumDto>>> AssignNavOrder(int id, [FromBody] NavOrderRequest request)
     {
-        var reordered = await albumRepository.AssignAlbumInNavAsync(id, request.NavOrder);
+        var reordered = await albumRepository.UpdateNavOrderAsync(id, request.NavOrder);
         return reordered.Item1 switch
         {
-            IAlbumRepository.AssignNavOrderOutcome.Success => Ok(reordered.Item2),
-            IAlbumRepository.AssignNavOrderOutcome.OutOfBounds => BadRequest(reordered.Item2),
-            IAlbumRepository.AssignNavOrderOutcome.NotPublished => Conflict(reordered.Item2),
-            IAlbumRepository.AssignNavOrderOutcome.NotFound => NotFound(reordered.Item2),
-            IAlbumRepository.AssignNavOrderOutcome.NavbarFull => Conflict(reordered.Item2),
+            IAlbumRepository.UpdateNavOrderOutcome.Success => Ok(reordered.Item2),
+            IAlbumRepository.UpdateNavOrderOutcome.OutOfBounds => BadRequest(reordered.Item2),
+            IAlbumRepository.UpdateNavOrderOutcome.NotPublished => Conflict(reordered.Item2),
+            IAlbumRepository.UpdateNavOrderOutcome.NotFound => NotFound(reordered.Item2),
+            IAlbumRepository.UpdateNavOrderOutcome.NavbarFull => Conflict(reordered.Item2),
             _ => Problem(statusCode: 500)
         };
     }
@@ -128,12 +128,12 @@ public sealed class AlbumController(IAlbumRepository albumRepository)
     [HttpPatch("{id:int}/remove-from-nav")]
     public async Task<ActionResult<IEnumerable<IAlbumRepository.AlbumDto>>> RemoveFromNav(int id)
     {
-        var removed = await albumRepository.AssignAlbumInNavAsync(id, -1);
+        var removed = await albumRepository.UpdateNavOrderAsync(id, -1);
         return removed.Item1 switch
         {
-            IAlbumRepository.AssignNavOrderOutcome.Success => Ok(removed.Item2),
-            IAlbumRepository.AssignNavOrderOutcome.NotPublished => Conflict(removed.Item2),
-            IAlbumRepository.AssignNavOrderOutcome.NotFound => NotFound(removed.Item2),
+            IAlbumRepository.UpdateNavOrderOutcome.Success => Ok(removed.Item2),
+            IAlbumRepository.UpdateNavOrderOutcome.NotPublished => Conflict(removed.Item2),
+            IAlbumRepository.UpdateNavOrderOutcome.NotFound => NotFound(removed.Item2),
             _ => Problem(statusCode: 500)
         };
     }

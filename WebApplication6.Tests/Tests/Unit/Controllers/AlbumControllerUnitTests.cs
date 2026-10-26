@@ -480,15 +480,15 @@ public class AlbumControllerUnitTests
         {
             new(23, "My Album", Published: true, NavbarOrder: 2)
         };
-        repositoryMock.Setup(r => r.AssignAlbumInNavAsync(23, 2))
-            .ReturnsAsync((IAlbumRepository.AssignNavOrderOutcome.Success, albums));
+        repositoryMock.Setup(r => r.UpdateNavOrderAsync(23, 2))
+            .ReturnsAsync((IAlbumRepository.UpdateNavOrderOutcome.Success, albums));
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.AssignNavOrder(23, new AlbumController.NavOrderRequest(2));
 
         var okResult = Assert.IsType<OkObjectResult>(response.Result);
         Assert.Same(albums, okResult.Value);
-        repositoryMock.Verify(r => r.AssignAlbumInNavAsync(23, 2), Times.Once());
+        repositoryMock.Verify(r => r.UpdateNavOrderAsync(23, 2), Times.Once());
     }
 
     [Fact]
@@ -496,15 +496,15 @@ public class AlbumControllerUnitTests
     {
         var repositoryMock = new Mock<IAlbumRepository>();
         IEnumerable<IAlbumRepository.AlbumDto> albums = new List<IAlbumRepository.AlbumDto>();
-        repositoryMock.Setup(r => r.AssignAlbumInNavAsync(23, 5))
-            .ReturnsAsync((IAlbumRepository.AssignNavOrderOutcome.OutOfBounds, albums));
+        repositoryMock.Setup(r => r.UpdateNavOrderAsync(23, 5))
+            .ReturnsAsync((IAlbumRepository.UpdateNavOrderOutcome.OutOfBounds, albums));
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.AssignNavOrder(23, new AlbumController.NavOrderRequest(5));
 
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(response.Result);
         Assert.Same(albums, badRequestResult.Value);
-        repositoryMock.Verify(r => r.AssignAlbumInNavAsync(23, 5), Times.Once());
+        repositoryMock.Verify(r => r.UpdateNavOrderAsync(23, 5), Times.Once());
     }
 
     [Fact]
@@ -512,15 +512,15 @@ public class AlbumControllerUnitTests
     {
         var repositoryMock = new Mock<IAlbumRepository>();
         IEnumerable<IAlbumRepository.AlbumDto> albums = new List<IAlbumRepository.AlbumDto>();
-        repositoryMock.Setup(r => r.AssignAlbumInNavAsync(23, 2))
-            .ReturnsAsync((IAlbumRepository.AssignNavOrderOutcome.NotPublished, albums));
+        repositoryMock.Setup(r => r.UpdateNavOrderAsync(23, 2))
+            .ReturnsAsync((IAlbumRepository.UpdateNavOrderOutcome.NotPublished, albums));
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.AssignNavOrder(23, new AlbumController.NavOrderRequest(2));
 
         var conflictResult = Assert.IsType<ConflictObjectResult>(response.Result);
         Assert.Same(albums, conflictResult.Value);
-        repositoryMock.Verify(r => r.AssignAlbumInNavAsync(23, 2), Times.Once());
+        repositoryMock.Verify(r => r.UpdateNavOrderAsync(23, 2), Times.Once());
     }
 
     [Fact]
@@ -528,15 +528,15 @@ public class AlbumControllerUnitTests
     {
         var repositoryMock = new Mock<IAlbumRepository>();
         IEnumerable<IAlbumRepository.AlbumDto> albums = new List<IAlbumRepository.AlbumDto>();
-        repositoryMock.Setup(r => r.AssignAlbumInNavAsync(23, 2))
-            .ReturnsAsync((IAlbumRepository.AssignNavOrderOutcome.NotFound, albums));
+        repositoryMock.Setup(r => r.UpdateNavOrderAsync(23, 2))
+            .ReturnsAsync((IAlbumRepository.UpdateNavOrderOutcome.NotFound, albums));
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.AssignNavOrder(23, new AlbumController.NavOrderRequest(2));
 
         var notFoundResult = Assert.IsType<NotFoundObjectResult>(response.Result);
         Assert.Same(albums, notFoundResult.Value);
-        repositoryMock.Verify(r => r.AssignAlbumInNavAsync(23, 2), Times.Once());
+        repositoryMock.Verify(r => r.UpdateNavOrderAsync(23, 2), Times.Once());
     }
 
     [Fact]
@@ -544,23 +544,23 @@ public class AlbumControllerUnitTests
     {
         var repositoryMock = new Mock<IAlbumRepository>();
         IEnumerable<IAlbumRepository.AlbumDto> albums = new List<IAlbumRepository.AlbumDto>();
-        repositoryMock.Setup(r => r.AssignAlbumInNavAsync(23, 2))
-            .ReturnsAsync((IAlbumRepository.AssignNavOrderOutcome.NavbarFull, albums));
+        repositoryMock.Setup(r => r.UpdateNavOrderAsync(23, 2))
+            .ReturnsAsync((IAlbumRepository.UpdateNavOrderOutcome.NavbarFull, albums));
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.AssignNavOrder(23, new AlbumController.NavOrderRequest(2));
 
         var conflictResult = Assert.IsType<ConflictObjectResult>(response.Result);
         Assert.Same(albums, conflictResult.Value);
-        repositoryMock.Verify(r => r.AssignAlbumInNavAsync(23, 2), Times.Once());
+        repositoryMock.Verify(r => r.UpdateNavOrderAsync(23, 2), Times.Once());
     }
 
     [Fact]
     public async Task AssignNavOrder_UnexpectedOutcome_ReturnsServerError()
     {
         var repositoryMock = new Mock<IAlbumRepository>();
-        repositoryMock.Setup(r => r.AssignAlbumInNavAsync(23, 2))
-            .ReturnsAsync(((IAlbumRepository.AssignNavOrderOutcome)999, (IEnumerable<IAlbumRepository.AlbumDto>)null));
+        repositoryMock.Setup(r => r.UpdateNavOrderAsync(23, 2))
+            .ReturnsAsync(((IAlbumRepository.UpdateNavOrderOutcome)999, (IEnumerable<IAlbumRepository.AlbumDto>)null));
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.AssignNavOrder(23, new AlbumController.NavOrderRequest(2));
@@ -577,15 +577,15 @@ public class AlbumControllerUnitTests
         {
             new(1, "Another Album", Published: true, NavbarOrder: 0)
         };
-        repositoryMock.Setup(r => r.AssignAlbumInNavAsync(23, -1))
-            .ReturnsAsync((IAlbumRepository.AssignNavOrderOutcome.Success, albums));
+        repositoryMock.Setup(r => r.UpdateNavOrderAsync(23, -1))
+            .ReturnsAsync((IAlbumRepository.UpdateNavOrderOutcome.Success, albums));
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.RemoveFromNav(23);
 
         var okResult = Assert.IsType<OkObjectResult>(response.Result);
         Assert.Same(albums, okResult.Value);
-        repositoryMock.Verify(r => r.AssignAlbumInNavAsync(23, -1), Times.Once());
+        repositoryMock.Verify(r => r.UpdateNavOrderAsync(23, -1), Times.Once());
     }
 
     [Fact]
@@ -593,15 +593,15 @@ public class AlbumControllerUnitTests
     {
         var repositoryMock = new Mock<IAlbumRepository>();
         IEnumerable<IAlbumRepository.AlbumDto> albums = new List<IAlbumRepository.AlbumDto>();
-        repositoryMock.Setup(r => r.AssignAlbumInNavAsync(23, -1))
-            .ReturnsAsync((IAlbumRepository.AssignNavOrderOutcome.NotPublished, albums));
+        repositoryMock.Setup(r => r.UpdateNavOrderAsync(23, -1))
+            .ReturnsAsync((IAlbumRepository.UpdateNavOrderOutcome.NotPublished, albums));
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.RemoveFromNav(23);
 
         var conflictResult = Assert.IsType<ConflictObjectResult>(response.Result);
         Assert.Same(albums, conflictResult.Value);
-        repositoryMock.Verify(r => r.AssignAlbumInNavAsync(23, -1), Times.Once());
+        repositoryMock.Verify(r => r.UpdateNavOrderAsync(23, -1), Times.Once());
     }
 
     [Fact]
@@ -609,23 +609,23 @@ public class AlbumControllerUnitTests
     {
         var repositoryMock = new Mock<IAlbumRepository>();
         IEnumerable<IAlbumRepository.AlbumDto> albums = new List<IAlbumRepository.AlbumDto>();
-        repositoryMock.Setup(r => r.AssignAlbumInNavAsync(23, -1))
-            .ReturnsAsync((IAlbumRepository.AssignNavOrderOutcome.NotFound, albums));
+        repositoryMock.Setup(r => r.UpdateNavOrderAsync(23, -1))
+            .ReturnsAsync((IAlbumRepository.UpdateNavOrderOutcome.NotFound, albums));
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.RemoveFromNav(23);
 
         var notFoundResult = Assert.IsType<NotFoundObjectResult>(response.Result);
         Assert.Same(albums, notFoundResult.Value);
-        repositoryMock.Verify(r => r.AssignAlbumInNavAsync(23, -1), Times.Once());
+        repositoryMock.Verify(r => r.UpdateNavOrderAsync(23, -1), Times.Once());
     }
 
     [Fact]
     public async Task RemoveFromNav_UnexpectedOutcome_ReturnsServerError()
     {
         var repositoryMock = new Mock<IAlbumRepository>();
-        repositoryMock.Setup(r => r.AssignAlbumInNavAsync(23, -1))
-            .ReturnsAsync((IAlbumRepository.AssignNavOrderOutcome.OutOfBounds, (IEnumerable<IAlbumRepository.AlbumDto>)null));
+        repositoryMock.Setup(r => r.UpdateNavOrderAsync(23, -1))
+            .ReturnsAsync((IAlbumRepository.UpdateNavOrderOutcome.OutOfBounds, (IEnumerable<IAlbumRepository.AlbumDto>)null));
         var controller = new AlbumController(repositoryMock.Object);
 
         var response = await controller.RemoveFromNav(23);

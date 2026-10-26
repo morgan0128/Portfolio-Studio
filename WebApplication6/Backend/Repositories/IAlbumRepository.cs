@@ -30,7 +30,8 @@ public interface IAlbumRepository
     /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="set-layout-preset-async"]/*' />
     Task<AlbumDto?> SetLayoutPresetAsync(int id, PageLayoutPreset layout);
     
-    Task<(AssignNavOrderOutcome, IEnumerable<AlbumDto>?)> AssignAlbumInNavAsync(int id, int newNavOrder);
+    /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="update-nav-order-async"]/*' />
+    Task<(UpdateNavOrderOutcome, IEnumerable<AlbumDto>)> UpdateNavOrderAsync(int id, int newNavOrder);
     
     Task<(SwapInNavOutcome, IEnumerable<AlbumDto>?)> SwapAlbumsInNavAsync(int albumId1, int albumId2);
     
@@ -54,7 +55,7 @@ public interface IAlbumRepository
         int NavbarOrder = -1
         );
 
-    public enum AssignNavOrderOutcome
+    public enum UpdateNavOrderOutcome
     {
         Success,
         OutOfBounds,

@@ -108,25 +108,24 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
     }
 
     
-    public async Task<(IAlbumRepository.AssignNavOrderOutcome, IEnumerable<IAlbumRepository.AlbumDto>?)> AssignAlbumInNavAsync(int id, int newNavOrder)
+    public async Task<(IAlbumRepository.UpdateNavOrderOutcome, IEnumerable<IAlbumRepository.AlbumDto>)> UpdateNavOrderAsync(int id, int newNavOrder)
     {
-        // TODO explicitly handle case of newNavOrder == -1, with a new AssignNavOrderOutcome. Update docs and tests.
         var albums = await GetNavbarAlbumsOrderedAsync();
-        if (newNavOrder is < -1 or > 4) return (IAlbumRepository.AssignNavOrderOutcome.OutOfBounds, albums.Select(AlbumToDto).ToList());
+        if (newNavOrder is < -1 or > 4) return (IAlbumRepository.UpdateNavOrderOutcome.OutOfBounds, albums.Select(AlbumToDto).ToList());
         var album = await context.Albums.FindAsync(id);
-        if (album == null) return (IAlbumRepository.AssignNavOrderOutcome.NotFound, albums.Select(AlbumToDto).ToList());
-        if (newNavOrder >= 0 && !album.Published) return (IAlbumRepository.AssignNavOrderOutcome.NotPublished, albums.Select(AlbumToDto).ToList());
+        if (album == null) return (IAlbumRepository.UpdateNavOrderOutcome.NotFound, albums.Select(AlbumToDto).ToList());
+        if (newNavOrder >= 0 && !album.Published) return (IAlbumRepository.UpdateNavOrderOutcome.NotPublished, albums.Select(AlbumToDto).ToList());
 
 
         albums.Remove(album);
         if (newNavOrder >= 0)
         {
-            if (albums.Count >= 5) return (IAlbumRepository.AssignNavOrderOutcome.NavbarFull, albums.Select(AlbumToDto).ToList());
+            if (albums.Count >= 5) return (IAlbumRepository.UpdateNavOrderOutcome.NavbarFull, albums.Select(AlbumToDto).ToList());
             albums.Insert(Math.Min(newNavOrder, albums.Count), album);
         }
 
         await SaveNavbarOrderAsync(albums);
-        return (IAlbumRepository.AssignNavOrderOutcome.Success, albums.Select(AlbumToDto).ToList());
+        return (IAlbumRepository.UpdateNavOrderOutcome.Success, albums.Select(AlbumToDto).ToList());
     }
 
     

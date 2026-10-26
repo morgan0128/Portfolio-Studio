@@ -24,8 +24,8 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
         Assert.Equal(-1, albums[0].NavbarOrder);
         Assert.False(albums[0].Published);
         Assert.Equal(PageLayoutPreset.Default, albums[0].LayoutPreset);
-        Assert.Equal(IAlbumRepository.AssignNavOrderOutcome.NotPublished,
-            (await repository.AssignAlbumInNavAsync(albums[0].Id, 0)).Item1);
+        Assert.Equal(IAlbumRepository.UpdateNavOrderOutcome.NotPublished,
+            (await repository.UpdateNavOrderAsync(albums[0].Id, 0)).Item1);
 
         albums[1].NavTitle = "";
         var firstPublished = await repository.PublishAlbumAsync(albums[0].Id, 4);
@@ -58,13 +58,13 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
         foreach (var album in albums)
             Assert.True((await repository.PublishAlbumAsync(album.Id, null))!.Published);
         for (var index = 0; index < 5; index++)
-            Assert.Equal(IAlbumRepository.AssignNavOrderOutcome.Success,
-                (await repository.AssignAlbumInNavAsync(albums[index].Id, index)).Item1);
+            Assert.Equal(IAlbumRepository.UpdateNavOrderOutcome.Success,
+                (await repository.UpdateNavOrderAsync(albums[index].Id, index)).Item1);
 
-        Assert.Equal(IAlbumRepository.AssignNavOrderOutcome.NavbarFull,
-            (await repository.AssignAlbumInNavAsync(albums[5].Id, 0)).Item1);
-        Assert.Equal(IAlbumRepository.AssignNavOrderOutcome.Success,
-            (await repository.AssignAlbumInNavAsync(albums[0].Id, 4)).Item1);
+        Assert.Equal(IAlbumRepository.UpdateNavOrderOutcome.NavbarFull,
+            (await repository.UpdateNavOrderAsync(albums[5].Id, 0)).Item1);
+        Assert.Equal(IAlbumRepository.UpdateNavOrderOutcome.Success,
+            (await repository.UpdateNavOrderAsync(albums[0].Id, 4)).Item1);
         Assert.Equal(IAlbumRepository.SwapInNavOutcome.Success,
             (await repository.SwapAlbumsInNavAsync(albums[0].Id, albums[1].Id)).Item1);
 
@@ -95,11 +95,11 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
         var unpublished = await repository.UnpublishAlbumAsync(albums[0].Id);
         Assert.False(unpublished!.Published);
         Assert.Equal(-1, unpublished.NavbarOrder);
-        Assert.Equal(IAlbumRepository.AssignNavOrderOutcome.Success,
-            (await repository.AssignAlbumInNavAsync(albums[2].Id, -1)).Item1);
+        Assert.Equal(IAlbumRepository.UpdateNavOrderOutcome.Success,
+            (await repository.UpdateNavOrderAsync(albums[2].Id, -1)).Item1);
         Assert.True(albums[2].Published);
-        Assert.Equal(IAlbumRepository.AssignNavOrderOutcome.Success,
-            (await repository.AssignAlbumInNavAsync(albums[2].Id, 1)).Item1);
+        Assert.Equal(IAlbumRepository.UpdateNavOrderOutcome.Success,
+            (await repository.UpdateNavOrderAsync(albums[2].Id, 1)).Item1);
         Assert.True(await new AlbumRepository(context).DeleteAlbumByIdAsync(albums[1].Id));
 
         context.ChangeTracker.Clear();

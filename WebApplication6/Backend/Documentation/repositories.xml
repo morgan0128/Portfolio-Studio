@@ -79,16 +79,99 @@
     </Album>
     
 <!--    TODO: rest of file.   -->
-    <Album name="assign-album-in-nav-async">
+    <Album name="update-nav-order-async">
         <summary>
-            Includes the <c>Album</c> in the Navbar if <paramref name="newNavOrder"/> is positive and adheres to the 
-            bounds constraint of the database, the <c>Album</c> is <c>Published</c>, and the Navbar is not full.
-            Give preference to assigning <c>Album.Order</c> to <paramref name="newNavOrder"/>, but include <c>Album</c>
-            in Navbar even where <paramref name="newNavOrder"/> is occupied if above conditions are met.
+            <para>
+                Includes the <c>Album</c> in the Navbar if <paramref name="newNavOrder"/> is positive and adheres to the
+                Album.Order bounds constraint of the database; the <c>Album</c> is <c>Published</c>; the Navbar is not full.
+                Gives preference to assigning <c>Album.Order</c> to <paramref name="newNavOrder"/>, but include <c>Album</c>
+                in Navbar even where <paramref name="newNavOrder"/> is occupied; if aforementioned conditions are met.
+            </para>
+            <para>
+                Removes the <c>Album</c> from the Navbar if <paramref name="newNavOrder"/> is -1.
+            </para>
+            <para>
+                Navbar ordering is normalized prior to updating <c>Album.Order</c>, and state of Navbar ordering at time 
+                of success is likewise normalized.
+            </para>
         </summary>
+        <param name="id">The value of the primary key <c>Album.Id</c> of the Album to modify Navbar ordering/visibility.</param>
+        <param name="newNavOrder">The <c>Order</c> used to dictate reassignment.</param>
+        <returns>
+            <para>
+                A task that represents the asynchronous operation.
+                The task result contains a tuple, with the first value an <c>UpdateNavOrderOutcome</c> detailing the outcome
+                of the operation, and the second value an <c>IEnumerable</c> depicting the Albums appearing in the Navbar,
+                ordered by <c>Order</c>, as <c>AlbumDto</c>.
+            </para>
+            <list type="bullet">
+                <item>
+                    <c>UpdateNavOrderOutcome.Success</c> to represent that all conditions to modify Navbar order were met,
+                    and <c>Album.Order</c> was successfully updated; regardless of whether updated state is logically equivalent
+                    to the state prior.
+                </item>
+                <item>
+                    <c>UpdateNavOrderOutcome.OutOfBounds</c> to represent that <paramref name="newNavOrder"/> was not 
+                    adherent to the Album.Order bounds constraint; operation canceled.
+                </item>
+                <item>
+                    <c>UpdateNavOrderOutcome.NotPublished</c> to represent that <c>Album</c> was not published at time 
+                    of operation, and as such the operation was canceled; <c>Order</c> of -1, prior to and upon completion 
+                    of operation.
+                </item>
+                <item>
+                    <c>UpdateNavOrderOutcome.NotFound</c> to represent that <c>Album</c> of <paramref name="id"/> was not 
+                    found; operation canceled.
+                </item>
+                <item>
+                    <c>UpdateNavOrderOutcome.NavbarFull</c> to represent that, in an operation where <c>Album</c> not 
+                    in Navbar is to be added to Navbar, according to <paramref name="newNavOrder"/>: the operation was
+                    canceled as the Navbar is already full.
+                </item>
+            </list>
+        </returns>
+        <remarks>
+            <para>
+                <include file="../Documentation/Properties/navbar-and-order.xml" path='NavbarAndOrder/Backend[@name="assumptions"]/*' />
+            </para>
+            <para>
+                <include file="../Documentation/Properties/navbar-and-order.xml" path='NavbarAndOrder/Database[@name="constraints"]/*' />
+            </para>
+        </remarks>
     </Album>
     
     <Album name="swap-albums-in-nav-async">
+        <summary>
+            <para>
+                Swaps <c>Album.Order</c> of two Albums appearing in the Navbar.
+            </para>
+            <para>
+                No Navbar ordering normalization occurs.
+            </para>
+        </summary>
+        <returns>
+            <para>
+                A task that represents the asynchronous operation.
+                The task result contains a tuple, with the first value a <c>SwapInNavOutcome</c> detailing the outcome
+                of the operation, and the second value an <c>IEnumerable</c> depicting the Albums appearing in the Navbar,
+                ordered by <c>Order</c>, as <c>AlbumDto</c>.
+            </para>
+            <list type="bullet">
+                <item>
+                    <c>SwapInNavOutcome.Success</c> to represent that both individual Albums were found, in 
+                    Navbar, and their Orders were swapped successfully.
+                </item>
+            </list>
+
+        </returns>
+        <remarks>
+            <para>
+                <include file="../Documentation/Properties/navbar-and-order.xml" path='NavbarAndOrder/Backend[@name="assumptions"]/*' />
+            </para>
+            <para>
+                <include file="../Documentation/Properties/navbar-and-order.xml" path='NavbarAndOrder/Database[@name="constraints"]/*' />
+            </para>
+        </remarks>
     </Album>
     
     <Album name="get-published-nav-excluded-albums-async">
