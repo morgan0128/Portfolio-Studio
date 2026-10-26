@@ -16,6 +16,16 @@ type RowMetrics = { width: number; rootFont: number; viewportHeight: number };
 type PortfolioRow =
   | { kind: 'photos'; key: string; photos: SizedPhoto[]; width: number | null; gap: number }
   | { kind: 'collection'; key: string; item: PhotoDisplayCollectionItem; width: number | null };
+type PhotoRowPlan = {
+  singletons: number;
+  tailSingleton: boolean;
+  sparsePairs: number;
+  rows: number;
+  raggedness: number;
+  count: number;
+  width: number;
+  gap: number;
+};
 
 
 @Component({
@@ -120,12 +130,24 @@ export class PortfolioPageDefault implements OnInit, AfterViewInit, OnDestroy {
       : Math.min(available, maxHeight);
   }
 
+  private preferPhotoPlan(candidate: PhotoRowPlan, current: PhotoRowPlan | null): boolean {
+    if (current === null) return true;
+    if (candidate.singletons !== current.singletons) return candidate.singletons < current.singletons;
+    if (candidate.tailSingleton !== current.tailSingleton) return !candidate.tailSingleton;
+    if (candidate.sparsePairs !== current.sparsePairs) return candidate.sparsePairs < current.sparsePairs;
+    if (candidate.rows !== current.rows) return candidate.rows < current.rows;
+    if (Math.abs(candidate.raggedness - current.raggedness) > 1e-9) {
+      return candidate.raggedness < current.raggedness;
+    }
+    return candidate.count > current.count;
+  }
+
   private buildRows(items: AlbumItemDto[], metrics: RowMetrics): PortfolioRow[] {
     const rows: PortfolioRow[] = [];
     const run: PhotoDisplayItem[] = [];
     const available = metrics.width;
 
-    const flushRun = () => {
+    const flushRun = (isAlbumTail = false) => {
       const photos: SizedPhoto[] = run.map(item => {
         const image = item.content.photo.image;
         const width = available <= 0 ? null : image
@@ -134,31 +156,55 @@ export class PortfolioPageDefault implements OnInit, AfterViewInit, OnDestroy {
         return { item, width };
       });
 
-      for (let start = 0; start < photos.length;) {
-        let end = start + 1;
-        let rowWidth = photos[start].width;
-        let rowGap = 0;
-        let sum = photos[start].width ?? 0;
-
-        if (available > 0) {
-          for (let next = start + 1; next < photos.length; next++) {
-            sum += photos[next].width ?? 0;
-            const count = next - start + 1;
-            const gap = Math.min(available * 0.025, (sum / count) * 0.08);
-            const candidateWidth = sum + (count - 1) * gap;
-            if (candidateWidth > available) break;
-            // Sparse pairs remain separate; larger adjacent groups can form a centered, narrower row.
-            if (count >= 3 || candidateWidth >= available * 0.95) {
-              end = next + 1;
-              rowWidth = candidateWidth;
-              rowGap = gap;
-            }
-          }
+      if (available <= 0) {
+        for (const photo of photos) {
+          rows.push({ kind: 'photos', key: `photo-${photo.item.id}`, photos: [photo], width: photo.width, gap: 0 });
         }
+        run.length = 0;
+        return;
+      }
 
-        const group = photos.slice(start, end);
-        rows.push({ kind: 'photos', key: `photo-${group[0].item.id}`, photos: group, width: rowWidth, gap: rowGap });
-        start = end;
+      const plans = new Array<PhotoRowPlan>(photos.length + 1);
+      plans[photos.length] = {
+        singletons: 0, tailSingleton: false, sparsePairs: 0, rows: 0,
+        raggedness: 0, count: 0, width: 0, gap: 0
+      };
+
+      // Compare complete remaining runs so a full row does not strand one or two photos at the end.
+      for (let start = photos.length - 1; start >= 0; start--) {
+        let sum = 0;
+        let best: PhotoRowPlan | null = null;
+        for (let end = start + 1; end <= photos.length; end++) {
+          sum += photos[end - 1].width ?? 0;
+          if (sum > available) break;
+
+          const count = end - start;
+          const gap = count > 1 ? Math.min(available * 0.025, (sum / count) * 0.08) : 0;
+          const width = sum + (count - 1) * gap;
+          if (width > available) continue;
+          // A lone sparse pair before a collection keeps its separate presentation.
+          if (count === 2 && width < available * 0.95 && photos.length === 2 && !isAlbumTail) continue;
+
+          const remaining = plans[end];
+          const slack = (available - width) / available;
+          const candidate: PhotoRowPlan = {
+            singletons: remaining.singletons + (count === 1 ? 1 : 0),
+            tailSingleton: end === photos.length ? count === 1 : remaining.tailSingleton,
+            sparsePairs: remaining.sparsePairs + (count === 2 && width < available * 0.95 ? 1 : 0),
+            rows: remaining.rows + 1,
+            raggedness: remaining.raggedness + slack * slack,
+            count, width, gap
+          };
+          if (this.preferPhotoPlan(candidate, best)) best = candidate;
+        }
+        plans[start] = best!;
+      }
+
+      for (let start = 0; start < photos.length;) {
+        const plan = plans[start];
+        const group = photos.slice(start, start + plan.count);
+        rows.push({ kind: 'photos', key: `photo-${group[0].item.id}`, photos: group, width: plan.width, gap: plan.gap });
+        start += plan.count;
       }
       run.length = 0;
     };
@@ -171,7 +217,7 @@ export class PortfolioPageDefault implements OnInit, AfterViewInit, OnDestroy {
         rows.push({ kind: 'collection', key: `collection-${item.id}`, item, width: null });
       }
     }
-    flushRun();
+    flushRun(true);
 
     const captionRowHeight = Math.min(7.5 * metrics.rootFont,
       Math.max(5.5 * metrics.rootFont, metrics.viewportHeight * 0.12));

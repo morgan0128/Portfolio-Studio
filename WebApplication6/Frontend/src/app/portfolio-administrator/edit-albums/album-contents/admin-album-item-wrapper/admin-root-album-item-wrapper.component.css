@@ -1,27 +1,165 @@
+:host {
+  display: block;
+  min-width: 0;
+  container-type: inline-size;
+}
+
 .admin-root-item-wrapper {
-  border: 1px solid black;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid #91aaa1;
+  border-radius: 10px;
+  background: var(--surface, #fff);
+  box-shadow: 0 2px 8px rgb(32 43 45 / 8%);
 }
 
 .admin-wrapper-buttons {
-  width: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px 14px;
+  margin: 10px;
+  padding: 12px 14px;
+  border: 1px solid #91aaa1;
+  border-top: 3px solid var(--accent, #2f675e);
+  border-radius: 8px;
+  background: #e5ede9;
+  box-shadow: 0 1px 3px rgb(32 43 45 / 8%);
+}
 
-  p {
-    padding: 0;
-    margin: 0.3rem;
-  }
+.photo-editing,
+.reordering,
+.photo-collection-grouping {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
 
-  div {
-    width: 100%;
-    display: inline-flex;
-    /*border: 1px solid black;*/
-  }
+.reordering { justify-self: center; }
+.photo-collection-grouping { justify-content: flex-end; }
 
-  .reordering {
-    justify-content: space-between;
-  }
+.admin-wrapper-buttons p {
+  margin: 0;
+  color: var(--muted, #6b7779);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
 
-  .photo-collection-grouping {
-    justify-content: left;
-  }
+.admin-wrapper-buttons .reordering p {
+  color: var(--text, #202b2d);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
 
+.admin-wrapper-buttons button {
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--border, #dce4e1);
+  border-radius: 6px;
+  color: var(--text, #202b2d);
+  background: var(--surface, #fff);
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 150ms, border-color 150ms, color 150ms;
+}
+
+.admin-wrapper-buttons button:hover:not(:disabled) {
+  border-color: #b8d0ca;
+  background: var(--accent-soft, #e7f0ed);
+}
+
+.admin-wrapper-buttons button:focus-visible {
+  outline: 2px solid var(--accent, #2f675e);
+  outline-offset: 3px;
+}
+
+.admin-wrapper-buttons button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.admin-wrapper-buttons .photo-display-edit {
+  border-color: var(--accent, #2f675e);
+  color: #fff;
+  background: var(--accent, #2f675e);
+}
+
+.admin-wrapper-buttons .photo-display-edit:hover:not(:disabled) {
+  border-color: var(--accent-dark, #24534c);
+  background: var(--accent-dark, #24534c);
+}
+
+.reordering button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  flex-shrink: 0;
+  padding: 0;
+  border-color: #91aaa1;
+  color: var(--accent-dark, #24534c);
+}
+
+.reordering svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.admin-wrapper-buttons .item-remove,
+.admin-wrapper-buttons .collection-dissolve {
+  border-color: #a31d26;
+  color: #fff;
+  background: #b4232c;
+  font-weight: 700;
+  box-shadow: 0 1px 2px rgb(105 20 28 / 16%);
+}
+
+.admin-wrapper-buttons .item-remove:hover:not(:disabled),
+.admin-wrapper-buttons .collection-dissolve:hover:not(:disabled) {
+  border-color: #7d1720;
+  background: #921b23;
+}
+
+.admin-wrapper-buttons .item-remove:focus-visible,
+.admin-wrapper-buttons .collection-dissolve:focus-visible {
+  outline-color: #b4232c;
+}
+
+.admin-wrapper-buttons .grouping-toggle { color: var(--accent, #2f675e); }
+.admin-wrapper-buttons .is-included { background: var(--accent-soft, #e7f0ed); }
+.grouping-active { grid-template-columns: auto minmax(0, 1fr); }
+.grouping-active .reordering { justify-self: end; }
+
+.grouping-active .photo-collection-grouping {
+  grid-column: 1 / -1;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid #b5c6be;
+}
+
+@container (max-width: 440px) {
+  .admin-wrapper-buttons { grid-template-columns: auto minmax(0, 1fr); }
+  .reordering { justify-self: end; }
+  .photo-collection-grouping { grid-column: 1 / -1; }
+}
+
+@container (max-width: 300px) {
+  .admin-wrapper-buttons { grid-template-columns: minmax(0, 1fr); padding: 12px; }
+  .photo-editing button, .photo-collection-grouping button { width: 100%; white-space: normal; }
+  .reordering { width: 100%; justify-content: space-between; }
+  .photo-collection-grouping { flex-wrap: wrap; }
 }
