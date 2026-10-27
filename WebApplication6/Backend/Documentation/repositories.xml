@@ -78,7 +78,6 @@
         </returns>
     </Album>
     
-<!--    TODO: rest of file.   -->
     <Album name="update-nav-order-async">
         <summary>
             <para>
@@ -91,8 +90,9 @@
                 Removes the <c>Album</c> from the Navbar if <paramref name="newNavOrder"/> is -1.
             </para>
             <para>
-                Navbar ordering is normalized prior to updating <c>Album.Order</c>, and state of Navbar ordering at time 
-                of success is likewise normalized.
+                The state of the Navbar ordering is treated as contiguous and beginning at index (Order) 0 prior to 
+                modifying any states. Upon returning with <c>UpdateNavOrderOutcome.Success</c>, the state of Navbar 
+                ordering <i>is</i> contiguously sequenced beginning at index (Order) 0.
             </para>
         </summary>
         <param name="id">The value of the primary key <c>Album.Id</c> of the Album to modify Navbar ordering/visibility.</param>
@@ -112,21 +112,21 @@
                 </item>
                 <item>
                     <c>UpdateNavOrderOutcome.OutOfBounds</c> to represent that <paramref name="newNavOrder"/> was not 
-                    adherent to the Album.Order bounds constraint; operation canceled.
+                    adherent to the Album.Order bounds constraint; operation cancelled.
                 </item>
                 <item>
                     <c>UpdateNavOrderOutcome.NotPublished</c> to represent that <c>Album</c> was not published at time 
-                    of operation, and as such the operation was canceled; <c>Order</c> of -1, prior to and upon completion 
+                    of operation, and as such the operation was cancelled; <c>Order</c> of -1, prior to and upon completion 
                     of operation.
                 </item>
                 <item>
                     <c>UpdateNavOrderOutcome.NotFound</c> to represent that <c>Album</c> of <paramref name="id"/> was not 
-                    found; operation canceled.
+                    found; operation cancelled.
                 </item>
                 <item>
                     <c>UpdateNavOrderOutcome.NavbarFull</c> to represent that, in an operation where <c>Album</c> not 
                     in Navbar is to be added to Navbar, according to <paramref name="newNavOrder"/>: the operation was
-                    canceled as the Navbar is already full.
+                    cancelled as the Navbar is already full.
                 </item>
             </list>
         </returns>
@@ -142,13 +142,11 @@
     
     <Album name="swap-albums-in-nav-async">
         <summary>
-            <para>
-                Swaps <c>Album.Order</c> of two Albums appearing in the Navbar.
-            </para>
-            <para>
-                No Navbar ordering normalization occurs.
-            </para>
+            Swaps <c>Album.Order</c> of two Albums. Both Albums to-swap must be included within the Navbar, within the 
+            state present at the time method is called.
         </summary>
+        <param name="albumId1">The primary key <c>Id</c> of one of the two distinct Albums to swap.</param>
+        <param name="albumId2">The primary key <c>Id</c> of one of the two distinct Albums to swap.</param>
         <returns>
             <para>
                 A task that represents the asynchronous operation.
@@ -161,8 +159,15 @@
                     <c>SwapInNavOutcome.Success</c> to represent that both individual Albums were found, in 
                     Navbar, and their Orders were swapped successfully.
                 </item>
+                <item>
+                    <c>SwapInNavOutcome.IgnoredSwapInPlace</c> to represent that 
+                    <paramref name="albumId1"/> == <paramref name="albumId2"/>.
+                </item>
+                <item>
+                    <c>SwapInNavOutcome.NotFoundInNav</c> to represent that one or both of the Albums to-swap 
+                    were not found in the Navbar.
+                </item>
             </list>
-
         </returns>
         <remarks>
             <para>
@@ -175,12 +180,33 @@
     </Album>
     
     <Album name="get-published-nav-excluded-albums-async">
+        <summary>
+            Retrieves every <c>Album</c> which is <c>Published</c> and not included in the Navbar.
+        </summary>
+        <returns>
+            A task that represents the asynchronous operation.
+            The task result contains an <c>IEnumerable</c> of the retrieved Albums, 
+            with each <c>Album</c> depicted as <c>AlbumDto</c>.
+        </returns>
+        <remarks>
+            <para>
+                <include file="../Documentation/Properties/navbar-and-order.xml" path='NavbarAndOrder/Backend[@name="assumptions"]/*' />
+            </para>
+            <para>
+                <include file="../Documentation/Properties/navbar-and-order.xml" path='NavbarAndOrder/Database[@name="constraints"]/*' />
+            </para>
+        </remarks>
     </Album>
     
     <Album name="get-nav-included-albums-async">
         <summary>
             Retrieves all Albums that are included in the Navbar (strictly), ordered by <c>Album.Order</c> (ascending).
         </summary>
+        <returns>
+            A task that represents the asynchronous operation.
+            The task result contains an <c>IEnumerable</c> of the retrieved Albums,
+            with each <c>Album</c> depicted as <c>AlbumDto</c>.
+        </returns>
         <remarks>
             <para>
                 <include file="../Documentation/Properties/navbar-and-order.xml" path='NavbarAndOrder/Backend[@name="assumptions"]/*' />
@@ -192,30 +218,89 @@
     </Album>
 
     <Album name="publish-album-async">
+        <summary>
+            <para>
+                Sets <c>Album.Published</c> to true, and includes the <c>Album</c> in the Navbar if <paramref name="navOrder"/>
+                is within the bounds of Order indices where an <c>Album</c> is considered to be included in the Navbar and
+                the Navbar is not already full.
+            </para> 
+            <para>
+                If the aforementioned properties apply with an indicated <paramref name="navOrder"/>: 
+                if, treating the Navbar ordering as contiguous and indexed beginning at <c>Order</c> 0, 
+                <paramref name="navOrder"/> is logically occupied by another <c>Album</c>, the <c>Album</c> to be 
+                published is appended to the Navbar ordering.
+            </para>
+            <para>
+                If the aforementioned properties are not adhered to by an indicated <paramref name="navOrder"/>, or if 
+                no <paramref name="navOrder"/> is indicated, the <c>Album</c> is still published.
+            </para>
+            <para>
+                Where the operation is completed (no exception thrown and the returned task does not contain <c>null</c>) 
+                the <c>Album</c> to be published is assigned some non-empty <c>Album.NavTitle</c> if its existing 
+                <c>Album.NavTitle</c> is empty (empty; null or whitespace).
+            </para>
+        </summary>
+        <param name="id">The primary key <c>Id</c> of the <c>Album</c> to be published.</param>
+        <param name="navOrder">The optionally supplied Navbar ordering index which may be used to indicate 
+        preference to include the <c>Album</c> in the Navbar, and preference for the index at which to assign the 
+        <c>Album</c> in the Navbar ordering.
+        </param>
+        <returns>
+            A task that represents the asynchronous operation.
+            The task result contains the <c>Album</c> of <paramref name="id"/> depicted as <c>AlbumDto</c> if found and operation completed, 
+            or <c>null</c> if no <c>Album</c> of <paramref name="id"/> was found; the operation was cancelled.
+        </returns>
+        <remarks>
+            <para>
+                <include file="../Documentation/Properties/navbar-and-order.xml" path='NavbarAndOrder/Backend[@name="assumptions"]/*' />
+            </para>
+            <para>
+                <include file="../Documentation/Properties/navbar-and-order.xml" path='NavbarAndOrder/Database[@name="constraints"]/*' />
+            </para>
+        </remarks>
     </Album>
 
     <Album name="unpublish-album-async">
+        <summary>
+            Sets <c>Album.Published</c> to false, and <c>Album.Order</c> to -1: as to satisfy database constraints and 
+            to indicate that the <c>Album</c> is not included in the Navbar. At time of completion, where the operation 
+            was not cancelled: guarantees that the state of Navbar ordering is contiguously indexed, beginning at <c>Order</c> 0.
+        </summary>
+        <param name="id">The primary key <c>Id</c> of the <c>Album</c> to be published.</param>
+        <returns>
+            A task that represents the asynchronous operation.
+            The task result contains the <c>Album</c> of <paramref name="id"/> depicted as <c>AlbumDto</c> if found and operation completed,
+            or <c>null</c> if no <c>Album</c> of <paramref name="id"/> was found; the operation was cancelled.
+        </returns>
+        <remarks>
+            <para>
+                <include file="../Documentation/Properties/navbar-and-order.xml" path='NavbarAndOrder/Backend[@name="assumptions"]/*' />
+            </para>
+            <para>
+                <include file="../Documentation/Properties/navbar-and-order.xml" path='NavbarAndOrder/Database[@name="constraints"]/*' />
+            </para>
+        </remarks>
     </Album>
     
     
-
-    <AlbumItem name="save-photo-display-async">
-        <summary>
-            Inserts new <c>AlbumItem</c> of child class <c>PhotoDisplay</c>, initialized at root level of <c>Album</c>
-            with highest <c>AlbumItem.Order</c> among all root level AlbumItems of <c>Album</c>.
-        </summary>
-        <remarks>
-            An AlbumItem which belongs to no Collection (that is, <c>AlbumItem.CollectionId == null</c>) is considered
-            to be at <b>root level</b> of <c>Album</c>.
-        </remarks>
-        <param name="albumId">The primary key of the <c>Album</c> to save new AlbumItem to.</param>
-        <param name="photoId">The primary key of the <c>Photo</c> to associate with this PhotoDisplay.</param>
-        <param name="cancellationToken">Optionally may pass CancellationToken. If none specified, uses <c>default</c>.</param>
-        <returns>
-            true on success and false on cases of failures not resulting in an <c>Exception</c> being thrown.
-        </returns>
-        <exception cref="DbUpdateException">
-            <i>May</i> be propagated when upon encountering <c>DbUpdateException</c> while attempting Database insertion.
-        </exception>
-    </AlbumItem>
+<!--TODO-->
+<!--    <AlbumItem name="save-photo-display-async">-->
+<!--        <summary>-->
+<!--            Inserts new <c>AlbumItem</c> of child class <c>PhotoDisplay</c>, initialized at root level of <c>Album</c>-->
+<!--            with highest <c>AlbumItem.Order</c> among all root level AlbumItems of <c>Album</c>.-->
+<!--        </summary>-->
+<!--        <remarks>-->
+<!--            An AlbumItem which belongs to no Collection (that is, <c>AlbumItem.CollectionId == null</c>) is considered-->
+<!--            to be at <b>root level</b> of <c>Album</c>.-->
+<!--        </remarks>-->
+<!--        <param name="albumId">The primary key of the <c>Album</c> to save new AlbumItem to.</param>-->
+<!--        <param name="photoId">The primary key of the <c>Photo</c> to associate with this PhotoDisplay.</param>-->
+<!--        <param name="cancellationToken">Optionally may pass CancellationToken. If none specified, uses <c>default</c>.</param>-->
+<!--        <returns>-->
+<!--            true on success and false on cases of failures not resulting in an <c>Exception</c> being thrown.-->
+<!--        </returns>-->
+<!--        <exception cref="DbUpdateException">-->
+<!--            <i>May</i> be propagated when upon encountering <c>DbUpdateException</c> while attempting Database insertion.-->
+<!--        </exception>-->
+<!--    </AlbumItem>-->
 </Repositories>

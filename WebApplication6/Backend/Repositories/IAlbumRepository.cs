@@ -33,15 +33,19 @@ public interface IAlbumRepository
     /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="update-nav-order-async"]/*' />
     Task<(UpdateNavOrderOutcome, IEnumerable<AlbumDto>)> UpdateNavOrderAsync(int id, int newNavOrder);
     
+    /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="swap-albums-in-nav-async"]/*' />
     Task<(SwapInNavOutcome, IEnumerable<AlbumDto>?)> SwapAlbumsInNavAsync(int albumId1, int albumId2);
     
+    /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="get-published-nav-excluded-albums-async"]/*' />
     Task<IEnumerable<AlbumDto>> GetPublishedNavExcludedAlbumsAsync();
     
     /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="get-nav-included-albums-async"]/*' />
     Task<IEnumerable<AlbumDto>> GetNavIncludedAlbumsAsync();
     
+    /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="publish-album-async"]/*' />
     Task<AlbumDto?> PublishAlbumAsync(int id, int? navOrder);
     
+    /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="unpublish-album-async"]/*' />
     Task<AlbumDto?> UnpublishAlbumAsync(int id);
 
     
