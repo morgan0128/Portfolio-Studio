@@ -2,6 +2,8 @@
   <ol>
     @if (selectedMayBeAdded()){
       <button (click)="navInsertSelectedAtOrder.emit(0)">add</button>
+    } @else if (selectedMayBePublishedThenAdded()){
+      <button (click)="navPublishThenInsertSelectedAtOrder.emit(0)">publish and add</button>
     }
     @for (n of navbarItems(); track n.id){
       @if (n.published){
@@ -16,6 +18,8 @@
         </li>
         @if (selectedMayBeAdded()){
           <button (click)="navInsertSelectedAtOrder.emit(n.navbarOrder + 1)">add</button>
+        } @else if (selectedMayBePublishedThenAdded()){
+          <button (click)="navPublishThenInsertSelectedAtOrder.emit(n.navbarOrder + 1)">publish and add</button>
         }
       }
     }

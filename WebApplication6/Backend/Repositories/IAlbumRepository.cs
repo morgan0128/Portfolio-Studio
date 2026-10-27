@@ -34,7 +34,7 @@ public interface IAlbumRepository
     Task<(UpdateNavOrderOutcome, IEnumerable<AlbumDto>)> UpdateNavOrderAsync(int id, int newNavOrder);
     
     /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="swap-albums-in-nav-async"]/*' />
-    Task<(SwapInNavOutcome, IEnumerable<AlbumDto>?)> SwapAlbumsInNavAsync(int albumId1, int albumId2);
+    Task<(SwapInNavOutcome, IEnumerable<AlbumDto>)> SwapAlbumsInNavAsync(int albumId1, int albumId2);
     
     /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="get-published-nav-excluded-albums-async"]/*' />
     Task<IEnumerable<AlbumDto>> GetPublishedNavExcludedAlbumsAsync();
@@ -43,7 +43,7 @@ public interface IAlbumRepository
     Task<IEnumerable<AlbumDto>> GetNavIncludedAlbumsAsync();
     
     /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="publish-album-async"]/*' />
-    Task<AlbumDto?> PublishAlbumAsync(int id, int? navOrder);
+    Task<(PublishAlbumOutcome, AlbumDto?)> PublishAlbumAsync(int id, int? navOrder);
     
     /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="unpublish-album-async"]/*' />
     Task<AlbumDto?> UnpublishAlbumAsync(int id);
@@ -58,6 +58,14 @@ public interface IAlbumRepository
         PageLayoutPreset LayoutPreset = PageLayoutPreset.Default,
         int NavbarOrder = -1
         );
+
+    public enum PublishAlbumOutcome
+    {
+        NavExcludedSuccess,
+        NavIncludedSuccess,
+        AlbumAlreadyPublished,
+        NotFound
+    }
 
     public enum UpdateNavOrderOutcome
     {

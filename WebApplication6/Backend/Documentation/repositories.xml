@@ -222,39 +222,75 @@
             </para>
         </remarks>
     </Album>
-
+    
     <Album name="publish-album-async">
         <summary>
             <para>
-                Sets <c>Album.Published</c> to true, and includes the <c>Album</c> in the Navbar if <paramref name="navOrder"/>
-                is within the bounds of NavbarOrder indices where an <c>Album</c> is considered to be included in the Navbar and
-                the Navbar is not already full.
+                Sets <c>Album.Published</c> to true, and additionally may assign a position for <c>Album</c> in the Navbar.
             </para> 
             <para>
-                If the aforementioned properties apply with an indicated <paramref name="navOrder"/>: 
-                if, treating the Navbar ordering as contiguous and indexed beginning at <c>NavbarOrder</c> 0, 
-                <paramref name="navOrder"/> is logically occupied by another <c>Album</c>, the <c>Album</c> to be 
-                published is appended to the Navbar ordering.
+                If the <c>Album</c> is not published and <paramref name="navOrder"/> is provided, is within the 
+                bounds of the 'Navbar-included' indices, and the Navbar is not already full:
+                with treating the existing relative NavbarOrdering logically as contiguous and indexed beginning at 
+                <c>NavbarOrder</c> 0, the <c>Album</c> is inserted at <paramref name="navOrder"/>, with each and every 
+                <c>Album</c> of logical <c>NavbarOrder</c> index greater than or equal to <paramref name="navOrder"/> 
+                shifted up by 1 index.
             </para>
             <para>
-                If the aforementioned properties are not adhered to by an indicated <paramref name="navOrder"/>, or if 
-                no <paramref name="navOrder"/> is indicated, the <c>Album</c> is still published.
+                If the <c>Album</c> is not Published, and the aforementioned properties with regard to an indicated 
+                <paramref name="navOrder"/> are not adhered to or if no <paramref name="navOrder"/> is indicated, 
+                the <c>Album</c> is still to be published and the method is to follow an operation-success path.
             </para>
             <para>
-                Where the operation is completed (no exception thrown and the returned task does not contain <c>null</c>) 
-                the <c>Album</c> to be published is assigned some non-empty <c>Album.NavTitle</c> if its existing 
-                <c>Album.NavTitle</c> is empty (empty; null or whitespace).
+                If the <c>Album</c> is already published, no changes occur; this method is not to be used to assign 
+                NavbarOrdering for already published Albums.
+            </para>
+            <para>
+                Where the operation is completed <b>successfully</b>:
+                <list type="table">
+                    <item>
+                        The published <c>Album</c> is assigned some non-empty <c>Album.NavTitle</c> if its prior
+                        <c>Album.NavTitle</c> was empty (empty; null or whitespace).
+                    </item>
+                    <item>
+                        The state of the NavbarOrdering is contiguously indexed, beginning at <c>NavbarOrder</c> 0.
+                    </item>
+                </list>
             </para>
         </summary>
         <param name="id">The primary key <c>Id</c> of the <c>Album</c> to be published.</param>
-        <param name="navOrder">The optionally supplied Navbar ordering index which may be used to indicate 
-        preference to include the <c>Album</c> in the Navbar, and preference for the index at which to assign the 
-        <c>Album</c> in the Navbar ordering.
+        <param name="navOrder">The optionally supplied NavbarOrdering logical index to assign the <c>Album</c> to,
+            as applicable.
         </param>
         <returns>
-            A task that represents the asynchronous operation.
-            The task result contains the <c>Album</c> of <paramref name="id"/> depicted as <c>AlbumDto</c> if found and operation completed, 
-            or <c>null</c> if no <c>Album</c> of <paramref name="id"/> was found; the operation was cancelled.
+            <para>
+                A task that represents the asynchronous operation.
+                The task result contains a tuple, with the first value a <c>PublishAlbumOutcome</c> detailing the outcome
+                of the operation, and the second value the <c>Album</c> of <paramref name="id"/> depicted as 
+                <c>AlbumDto</c> if found (null if not found).
+            </para>
+            <list type="bullet">
+                <item>
+                    <c>PublishAlbumOutcome.NavExcludedSuccess</c> and <c>PublishAlbumOutcome.NavIncludedSuccess</c>, 
+                    to indicate that the operation was <b>successful</b>: the <c>Album</c> was Published and the 
+                    <c>Album</c> was assigned some non-empty <c>Album.NavTitle</c> if prior <c>Album.NavTitle</c> 
+                    was empty (empty; null or whitespace).
+                </item>
+                <item>
+                    <c>PublishAlbumOutcome.NavExcludedSuccess</c> indicates that, in addition to the operation being
+                    <b>successful</b>, the <c>Album</c> is not included in the Navbar at the time of operation completion.
+                </item>
+                    <c>PublishAlbumOutcome.NavIncludedSuccess</c> indicates that, in addition to the operation being
+                    <b>successful</b>, the <c>Album</c> is included in the Navbar at the time of the operation's completion.
+                <item>
+                    <c>PublishAlbumOutcome.AlbumAlreadyPublished</c> to indicate that the <c>Album</c> was already published 
+                    and as such the operation was cancelled.
+                </item>
+                <item>
+                    <c>PublishAlbumOutcome.NotFound</c> to indicate that the <c>Album</c> was not found 
+                    and as such the operation was cancelled.
+                </item>
+            </list>
         </returns>
         <remarks>
             <para>

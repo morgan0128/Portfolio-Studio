@@ -16,9 +16,11 @@ export class AdminPreviewNavbar {
   public readonly reorderGlows = input<Record<number, number>>({});
 
   public readonly selectedMayBeAdded = input.required<boolean>();
+  public readonly selectedMayBePublishedThenAdded = input.required<boolean>();
 
   public readonly removeFromNavRequest = output<number>();
   public readonly reorderInNavForwardRequest = output<number>();
   public readonly reorderInNavBackwardRequest = output<number>();
   public readonly navInsertSelectedAtOrder = output<number>();
+  public readonly navPublishThenInsertSelectedAtOrder = output<number>();
 }

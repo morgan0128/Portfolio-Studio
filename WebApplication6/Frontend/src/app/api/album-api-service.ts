@@ -150,11 +150,11 @@ export class CreateAlbumRequest {
 }
 
 export class AlbumVisibilityRequest {
-  published: boolean;
+  publish: boolean;
   navOrder: number | null;
 
-  constructor(published: boolean, navOrder: number | null = null){
-    this.published = published;
+  constructor(publish: boolean, navOrder: number | null = null){
+    this.publish = publish;
     this.navOrder = navOrder;
   }
 }

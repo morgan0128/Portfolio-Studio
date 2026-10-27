@@ -134,7 +134,7 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
     }
 
     
-    public async Task<(IAlbumRepository.SwapInNavOutcome, IEnumerable<IAlbumRepository.AlbumDto>?)> SwapAlbumsInNavAsync(int albumId1, int albumId2)
+    public async Task<(IAlbumRepository.SwapInNavOutcome, IEnumerable<IAlbumRepository.AlbumDto>)> SwapAlbumsInNavAsync(int albumId1, int albumId2)
     {
         await using var transaction = await BeginNavbarTransactionAsync();
         var albums = await GetNavbarAlbumsOrderedAsync();
@@ -160,15 +160,14 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
             .OrderBy(album => album.NavbarOrder).Select(ToDto).ToListAsync();
 
     
-    public async Task<IAlbumRepository.AlbumDto?> PublishAlbumAsync(int id, int? navOrder)
+    public async Task<(IAlbumRepository.PublishAlbumOutcome, IAlbumRepository.AlbumDto?)> PublishAlbumAsync(int id, int? navOrder)
     {
         await using var transaction = await BeginNavbarTransactionAsync();
         var album = await context.Albums.FindAsync(id);
-        if (album == null) return null;
+        if (album == null) return (IAlbumRepository.PublishAlbumOutcome.NotFound, null);
         if (album.Published)
         {
-            await transaction.CommitAsync();
-            return AlbumToDto(album);
+            return (IAlbumRepository.PublishAlbumOutcome.AlbumAlreadyPublished, AlbumToDto(album));
         }
 
         var albums = await GetNavbarAlbumsOrderedAsync();
@@ -188,7 +187,10 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
         album.Published = true;
         await SaveNavbarOrderAsync(albums);
         await transaction.CommitAsync();
-        return AlbumToDto(album);
+        var successOutcome = album.NavbarOrder == -1
+            ? IAlbumRepository.PublishAlbumOutcome.NavExcludedSuccess
+            : IAlbumRepository.PublishAlbumOutcome.NavIncludedSuccess;
+        return (successOutcome, AlbumToDto(album));
     }
 
     

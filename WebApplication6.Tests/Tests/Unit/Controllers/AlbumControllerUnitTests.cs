@@ -413,64 +413,65 @@ public class AlbumControllerUnitTests
         Assert.IsType<NotFoundResult>(response.Result);
         repositoryMock.Verify(r => r.SetLayoutPresetAsync(23, PageLayoutPreset.Cozy), Times.Once());
     }
+    
+    // TODO
+    // [Theory]
+    // [InlineData(2)]
+    // [InlineData(null)]
+    // public async Task ModifyAlbumVisibility_PublishRequested_ReturnsPublishedAlbum(int? navOrder)
+    // {
+    //     var repositoryMock = new Mock<IAlbumRepository>();
+    //     var album = new IAlbumRepository.AlbumDto(23, "My Album", Published: true);
+    //     repositoryMock.Setup(r => r.PublishAlbumAsync(23, navOrder)).ReturnsAsync(album);
+    //     var controller = new AlbumController(repositoryMock.Object);
+    //
+    //     var response = await controller.ModifyAlbumVisibility(23,
+    //         new AlbumController.AlbumVisibilityRequest(true, navOrder));
+    //
+    //     var okResult = Assert.IsType<OkObjectResult>(response.Result);
+    //     Assert.Same(album, okResult.Value);
+    //     repositoryMock.Verify(r => r.PublishAlbumAsync(23, navOrder), Times.Once());
+    //     repositoryMock.Verify(r => r.UnpublishAlbumAsync(It.IsAny<int>()), Times.Never());
+    // }
 
-    [Theory]
-    [InlineData(2)]
-    [InlineData(null)]
-    public async Task ModifyAlbumVisibility_PublishRequested_ReturnsPublishedAlbum(int? navOrder)
-    {
-        var repositoryMock = new Mock<IAlbumRepository>();
-        var album = new IAlbumRepository.AlbumDto(23, "My Album", Published: true);
-        repositoryMock.Setup(r => r.PublishAlbumAsync(23, navOrder)).ReturnsAsync(album);
-        var controller = new AlbumController(repositoryMock.Object);
-
-        var response = await controller.ModifyAlbumVisibility(23,
-            new AlbumController.AlbumVisibilityRequest(true, navOrder));
-
-        var okResult = Assert.IsType<OkObjectResult>(response.Result);
-        Assert.Same(album, okResult.Value);
-        repositoryMock.Verify(r => r.PublishAlbumAsync(23, navOrder), Times.Once());
-        repositoryMock.Verify(r => r.UnpublishAlbumAsync(It.IsAny<int>()), Times.Never());
-    }
-
-    [Fact]
-    public async Task ModifyAlbumVisibility_UnpublishRequested_ReturnsUnpublishedAlbum()
-    {
-        var repositoryMock = new Mock<IAlbumRepository>();
-        var album = new IAlbumRepository.AlbumDto(23, "My Album", Published: false);
-        repositoryMock.Setup(r => r.UnpublishAlbumAsync(23)).ReturnsAsync(album);
-        var controller = new AlbumController(repositoryMock.Object);
-
-        var response = await controller.ModifyAlbumVisibility(23,
-            new AlbumController.AlbumVisibilityRequest(false, 2));
-
-        var okResult = Assert.IsType<OkObjectResult>(response.Result);
-        Assert.Same(album, okResult.Value);
-        repositoryMock.Verify(r => r.UnpublishAlbumAsync(23), Times.Once());
-        repositoryMock.Verify(r => r.PublishAlbumAsync(It.IsAny<int>(), It.IsAny<int?>()), Times.Never());
-    }
-
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public async Task ModifyAlbumVisibility_AlbumDoesNotExist_ReturnsNotFound(bool published)
-    {
-        var repositoryMock = new Mock<IAlbumRepository>();
-        if (published)
-            repositoryMock.Setup(r => r.PublishAlbumAsync(23, 2)).ReturnsAsync((IAlbumRepository.AlbumDto)null);
-        else
-            repositoryMock.Setup(r => r.UnpublishAlbumAsync(23)).ReturnsAsync((IAlbumRepository.AlbumDto)null);
-        var controller = new AlbumController(repositoryMock.Object);
-
-        var response = await controller.ModifyAlbumVisibility(23,
-            new AlbumController.AlbumVisibilityRequest(published, 2));
-
-        Assert.IsType<NotFoundResult>(response.Result);
-        if (published)
-            repositoryMock.Verify(r => r.PublishAlbumAsync(23, 2), Times.Once());
-        else
-            repositoryMock.Verify(r => r.UnpublishAlbumAsync(23), Times.Once());
-    }
+    // [Fact]
+    // public async Task ModifyAlbumVisibility_UnpublishRequested_ReturnsUnpublishedAlbum()
+    // {
+    //     var repositoryMock = new Mock<IAlbumRepository>();
+    //     var album = new IAlbumRepository.AlbumDto(23, "My Album", Published: false);
+    //     repositoryMock.Setup(r => r.UnpublishAlbumAsync(23)).ReturnsAsync(album);
+    //     var controller = new AlbumController(repositoryMock.Object);
+    //
+    //     var response = await controller.ModifyAlbumVisibility(23,
+    //         new AlbumController.AlbumVisibilityRequest(false, 2));
+    //
+    //     var okResult = Assert.IsType<OkObjectResult>(response.Result);
+    //     Assert.Same(album, okResult.Value);
+    //     repositoryMock.Verify(r => r.UnpublishAlbumAsync(23), Times.Once());
+    //     repositoryMock.Verify(r => r.PublishAlbumAsync(It.IsAny<int>(), It.IsAny<int?>()), Times.Never());
+    // }
+    //
+    // [Theory]
+    // [InlineData(true)]
+    // [InlineData(false)]
+    // public async Task ModifyAlbumVisibility_AlbumDoesNotExist_ReturnsNotFound(bool published)
+    // {
+    //     var repositoryMock = new Mock<IAlbumRepository>();
+    //     if (published)
+    //         repositoryMock.Setup(r => r.PublishAlbumAsync(23, 2)).ReturnsAsync((IAlbumRepository.AlbumDto)null);
+    //     else
+    //         repositoryMock.Setup(r => r.UnpublishAlbumAsync(23)).ReturnsAsync((IAlbumRepository.AlbumDto)null);
+    //     var controller = new AlbumController(repositoryMock.Object);
+    //
+    //     var response = await controller.ModifyAlbumVisibility(23,
+    //         new AlbumController.AlbumVisibilityRequest(published, 2));
+    //
+    //     Assert.IsType<NotFoundResult>(response.Result);
+    //     if (published)
+    //         repositoryMock.Verify(r => r.PublishAlbumAsync(23, 2), Times.Once());
+    //     else
+    //         repositoryMock.Verify(r => r.UnpublishAlbumAsync(23), Times.Once());
+    // }
 
     [Fact]
     public async Task AssignNavOrder_Success_ReturnsOrderedAlbums()

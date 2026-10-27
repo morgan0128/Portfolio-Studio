@@ -54,6 +54,10 @@ export class PortfolioPageManager {
     const album = this.album();
     return album !== null && album.published && album.navbarOrder === -1 && this.navbarAlbumsOrdered().length < 5;
   });
+  readonly selectedMayBePublishedThenAdded = computed(() => {
+    const album = this.album();
+    return album !== null && !album.published && this.navbarAlbumsOrdered().length < 5;
+  });
 
   onApplyStyling() {
     const album = this.album();
@@ -69,10 +73,10 @@ export class PortfolioPageManager {
     });
   }
 
-  publish() {
+  publish(navOrder: number | null = null) {
     const album = this.album();
     if (album === null) return;
-    this.albumApi.publishAlbum(album.id).subscribe({
+    this.albumApi.publishAlbum(album.id, navOrder).subscribe({
       next: () => this.refreshPresentationState()
     });
   }
@@ -116,6 +120,14 @@ export class PortfolioPageManager {
       next: () => this.refreshPresentationState()
     });
   }
+
+  // applyPublishToNavPositionRequest(navOrder: number | null) {
+  //   const album = this.album();
+  //   if (album === null || navOrder === null || navOrder < 0 || navOrder > 4) return;
+  //   this.albumApi.assignNavOrder(album.id, navOrder).subscribe({
+  //     next: () => this.refreshPresentationState()
+  //   });
+  // }
 
   navReorderPageBackward(albumId: number) {
     this.swapWithNeighbor(albumId, -1);

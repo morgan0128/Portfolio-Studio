@@ -101,11 +101,22 @@ public sealed class AlbumController(IAlbumRepository albumRepository)
     [HttpPatch("{id:int}/visibility")]
     public async Task<ActionResult<IAlbumRepository.AlbumDto>> ModifyAlbumVisibility(int id, AlbumVisibilityRequest request)
     {
-        var applied = request.Published ?
-            await albumRepository.PublishAlbumAsync(id, request.NavOrder) :
-            await albumRepository.UnpublishAlbumAsync(id);
-        
-        return (applied is not null) ? Ok(applied) : NotFound();
+        if (!request.Publish)
+        {
+            var unpublishResult = await albumRepository.UnpublishAlbumAsync(id);
+            return (unpublishResult is not null) ? Ok(unpublishResult) : NotFound();
+        }
+
+        var publishResult = await albumRepository.PublishAlbumAsync(id, request.NavOrder);
+        return publishResult.Item1 switch
+        {
+            IAlbumRepository.PublishAlbumOutcome.NavExcludedSuccess => Ok(publishResult.Item2),
+            IAlbumRepository.PublishAlbumOutcome.NavIncludedSuccess => Ok(publishResult.Item2),
+            IAlbumRepository.PublishAlbumOutcome.AlbumAlreadyPublished => Conflict(publishResult.Item2),
+            IAlbumRepository.PublishAlbumOutcome.NotFound => NotFound(publishResult.Item2),
+            _ => Problem(statusCode: 500)
+        };
+
     }
     
     
@@ -172,7 +183,7 @@ public sealed class AlbumController(IAlbumRepository albumRepository)
     public sealed record UpdateLayoutPresetRequest(PageLayoutPreset LayoutPreset);
     
     
-    public sealed record AlbumVisibilityRequest(bool Published, int? NavOrder);
+    public sealed record AlbumVisibilityRequest(bool Publish, int? NavOrder);
     public sealed record NavOrderRequest(int NavOrder);
     public sealed record NavOrderSwapRequest(int AlbumId1, int AlbumId2);
 

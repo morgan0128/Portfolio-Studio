@@ -71,7 +71,9 @@
         <app-admin-preview-navbar
           [navbarItems]="navbarAlbumsOrdered()"
           [reorderGlows]="reorderGlows()"
-          [selectedMayBeAdded] = "selectedMayBeAdded()"
+          [selectedMayBeAdded]="selectedMayBeAdded()"
+          [selectedMayBePublishedThenAdded]="selectedMayBePublishedThenAdded()"
+          (navPublishThenInsertSelectedAtOrder)="publish($event)"
           (navInsertSelectedAtOrder)="applyNavPositionRequest($event)"
           (removeFromNavRequest)="removeFromNavRequest($event)"
           (reorderInNavBackwardRequest)="navReorderPageBackward($event)"
