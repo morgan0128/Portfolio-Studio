@@ -11,7 +11,7 @@ import {AlbumItemApiService} from '../../api/album-item-api-service';
 import { PhotoDisplayApiService } from '../../api/photo-display-api-service';
 import {RouterLink} from '@angular/router';
 import {PhotoSpecification, PhotoUploadSpecification} from '../../models/PhotoUploadSpecification';
-import {AlbumPhotoDisplayFieldsChange} from './album-contents/album-item-actions';
+import {AlbumPhotoDisplayFieldsVisibilityChange} from './album-contents/album-item-actions';
 
 @Component({
   selector: 'app-edit-albums',
@@ -281,7 +281,7 @@ export class EditAlbums implements OnInit {
 
   }
 
-  applyPhotoDisplayFieldsChange(change: AlbumPhotoDisplayFieldsChange) {
+  applyPhotoDisplayFieldsVisibilityChange(change: AlbumPhotoDisplayFieldsVisibilityChange) {
     if (change.albumId !== this.selectedAlbumId()) return;
 
     // A read started before this save may still contain the previous field values.

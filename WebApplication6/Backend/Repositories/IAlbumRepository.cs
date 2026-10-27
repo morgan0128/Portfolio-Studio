@@ -19,7 +19,7 @@ public interface IAlbumRepository
     Task<AlbumDto?> GetAlbumByIdAsync(int id);
     
     /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="save-album-async"]/*' />
-    Task<AlbumDto> SaveAlbumAsync(Album album);
+    Task<AlbumDto?> SaveAlbumAsync(Album album);
     
     /// <include file="../Documentation/repositories.xml" path='Repositories/Album[@name="delete-album-by-id-async"]/*' />
     Task<bool> DeleteAlbumByIdAsync(int id);

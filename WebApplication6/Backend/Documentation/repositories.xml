@@ -31,15 +31,21 @@
     </Album>
     
     <Album name="save-album-async">
+        <summary>
+            Saves <c>Album</c> to database. The <c>Album</c> to save will be saved having <c>Album.NavbarOrder</c> of -1, 
+            regardless of if <paramref name="album"/> has <c>Album.NavbarOrder</c> of -1 at time of method call.
+        </summary>
+        <param name="album">The <c>Album</c> to save.</param>
         <returns>
             A task that represents the asynchronous operation.
-            The task result contains an AlbumDto depicting the saved <c>Album</c> on success.
+            The task result contains an <c>AlbumDto</c> depicting the saved <c>Album</c> on success, and null 
+            on failure where an exception was not thrown.
         </returns>
     </Album>
     
     <Album name="delete-album-by-id-async">
         <summary>
-            Deletes the Album, and upon completion: ensures that contiguous <c>Album.Order</c> sequencing beginning at first
+            Deletes the Album, and upon completion: ensures that contiguous <c>Album.NavbarOrder</c> sequencing beginning at first
             index of the Navbar ordering is maintained, along with the relative Ordering prior to deletion. 
             Performs operations to maintain these properties where necessary.
         </summary>
@@ -82,41 +88,41 @@
         <summary>
             <para>
                 Includes the <c>Album</c> in the Navbar if <paramref name="newNavOrder"/> is positive and adheres to the
-                Album.Order bounds constraint of the database; the <c>Album</c> is <c>Published</c>; the Navbar is not full.
-                Gives preference to assigning <c>Album.Order</c> to <paramref name="newNavOrder"/>, but include <c>Album</c>
+                Album.NavbarOrder bounds constraint of the database; the <c>Album</c> is <c>Published</c>; the Navbar is not full.
+                Gives preference to assigning <c>Album.NavbarOrder</c> to <paramref name="newNavOrder"/>, but include <c>Album</c>
                 in Navbar even where <paramref name="newNavOrder"/> is occupied; if aforementioned conditions are met.
             </para>
             <para>
                 Removes the <c>Album</c> from the Navbar if <paramref name="newNavOrder"/> is -1.
             </para>
             <para>
-                The state of the Navbar ordering is treated as contiguous and beginning at index (Order) 0 prior to 
+                The state of the Navbar ordering is treated as contiguous and beginning at index (NavbarOrder) 0 prior to 
                 modifying any states. Upon returning with <c>UpdateNavOrderOutcome.Success</c>, the state of Navbar 
-                ordering <i>is</i> contiguously sequenced beginning at index (Order) 0.
+                ordering <i>is</i> contiguously sequenced beginning at index (NavbarOrder) 0.
             </para>
         </summary>
         <param name="id">The value of the primary key <c>Album.Id</c> of the Album to modify Navbar ordering/visibility.</param>
-        <param name="newNavOrder">The <c>Order</c> used to dictate reassignment.</param>
+        <param name="newNavOrder">The <c>NavbarOrder</c> used to dictate reassignment.</param>
         <returns>
             <para>
                 A task that represents the asynchronous operation.
                 The task result contains a tuple, with the first value an <c>UpdateNavOrderOutcome</c> detailing the outcome
                 of the operation, and the second value an <c>IEnumerable</c> depicting the Albums appearing in the Navbar,
-                ordered by <c>Order</c>, as <c>AlbumDto</c>.
+                ordered by <c>NavbarOrder</c>, as <c>AlbumDto</c>.
             </para>
             <list type="bullet">
                 <item>
                     <c>UpdateNavOrderOutcome.Success</c> to represent that all conditions to modify Navbar order were met,
-                    and <c>Album.Order</c> was successfully updated; regardless of whether updated state is logically equivalent
+                    and <c>Album.NavbarOrder</c> was successfully updated; regardless of whether updated state is logically equivalent
                     to the state prior.
                 </item>
                 <item>
                     <c>UpdateNavOrderOutcome.OutOfBounds</c> to represent that <paramref name="newNavOrder"/> was not 
-                    adherent to the Album.Order bounds constraint; operation cancelled.
+                    adherent to the Album.NavbarOrder bounds constraint; operation cancelled.
                 </item>
                 <item>
                     <c>UpdateNavOrderOutcome.NotPublished</c> to represent that <c>Album</c> was not published at time 
-                    of operation, and as such the operation was cancelled; <c>Order</c> of -1, prior to and upon completion 
+                    of operation, and as such the operation was cancelled; <c>NavbarOrder</c> of -1, prior to and upon completion 
                     of operation.
                 </item>
                 <item>
@@ -142,7 +148,7 @@
     
     <Album name="swap-albums-in-nav-async">
         <summary>
-            Swaps <c>Album.Order</c> of two Albums. Both Albums to-swap must be included within the Navbar, within the 
+            Swaps <c>Album.NavbarOrder</c> of two Albums. Both Albums to-swap must be included within the Navbar, within the 
             state present at the time method is called.
         </summary>
         <param name="albumId1">The primary key <c>Id</c> of one of the two distinct Albums to swap.</param>
@@ -152,7 +158,7 @@
                 A task that represents the asynchronous operation.
                 The task result contains a tuple, with the first value a <c>SwapInNavOutcome</c> detailing the outcome
                 of the operation, and the second value an <c>IEnumerable</c> depicting the Albums appearing in the Navbar,
-                ordered by <c>Order</c>, as <c>AlbumDto</c>.
+                ordered by <c>NavbarOrder</c>, as <c>AlbumDto</c>.
             </para>
             <list type="bullet">
                 <item>
@@ -200,7 +206,7 @@
     
     <Album name="get-nav-included-albums-async">
         <summary>
-            Retrieves all Albums that are included in the Navbar (strictly), ordered by <c>Album.Order</c> (ascending).
+            Retrieves all Albums that are included in the Navbar (strictly), ordered by <c>Album.NavbarOrder</c> (ascending).
         </summary>
         <returns>
             A task that represents the asynchronous operation.
@@ -221,12 +227,12 @@
         <summary>
             <para>
                 Sets <c>Album.Published</c> to true, and includes the <c>Album</c> in the Navbar if <paramref name="navOrder"/>
-                is within the bounds of Order indices where an <c>Album</c> is considered to be included in the Navbar and
+                is within the bounds of NavbarOrder indices where an <c>Album</c> is considered to be included in the Navbar and
                 the Navbar is not already full.
             </para> 
             <para>
                 If the aforementioned properties apply with an indicated <paramref name="navOrder"/>: 
-                if, treating the Navbar ordering as contiguous and indexed beginning at <c>Order</c> 0, 
+                if, treating the Navbar ordering as contiguous and indexed beginning at <c>NavbarOrder</c> 0, 
                 <paramref name="navOrder"/> is logically occupied by another <c>Album</c>, the <c>Album</c> to be 
                 published is appended to the Navbar ordering.
             </para>
@@ -262,9 +268,9 @@
 
     <Album name="unpublish-album-async">
         <summary>
-            Sets <c>Album.Published</c> to false, and <c>Album.Order</c> to -1: as to satisfy database constraints and 
+            Sets <c>Album.Published</c> to false, and <c>Album.NavbarOrder</c> to -1: as to satisfy database constraints and 
             to indicate that the <c>Album</c> is not included in the Navbar. At time of completion, where the operation 
-            was not cancelled: guarantees that the state of Navbar ordering is contiguously indexed, beginning at <c>Order</c> 0.
+            was not cancelled: guarantees that the state of Navbar ordering is contiguously indexed, beginning at <c>NavbarOrder</c> 0.
         </summary>
         <param name="id">The primary key <c>Id</c> of the <c>Album</c> to be published.</param>
         <returns>
@@ -287,7 +293,7 @@
 <!--    <AlbumItem name="save-photo-display-async">-->
 <!--        <summary>-->
 <!--            Inserts new <c>AlbumItem</c> of child class <c>PhotoDisplay</c>, initialized at root level of <c>Album</c>-->
-<!--            with highest <c>AlbumItem.Order</c> among all root level AlbumItems of <c>Album</c>.-->
+<!--            with highest <c>AlbumItem.NavbarOrder</c> among all root level AlbumItems of <c>Album</c>.-->
 <!--        </summary>-->
 <!--        <remarks>-->
 <!--            An AlbumItem which belongs to no Collection (that is, <c>AlbumItem.CollectionId == null</c>) is considered-->

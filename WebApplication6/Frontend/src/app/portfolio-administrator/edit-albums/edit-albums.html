@@ -222,7 +222,7 @@
             [selectedAlbumId]="this.selectedAlbumId()!"
             [loadingItems]="this.loadingItems()"
             [items]="this.albumItems()"
-            (photoDisplayFieldsChanged)="applyPhotoDisplayFieldsChange($event)"
+            (photoDisplayFieldsChanged)="applyPhotoDisplayFieldsVisibilityChange($event)"
             (refreshRequested)="refreshAlbumContents($event)"/>
         }
       </section>
