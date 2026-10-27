@@ -16,28 +16,42 @@
       />
     }
 
-    <div class="admin-wrapper-buttons">
+    <div class="admin-wrapper-buttons"
+         [class.grouping-active]="i.kind === 'photoDisplay' && collectionGroupingView()">
       <div class="photo-editing">
         <button class="photo-display-edit" type="button"
                 [disabled]="mutationPending() || ((i.kind !== 'photoDisplay') && (i.kind === 'photoDisplayCollection' && i.content.photoDisplays.length === 0))"
                 (click)="editPhotoDisplay()">Edit</button>
       </div>
-      <div class="reordering">
-        <button (click)="rootReorderLeftRequested.emit(i)"><</button>
+      <div class="reordering" role="group" aria-label="Reorder album item">
+        <button type="button" aria-label="Move item left" title="Move item left"
+                (click)="rootReorderLeftRequested.emit(i)">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="m14 6-6 6 6 6" />
+          </svg>
+        </button>
         <p>Reorder</p>
-        <button (click)="rootReorderRightRequested.emit(i)">></button>
+        <button type="button" aria-label="Move item right" title="Move item right"
+                (click)="rootReorderRightRequested.emit(i)">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="m10 6 6 6-6 6" />
+          </svg>
+        </button>
       </div>
       <div class="photo-collection-grouping">
         @if (i.kind == 'photoDisplay'){
           @if (collectionGroupingView()){
-            <p>Include photo in new collection?</p>
-            <button [disabled]="mutationPending()" (click)="handleGroupingOptChange()">{{ collectionGroupingOptStatus() ? 'Exclude' : 'Include'}}</button>
+            <p class="grouping-prompt">Include photo in new collection?</p>
+            <button type="button" class="grouping-toggle"
+                    [class.is-included]="collectionGroupingOptStatus()"
+                    [attr.aria-pressed]="collectionGroupingOptStatus()"
+                    [disabled]="mutationPending()" (click)="handleGroupingOptChange()">{{ collectionGroupingOptStatus() ? 'Exclude' : 'Include'}}</button>
           } @else {
-            <button [disabled]="mutationPending()" (click)="removePhotoDisplay()">Remove</button>
+            <button type="button" class="item-remove" [disabled]="mutationPending()" (click)="removePhotoDisplay()">Remove</button>
           }
         }
         @if (i.kind === 'photoDisplayCollection'){
-          <button class="collection-dissolve" [disabled]="mutationPending()" (click)="dissolveCollection()">Dissolve Collection</button>
+          <button type="button" class="collection-dissolve" [disabled]="mutationPending()" (click)="dissolveCollection()">Dissolve Collection</button>
         }
       </div>
 
