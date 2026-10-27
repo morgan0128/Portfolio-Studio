@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--TODO-->
+<BackendLayers>
+    <Layer name="data-and-models">
+        <b>The responsibility of the Data/Context and Models Layer is to </b>
+    </Layer>
+    
+    <Layer name="repositories">
+        <b>The responsibility of the Repositories layer is to provide structured interactions with the database/context 
+            to higher level modules (Controllers, Services).</b>
+        The Repositories layer is the highest layer to interact with the database/context directly, and is used to 
+        encapsulate all of this lower-level logic and provide structured interfaces to higher-layer modules. Public 
+        methods within a Repository class should own their transaction where transactions are required.
+    </Layer>
+</BackendLayers>

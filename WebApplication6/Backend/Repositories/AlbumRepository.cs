@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using WebApplication6.Backend.Data;
 using WebApplication6.Backend.Models;
 
@@ -7,6 +8,8 @@ namespace WebApplication6.Backend.Repositories;
 
 public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
 {
+    private const long NavbarLockKey = 0x4E4156424152; // "NAVBAR"
+
     public async Task<IEnumerable<IAlbumRepository.AlbumDto>> GetAlbumsAsync()
     {
         var albums = await context.Albums
@@ -50,8 +53,9 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
     }
 
     
-    public async Task<IAlbumRepository.AlbumDto> SaveAlbumAsync(Album album)
+    public async Task<IAlbumRepository.AlbumDto?> SaveAlbumAsync(Album album)
     {
+        if (album.NavbarOrder != -1) album.NavbarOrder = -1;
         context.Albums.Add(album);
         
         await context.SaveChangesAsync();
@@ -59,36 +63,35 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
     }
 
     
-    // TODO: Avoid unnecessary navbar re-normalization
     public async Task<bool> DeleteAlbumByIdAsync(int id)
     {
+        await using var transaction = await BeginNavbarTransactionAsync();
         var album = await context.Albums.FindAsync(id);
         if (album == null) return false;
 
-        await using var transaction = context.Database.CurrentTransaction == null
-            ? await context.Database.BeginTransactionAsync()
-            : null;
-
         context.Albums.Remove(album);
         await context.SaveChangesAsync();
-
-        // Navbar positions remain contiguous after deleting a displayed album.
-        var navbarAlbums = await context.Albums
-            .Where(a => a.NavbarOrder >= 0)
-            .OrderBy(a => a.NavbarOrder)
-            .ToListAsync();
-        foreach (var navbarAlbum in navbarAlbums)
+        
+        var navbarAlbums = await GetNavbarAlbumsOrderedAsync();
+        var albumsToMove = navbarAlbums
+            .Select((navbarAlbum, index) => (Album: navbarAlbum, Order: index))
+            .Where(entry => entry.Album.NavbarOrder != entry.Order)
+            .ToList();
+        if (albumsToMove.Count > 0)
         {
-            navbarAlbum.NavbarOrder = -1;
+            foreach (var entry in albumsToMove)
+            {
+                entry.Album.NavbarOrder = -1;
+            }
+            await context.SaveChangesAsync();
+            foreach (var entry in albumsToMove)
+            {
+                entry.Album.NavbarOrder = entry.Order;
+            }
+            await context.SaveChangesAsync();
         }
-        await context.SaveChangesAsync();
-        for (var index = 0; index < navbarAlbums.Count; index++)
-        {
-            navbarAlbums[index].NavbarOrder = index;
-        }
-        await context.SaveChangesAsync();
 
-        if (transaction != null) await transaction.CommitAsync();
+        await transaction.CommitAsync();
         return true;
     }
 
@@ -110,6 +113,7 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
     
     public async Task<(IAlbumRepository.UpdateNavOrderOutcome, IEnumerable<IAlbumRepository.AlbumDto>)> UpdateNavOrderAsync(int id, int newNavOrder)
     {
+        await using var transaction = await BeginNavbarTransactionAsync();
         var albums = await GetNavbarAlbumsOrderedAsync();
         if (newNavOrder is < -1 or > 4) return (IAlbumRepository.UpdateNavOrderOutcome.OutOfBounds, albums.Select(AlbumToDto).ToList());
         var album = await context.Albums.FindAsync(id);
@@ -125,13 +129,14 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
         }
 
         await SaveNavbarOrderAsync(albums);
+        await transaction.CommitAsync();
         return (IAlbumRepository.UpdateNavOrderOutcome.Success, albums.Select(AlbumToDto).ToList());
     }
 
     
-    // TODO: Implement shared navbar locking system
     public async Task<(IAlbumRepository.SwapInNavOutcome, IEnumerable<IAlbumRepository.AlbumDto>?)> SwapAlbumsInNavAsync(int albumId1, int albumId2)
     {
+        await using var transaction = await BeginNavbarTransactionAsync();
         var albums = await GetNavbarAlbumsOrderedAsync();
         if (albumId1 == albumId2) return (IAlbumRepository.SwapInNavOutcome.IgnoredSwapInPlace, albums.Select(AlbumToDto).ToList());
         var index1 = albums.FindIndex(album => album.Id == albumId1);
@@ -140,6 +145,7 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
 
         (albums[index1], albums[index2]) = (albums[index2], albums[index1]);
         await SaveNavbarOrderAsync(albums);
+        await transaction.CommitAsync();
         return (IAlbumRepository.SwapInNavOutcome.Success, albums.Select(AlbumToDto).ToList());
     }
 
@@ -156,9 +162,14 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
     
     public async Task<IAlbumRepository.AlbumDto?> PublishAlbumAsync(int id, int? navOrder)
     {
+        await using var transaction = await BeginNavbarTransactionAsync();
         var album = await context.Albums.FindAsync(id);
         if (album == null) return null;
-        if (album.Published) return AlbumToDto(album);
+        if (album.Published)
+        {
+            await transaction.CommitAsync();
+            return AlbumToDto(album);
+        }
 
         var albums = await GetNavbarAlbumsOrderedAsync();
         if (navOrder is >= 0 and <= 4 && albums.Count < 5)
@@ -176,15 +187,21 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
         // Publish before assigning a navbar position to satisfy the database constraint.
         album.Published = true;
         await SaveNavbarOrderAsync(albums);
+        await transaction.CommitAsync();
         return AlbumToDto(album);
     }
 
     
     public async Task<IAlbumRepository.AlbumDto?> UnpublishAlbumAsync(int id)
     {
+        await using var transaction = await BeginNavbarTransactionAsync();
         var album = await context.Albums.FindAsync(id);
         if (album == null) return null;
-        if (!album.Published) return AlbumToDto(album);
+        if (!album.Published)
+        {
+            await transaction.CommitAsync();
+            return AlbumToDto(album);
+        }
 
         if (album.NavbarOrder > -1)
         {
@@ -192,10 +209,12 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
             albums.Remove(album);
             album.Published = false;
             await SaveNavbarOrderAsync(albums);
+            await transaction.CommitAsync();
             return AlbumToDto(album);
         }
         album.Published = false;
         await context.SaveChangesAsync();
+        await transaction.CommitAsync();
         return AlbumToDto(album);
     }
     
@@ -204,13 +223,27 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
             .OrderBy(album => album.NavbarOrder).ToListAsync();
 
     
-    private async Task<IEnumerable<Album>?> SaveNavbarOrderAsync(List<Album> orderedAlbums)
+    private async Task<IDbContextTransaction> BeginNavbarTransactionAsync()
     {
-        // Free occupied positions before assigning the new order. Keep both saves atomic.
-        await using var transaction = context.Database.CurrentTransaction == null
-            ? await context.Database.BeginTransactionAsync()
-            : null;
+        // Each public operation owns its transaction; EF rejects an existing one (throws exception)
+        var transaction = await context.Database.BeginTransactionAsync();
 
+        try
+        {
+            // Share one lock across navbar writers, even when the navbar is empty.
+            await context.Database.ExecuteSqlInterpolatedAsync($"SELECT pg_advisory_xact_lock({NavbarLockKey})");
+            return transaction;
+        }
+        catch
+        {
+            await transaction.DisposeAsync();
+            throw;
+        }
+    }
+
+    private async Task SaveNavbarOrderAsync(List<Album> orderedAlbums)
+    {
+        // The caller holds the navbar lock and transaction for both saves.
         var currentNavbar = await GetNavbarAlbumsOrderedAsync();
         foreach (var album in currentNavbar)
         {
@@ -223,11 +256,6 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
             orderedAlbums[index].NavbarOrder = index;
         }
         await context.SaveChangesAsync();
-
-        if (transaction == null) return null;
-        await transaction.CommitAsync();
-        return orderedAlbums;
-
     }
     
     

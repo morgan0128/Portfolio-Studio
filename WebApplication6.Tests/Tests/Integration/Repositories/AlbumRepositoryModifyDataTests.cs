@@ -1,6 +1,10 @@
+using System;
+using System.Data.Common;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using WebApplication6.Backend.Data;
 using WebApplication6.Backend.Models;
 using WebApplication6.Backend.Repositories;
@@ -15,9 +19,7 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
     [Fact]
     public async Task AlbumPresentation_PublishAndQuery_UsesAlbumIdentityAndDefaults()
     {
-        await using var context = Fixture.CreateContext();
-        await using var transaction =
-            await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
+        await using var context = await CreateIsolatedContextAsync();
         var albums = await CreatePresentationAlbumsAsync(context, 2);
         var repository = new AlbumRepository(context);
 
@@ -50,9 +52,7 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
     [Fact]
     public async Task AlbumPresentation_FullNavbar_AllowsReorderAndSwapButRejectsSixthEntry()
     {
-        await using var context = Fixture.CreateContext();
-        await using var transaction =
-            await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
+        await using var context = await CreateIsolatedContextAsync();
         var albums = await CreatePresentationAlbumsAsync(context, 6);
         var repository = new AlbumRepository(context);
         foreach (var album in albums)
@@ -78,9 +78,7 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
     [Fact]
     public async Task AlbumPresentation_UnpublishRemoveAndDelete_NormalizesNavbarAndPreservesPhotos()
     {
-        await using var context = Fixture.CreateContext();
-        await using var transaction =
-            await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
+        await using var context = await CreateIsolatedContextAsync();
         var albums = await CreatePresentationAlbumsAsync(context, 3);
         context.PhotoDisplays.Add(new PhotoDisplay
         {
@@ -167,6 +165,113 @@ public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : ICl
     }
 
 
+
+    [Theory]
+    [InlineData("delete")]
+    [InlineData("update")]
+    [InlineData("swap")]
+    [InlineData("publish")]
+    [InlineData("unpublish")]
+    public async Task NavbarOperation_RejectsCallerManagedTransaction(string operation)
+    {
+        await using var context = await CreateIsolatedContextAsync();
+        await SeedNavbarAsync(context);
+        await using var transaction = await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => RunNavbarOperationAsync(context, operation));
+
+        Assert.Same(transaction, context.Database.CurrentTransaction);
+    }
+
+    [Theory]
+    [InlineData("delete")]
+    [InlineData("update")]
+    [InlineData("swap")]
+    [InlineData("publish")]
+    [InlineData("unpublish")]
+    [InlineData("publish-unchanged")]
+    [InlineData("unpublish-unchanged")]
+    public async Task NavbarOperation_CommitFailureThrowsAndRollsBack(string operation)
+    {
+        var interceptor = new CommitFailureInterceptor();
+        await using var context = await CreateIsolatedContextAsync(interceptor);
+        await SeedNavbarAsync(context);
+        var repository = new AlbumRepository(context);
+        var before = (await repository.GetAlbumsAsync()).OrderBy(album => album.Id).ToList();
+        interceptor.FailCommit = true;
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => RunNavbarOperationAsync(context, operation));
+
+        Assert.Equal("Simulated commit failure.", exception.Message);
+        Assert.Null(context.Database.CurrentTransaction);
+        context.ChangeTracker.Clear();
+        Assert.Equal(before, (await repository.GetAlbumsAsync()).OrderBy(album => album.Id).ToList());
+    }
+
+    private async Task<ApplicationDbContext> CreateIsolatedContextAsync(params IInterceptor[] interceptors)
+    {
+        await using var source = Fixture.CreateContext();
+        var images = await source.Images.AsNoTracking().ToListAsync(TestContext.Current.CancellationToken);
+        var photos = await source.Photos.AsNoTracking().ToListAsync(TestContext.Current.CancellationToken);
+        var context = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseNpgsql(source.Database.GetConnectionString()).AddInterceptors(interceptors).Options);
+        try
+        {
+            // Temporary tables isolate committed repository operations from the shared fixture.
+            await context.Database.OpenConnectionAsync(TestContext.Current.CancellationToken);
+            await context.Database.ExecuteSqlRawAsync(
+                context.Database.GenerateCreateScript().Replace("CREATE TABLE ", "CREATE TEMP TABLE "),
+                TestContext.Current.CancellationToken);
+            context.Images.AddRange(images);
+            context.Photos.AddRange(photos);
+            await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+            return context;
+        }
+        catch
+        {
+            await context.DisposeAsync();
+            throw;
+        }
+    }
+
+    private static async Task SeedNavbarAsync(ApplicationDbContext context)
+    {
+        var albums = await CreatePresentationAlbumsAsync(context, 3);
+        for (var index = 0; index < 2; index++)
+        {
+            albums[index].Published = true;
+            albums[index].NavbarOrder = index;
+        }
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
+
+    private static Task RunNavbarOperationAsync(ApplicationDbContext context, string operation)
+    {
+        var repository = new AlbumRepository(context);
+        return operation switch
+        {
+            "delete" => repository.DeleteAlbumByIdAsync(7000),
+            "update" => repository.UpdateNavOrderAsync(7000, 1),
+            "swap" => repository.SwapAlbumsInNavAsync(7000, 7001),
+            "publish" => repository.PublishAlbumAsync(7002, 2),
+            "unpublish" => repository.UnpublishAlbumAsync(7000),
+            "publish-unchanged" => repository.PublishAlbumAsync(7000, null),
+            "unpublish-unchanged" => repository.UnpublishAlbumAsync(7002),
+            _ => throw new ArgumentOutOfRangeException(nameof(operation))
+        };
+    }
+
+    private sealed class CommitFailureInterceptor : DbTransactionInterceptor
+    {
+        public bool FailCommit { get; set; }
+
+        public override ValueTask<InterceptionResult> TransactionCommittingAsync(DbTransaction transaction,
+            TransactionEventData eventData, InterceptionResult result, CancellationToken cancellationToken = default)
+        {
+            if (FailCommit) throw new InvalidOperationException("Simulated commit failure.");
+            return ValueTask.FromResult(result);
+        }
+    }
 
     private static async Task<Album[]> CreatePresentationAlbumsAsync(ApplicationDbContext context, int count)
     {

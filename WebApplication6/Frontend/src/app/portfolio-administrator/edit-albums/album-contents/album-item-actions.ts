@@ -23,7 +23,7 @@ export type PhotoDisplayFieldsChange = {
   changes: Partial<PhotoDisplayFields>;
 };
 
-export type AlbumPhotoDisplayFieldsChange = PhotoDisplayFieldsChange & {
+export type AlbumPhotoDisplayFieldsVisibilityChange = PhotoDisplayFieldsChange & {
   albumId: number;
   rootItemId: number;
 };

@@ -6,7 +6,7 @@ import {AlbumItemDto, PhotoDisplayItem} from '../../../models/AlbumItemDto';
 import {PhotoDisplayCollectionApiService} from '../../../api/photo-display-collection-api-service';
 import {PhotoDisplayApiService, PhotoDisplayFieldsDisplayedRequest} from '../../../api/photo-display-api-service';
 import {AdminRootAlbumItemWrapper} from './admin-album-item-wrapper/admin-root-album-item-wrapper.component';
-import {AlbumPhotoDisplayFieldsChange, PhotoDisplayFieldsChange, PhotoDisplayTarget, resolvePhotoDisplay} from './album-item-actions';
+import {AlbumPhotoDisplayFieldsVisibilityChange, PhotoDisplayFieldsChange, PhotoDisplayTarget, resolvePhotoDisplay} from './album-item-actions';
 import {AlbumItemApiService} from '../../../api/album-item-api-service';
 import {PhotoEditFieldsRequest} from '../../../models/PhotoEditFieldsRequest';
 import {AdminPhotoEditor} from './photo-display-editor/admin-photo-editor.component';
@@ -33,7 +33,7 @@ export class AlbumContents implements OnChanges, OnDestroy {
   public readonly loadingItems = input<boolean>(false);
   public readonly items = input<AlbumItemDto[]>([]);
 
-  readonly photoDisplayFieldsChanged = output<AlbumPhotoDisplayFieldsChange>();
+  readonly photoDisplayFieldsChanged = output<AlbumPhotoDisplayFieldsVisibilityChange>();
   readonly refreshRequested = output<number>();
 
   protected readonly detailedViewPhoto = signal<PhotoDto | null>(null);
@@ -219,7 +219,7 @@ export class AlbumContents implements OnChanges, OnDestroy {
 
     const albumId = this.selectedAlbumId();
     const session = this.albumSession;
-    const savedChange: AlbumPhotoDisplayFieldsChange = {
+    const savedChange: AlbumPhotoDisplayFieldsVisibilityChange = {
       albumId,
       rootItemId,
       photoDisplayId: change.photoDisplayId,
