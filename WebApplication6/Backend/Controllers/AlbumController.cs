@@ -28,8 +28,9 @@ public sealed class AlbumController(IAlbumRepository albumRepository)
         {
             Name = name, Description = albumRequest.Description, NavTitle = name.Length > 20 ? name[..20] : name
         };
-
+        
         var dto = await albumRepository.SaveAlbumAsync(album);
+        if (dto == null) return Problem(statusCode: 500, detail: "Album was explicitly assigned an Id internally.");
         return CreatedAtAction(nameof(Get), new { id = dto.Id }, dto);
     }
     

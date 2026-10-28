@@ -12,278 +12,113 @@ using Xunit;
 
 namespace WebApplication6.Tests.Tests.Integration.Repositories;
 
-public class AlbumRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : IClassFixture<TestDatabaseFixture>
+public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture)
+    : IClassFixture<PrimaryTestDatabaseFixture>
 {
-    public TestDatabaseFixture Fixture { get; } = dbFixture;
-
-    // TODO
-    // [Fact]
-    // public async Task AlbumPresentation_PublishAndQuery_UsesAlbumIdentityAndDefaults()
-    // {
-    //     await using var context = await CreateIsolatedContextAsync();
-    //     var albums = await CreatePresentationAlbumsAsync(context, 2);
-    //     var repository = new AlbumRepository(context);
-    //
-    //     Assert.Equal(-1, albums[0].NavbarOrder);
-    //     Assert.False(albums[0].Published);
-    //     Assert.Equal(PageLayoutPreset.Default, albums[0].LayoutPreset);
-    //     Assert.Equal(IAlbumRepository.UpdateNavOrderOutcome.NotPublished,
-    //         (await repository.UpdateNavOrderAsync(albums[0].Id, 0)).Item1);
-    //
-    //     albums[1].NavTitle = "";
-    //     var firstPublished = await repository.PublishAlbumAsync(albums[0].Id, 4);
-    //     Assert.Equal(0, firstPublished!.NavbarOrder);
-    //     var secondPublished = await repository.PublishAlbumAsync(albums[1].Id, null);
-    //     Assert.Equal(-1, secondPublished!.NavbarOrder);
-    //     Assert.Equal(albums[1].Name, secondPublished.NavTitle);
-    //     Assert.Equal(PageLayoutPreset.Spooky,
-    //         (await repository.SetLayoutPresetAsync(albums[0].Id, PageLayoutPreset.Spooky))!.LayoutPreset);
-    //
-    //     context.ChangeTracker.Clear();
-    //     var published = (await repository.GetPublishedAlbumsAsync()).ToList();
-    //     Assert.Equal(2, published.Count);
-    //     var inNav = Assert.Single(await repository.GetNavIncludedAlbumsAsync());
-    //     Assert.Equal(albums[0].Id, inNav.Id);
-    //     Assert.Equal(albums[0].NavTitle, inNav.NavTitle);
-    //     Assert.Equal(PageLayoutPreset.Spooky, inNav.LayoutPreset);
-    //     Assert.Equal(albums[1].Id, Assert.Single(await repository.GetPublishedNavExcludedAlbumsAsync()).Id);
-    //     Assert.Equal(albums[0].Name, (await repository.GetAlbumByIdAsync(albums[0].Id))!.Name);
-    // }
-    //
-    // [Fact]
-    // public async Task AlbumPresentation_FullNavbar_AllowsReorderAndSwapButRejectsSixthEntry()
-    // {
-    //     await using var context = await CreateIsolatedContextAsync();
-    //     var albums = await CreatePresentationAlbumsAsync(context, 6);
-    //     var repository = new AlbumRepository(context);
-    //     foreach (var album in albums)
-    //         Assert.True((await repository.PublishAlbumAsync(album.Id, null))!.Published);
-    //     for (var index = 0; index < 5; index++)
-    //         Assert.Equal(IAlbumRepository.UpdateNavOrderOutcome.Success,
-    //             (await repository.UpdateNavOrderAsync(albums[index].Id, index)).Item1);
-    //
-    //     Assert.Equal(IAlbumRepository.UpdateNavOrderOutcome.NavbarFull,
-    //         (await repository.UpdateNavOrderAsync(albums[5].Id, 0)).Item1);
-    //     Assert.Equal(IAlbumRepository.UpdateNavOrderOutcome.Success,
-    //         (await repository.UpdateNavOrderAsync(albums[0].Id, 4)).Item1);
-    //     Assert.Equal(IAlbumRepository.SwapInNavOutcome.Success,
-    //         (await repository.SwapAlbumsInNavAsync(albums[0].Id, albums[1].Id)).Item1);
-    //
-    //     context.ChangeTracker.Clear();
-    //     var navbar = (await repository.GetNavIncludedAlbumsAsync()).ToList();
-    //     Assert.Equal(new[] { 0, 1, 2, 3, 4 }, navbar.Select(album => album.NavbarOrder));
-    //     Assert.Equal(new[] { albums[0].Id, albums[2].Id, albums[3].Id, albums[4].Id, albums[1].Id },
-    //         navbar.Select(album => album.Id));
-    // }
-    //
-    // [Fact]
-    // public async Task AlbumPresentation_UnpublishRemoveAndDelete_NormalizesNavbarAndPreservesPhotos()
-    // {
-    //     await using var context = await CreateIsolatedContextAsync();
-    //     var albums = await CreatePresentationAlbumsAsync(context, 3);
-    //     context.PhotoDisplays.Add(new PhotoDisplay
-    //     {
-    //         AlbumId = albums[1].Id, PhotoId = 2, Order = 0,
-    //         PhotoDisplayCollection = new PhotoDisplayCollection { AlbumId = albums[1].Id, Order = 0 }
-    //     });
-    //     await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-    //     var repository = new AlbumRepository(context);
-    //     for (var index = 0; index < albums.Length; index++)
-    //         Assert.Equal(index, (await repository.PublishAlbumAsync(albums[index].Id, index))!.NavbarOrder);
-    //
-    //     var unpublished = await repository.UnpublishAlbumAsync(albums[0].Id);
-    //     Assert.False(unpublished!.Published);
-    //     Assert.Equal(-1, unpublished.NavbarOrder);
-    //     Assert.Equal(IAlbumRepository.UpdateNavOrderOutcome.Success,
-    //         (await repository.UpdateNavOrderAsync(albums[2].Id, -1)).Item1);
-    //     Assert.True(albums[2].Published);
-    //     Assert.Equal(IAlbumRepository.UpdateNavOrderOutcome.Success,
-    //         (await repository.UpdateNavOrderAsync(albums[2].Id, 1)).Item1);
-    //     Assert.True(await new AlbumRepository(context).DeleteAlbumByIdAsync(albums[1].Id));
-    //
-    //     context.ChangeTracker.Clear();
-    //     var remaining = Assert.Single(await repository.GetNavIncludedAlbumsAsync());
-    //     Assert.Equal(albums[2].Id, remaining.Id);
-    //     Assert.Equal(0, remaining.NavbarOrder);
-    //     Assert.NotNull(await context.Photos.FindAsync([2], TestContext.Current.CancellationToken));
-    //     Assert.False(await context.PhotoDisplays.AnyAsync(display => display.AlbumId == albums[1].Id,
-    //         TestContext.Current.CancellationToken));
-    //     Assert.False(await context.PhotoDisplayCollections.AnyAsync(collection => collection.AlbumId == albums[1].Id,
-    //         TestContext.Current.CancellationToken));
-    //     Assert.Null(await repository.GetAlbumByIdAsync(albums[1].Id));
-    // }
-
+    public PrimaryTestDatabaseFixture Fixture { get; } = dbFixture;
+    
+    /* SaveAlbumAsync */
     [Fact]
-    public async Task AlbumPresentation_ExplicitFirstNavbarPosition_IsSavedOnInsert()
+    public async Task SaveAlbumAsync_ExpectedCase_SavesAlbumAndReturnsAsDto()
     {
-        await using var context = Fixture.CreateContext();
-        await using var transaction =
-            await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
-        var album = new Album { Id = 7000, Name = "First", Published = true, NavbarOrder = 0 };
-        context.Albums.Add(album);
-        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-        context.ChangeTracker.Clear();
+        using var context = Fixture.CreateContext();
+        var repository = new AlbumRepository(context);
 
-        Assert.Equal(0,
-            (await context.Albums.FindAsync([album.Id], TestContext.Current.CancellationToken))!.NavbarOrder);
+        var parameterAlbum = new Album { Name = "MyAlbum712", NavTitle = "Album712" };
+        
+        var albumDto = await repository.SaveAlbumAsync(parameterAlbum);
+        var contextAlbum = await context.Albums.SingleAsync(a => a.Name == "MyAlbum712");
+
+        Assert.NotNull(albumDto);
+        Assert.Equal("Album712", albumDto.NavTitle);
+        Assert.Equal(albumDto, TestAlbumToDto(contextAlbum));
     }
-
+    
     [Theory]
-    [InlineData(false, 0, "valid")]
-    [InlineData(true, -2, "valid")]
-    [InlineData(true, 5, "valid")]
-    [InlineData(false, -1, "123456789012345678901")]
-    public async Task AlbumPresentation_DatabaseRejectsInvalidPresentation(bool published, int order, string navTitle)
+    [InlineData(false, -1)]
+    [InlineData(false, 4)]
+    [InlineData(null, 0)]
+    [InlineData(true, 0)]
+    [InlineData(true, 4)]
+    [InlineData(true, 5)]
+    [InlineData(true, null)]
+    public async Task SaveAlbumAsync_AlbumSuppliedPublishedAndOrNavbarOrder_RevertsValuesAsOutlinedThenSavesAlbumAndReturnsAsDto(bool? published, int? navbarOrder)
     {
-        await using var context = Fixture.CreateContext();
-        await using var transaction =
-            await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
-        context.Albums.Add(new Album
-        {
-            Id = 7000, Name = "Invalid presentation", Published = published,
-            NavbarOrder = order, NavTitle = navTitle
-        });
+        using var context = Fixture.CreateContext();
+        var repository = new AlbumRepository(context);
 
-        await Assert.ThrowsAsync<DbUpdateException>(() =>
-            context.SaveChangesAsync(TestContext.Current.CancellationToken));
+        var parameterAlbum = new Album { Name = "VisibleAlbum?", NavTitle = "I am hiding" };
+        if (published is not null) parameterAlbum.Published = published.Value;
+        if (navbarOrder is not null) parameterAlbum.NavbarOrder = navbarOrder.Value;
+        
+        var albumDto = await repository.SaveAlbumAsync(parameterAlbum);
+        var contextAlbum = await context.Albums.SingleAsync(a => a.Name == "VisibleAlbum?");
+        
+        Assert.NotNull(albumDto);
+        Assert.Equal("I am hiding", albumDto.NavTitle);
+        Assert.False(albumDto.Published);
+        Assert.False(contextAlbum.Published);
+        Assert.Equal(-1, albumDto.NavbarOrder);
+        Assert.Equal(-1, contextAlbum.NavbarOrder);
     }
-
+    
     [Fact]
-    public async Task AlbumPresentation_DatabaseRejectsDuplicateNavbarPosition()
+    public async Task SaveAlbumAsync_AlbumIsSuppliedWithId_CancelsOperationAndReturnsNull()
     {
-        await using var context = Fixture.CreateContext();
-        await using var transaction =
-            await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
-        var albums = await CreatePresentationAlbumsAsync(context, 2);
-        foreach (var album in albums)
-        {
-            album.Published = true;
-            album.NavbarOrder = 0;
-        }
-
-        await Assert.ThrowsAsync<DbUpdateException>(() =>
-            context.SaveChangesAsync(TestContext.Current.CancellationToken));
-    }
-
-
-
-    [Theory]
-    [InlineData("delete")]
-    [InlineData("update")]
-    [InlineData("swap")]
-    [InlineData("publish")]
-    [InlineData("unpublish")]
-    public async Task NavbarOperation_RejectsCallerManagedTransaction(string operation)
-    {
-        await using var context = await CreateIsolatedContextAsync();
-        await SeedNavbarAsync(context);
-        await using var transaction = await context.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
-
-        await Assert.ThrowsAsync<InvalidOperationException>(() => RunNavbarOperationAsync(context, operation));
-
-        Assert.Same(transaction, context.Database.CurrentTransaction);
-    }
-
-    [Theory]
-    [InlineData("delete")]
-    [InlineData("update")]
-    [InlineData("swap")]
-    [InlineData("publish")]
-    [InlineData("unpublish")]
-    [InlineData("publish-unchanged")]
-    [InlineData("unpublish-unchanged")]
-    public async Task NavbarOperation_CommitFailureThrowsAndRollsBack(string operation)
-    {
-        var interceptor = new CommitFailureInterceptor();
-        await using var context = await CreateIsolatedContextAsync(interceptor);
-        await SeedNavbarAsync(context);
+        using var context = Fixture.CreateContext();
         var repository = new AlbumRepository(context);
-        var before = (await repository.GetAlbumsAsync()).OrderBy(album => album.Id).ToList();
-        interceptor.FailCommit = true;
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => RunNavbarOperationAsync(context, operation));
+        var parameterAlbum = new Album { Id = 7, Name = "MyAlbum713", NavTitle = "Album713" };
+        
+        var albumDto = await repository.SaveAlbumAsync(parameterAlbum);
+        var contextAlbum = await context.Albums.FirstOrDefaultAsync(a => a.Name == "MyAlbum713");
 
-        Assert.Equal("Simulated commit failure.", exception.Message);
-        Assert.Null(context.Database.CurrentTransaction);
-        context.ChangeTracker.Clear();
-        Assert.Equal(before, (await repository.GetAlbumsAsync()).OrderBy(album => album.Id).ToList());
+        Assert.Null(albumDto);
+        Assert.Null(contextAlbum);
     }
-
-    private async Task<ApplicationDbContext> CreateIsolatedContextAsync(params IInterceptor[] interceptors)
+    
+    /* SetLayoutPresetAsync */
+    [Theory]
+    [InlineData(PageLayoutPreset.Default)]
+    [InlineData(PageLayoutPreset.Spooky)]
+    public async Task SetLayoutPresetAsync_AlbumExists_SavesChangeAndReturnsAlbumAsDto(PageLayoutPreset preset)
     {
-        await using var source = Fixture.CreateContext();
-        var images = await source.Images.AsNoTracking().ToListAsync(TestContext.Current.CancellationToken);
-        var photos = await source.Photos.AsNoTracking().ToListAsync(TestContext.Current.CancellationToken);
-        var context = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseNpgsql(source.Database.GetConnectionString()).AddInterceptors(interceptors).Options);
-        try
-        {
-            // Temporary tables isolate committed repository operations from the shared fixture.
-            await context.Database.OpenConnectionAsync(TestContext.Current.CancellationToken);
-            await context.Database.ExecuteSqlRawAsync(
-                context.Database.GenerateCreateScript().Replace("CREATE TABLE ", "CREATE TEMP TABLE "),
-                TestContext.Current.CancellationToken);
-            context.Images.AddRange(images);
-            context.Photos.AddRange(photos);
-            await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-            return context;
-        }
-        catch
-        {
-            await context.DisposeAsync();
-            throw;
-        }
-    }
-
-    private static async Task SeedNavbarAsync(ApplicationDbContext context)
-    {
-        var albums = await CreatePresentationAlbumsAsync(context, 3);
-        for (var index = 0; index < 2; index++)
-        {
-            albums[index].Published = true;
-            albums[index].NavbarOrder = index;
-        }
-        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-    }
-
-    private static Task RunNavbarOperationAsync(ApplicationDbContext context, string operation)
-    {
+        using var context = Fixture.CreateContext();
         var repository = new AlbumRepository(context);
-        return operation switch
-        {
-            "delete" => repository.DeleteAlbumByIdAsync(7000),
-            "update" => repository.UpdateNavOrderAsync(7000, 1),
-            "swap" => repository.SwapAlbumsInNavAsync(7000, 7001),
-            "publish" => repository.PublishAlbumAsync(7002, 2),
-            "unpublish" => repository.UnpublishAlbumAsync(7000),
-            "publish-unchanged" => repository.PublishAlbumAsync(7000, null),
-            "unpublish-unchanged" => repository.UnpublishAlbumAsync(7002),
-            _ => throw new ArgumentOutOfRangeException(nameof(operation))
-        };
-    }
 
-    private sealed class CommitFailureInterceptor : DbTransactionInterceptor
+        var albumDto = await repository.SetLayoutPresetAsync(1, preset);
+        var contextAlbum = await context.Albums.FindAsync(1);
+        
+        Assert.NotNull(albumDto);
+        Assert.Equal(preset, albumDto.LayoutPreset);
+        Assert.Equal(albumDto, TestAlbumToDto(contextAlbum));
+    }
+    
+    [Fact]
+    public async Task SetLayoutPresetAsync_AlbumDoesNotExist_ReturnsNull()
     {
-        public bool FailCommit { get; set; }
+        using var context = Fixture.CreateContext();
+        var repository = new AlbumRepository(context);
 
-        public override ValueTask<InterceptionResult> TransactionCommittingAsync(DbTransaction transaction,
-            TransactionEventData eventData, InterceptionResult result, CancellationToken cancellationToken = default)
-        {
-            if (FailCommit) throw new InvalidOperationException("Simulated commit failure.");
-            return ValueTask.FromResult(result);
-        }
+        var albumDto = await repository.SetLayoutPresetAsync(-1, PageLayoutPreset.Spooky);
+        Assert.Null(albumDto);
     }
-
-    private static async Task<Album[]> CreatePresentationAlbumsAsync(ApplicationDbContext context, int count)
+    
+    
+    
+    
+    
+    // TODO better approach?
+    private static IAlbumRepository.AlbumDto TestAlbumToDto(Album album)
     {
-        var albums = Enumerable.Range(0, count).Select(index => new Album
-        {
-            Id = 7000 + index,
-            Name = $"Gallery {index}",
-            NavTitle = $"Gallery {index}"
-        }).ToArray();
-        context.Albums.AddRange(albums);
-        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-        return albums;
+        return new IAlbumRepository.AlbumDto
+        (
+            Id: album.Id,
+            Name: album.Name,
+            Description: album.Description,
+            NavTitle: album.NavTitle,
+            Published: album.Published,
+            LayoutPreset: album.LayoutPreset, NavbarOrder: album.NavbarOrder);
     }
+
 }

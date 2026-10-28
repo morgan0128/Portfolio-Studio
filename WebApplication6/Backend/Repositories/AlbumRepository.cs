@@ -55,7 +55,14 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
     
     public async Task<IAlbumRepository.AlbumDto?> SaveAlbumAsync(Album album)
     {
+        var idPropertySentinel = context.Model
+            .FindEntityType(typeof(Album))!
+            .FindProperty(nameof(Album.Id))!
+            .Sentinel;
+        if (!Equals(album.Id, idPropertySentinel)) return null; // Reject explicit Id
+        
         if (album.NavbarOrder != -1) album.NavbarOrder = -1;
+        if (album.Published) album.Published = false;
         context.Albums.Add(album);
         
         await context.SaveChangesAsync();

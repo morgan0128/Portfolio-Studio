@@ -5,9 +5,9 @@ using Xunit;
 
 namespace WebApplication6.Tests.Tests.Integration.Repositories;
 
-public class AlbumItemRepositoryReadOnlyTests(TestDatabaseFixture dbFixture) : IClassFixture<TestDatabaseFixture>
+public class AlbumItemRepositoryReadOnlyTests(PrimaryTestDatabaseFixture dbFixture) : IClassFixture<PrimaryTestDatabaseFixture>
 {
-    public TestDatabaseFixture Fixture { get; } = dbFixture;
+    public PrimaryTestDatabaseFixture Fixture { get; } = dbFixture;
 
     [Fact]
     public async Task GetAlbumItems_ReturnsExistingAlbumOrderAndDisplaySettings()

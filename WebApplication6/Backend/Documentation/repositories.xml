@@ -32,14 +32,22 @@
     
     <Album name="save-album-async">
         <summary>
-            Saves <c>Album</c> to database. The <c>Album</c> to save will be saved having <c>Album.NavbarOrder</c> of -1, 
-            regardless of if <paramref name="album"/> has <c>Album.NavbarOrder</c> of -1 at time of method call.
+            Saves <c>Album</c> to database. The <c>Album</c> to save will be saved with values 
+            <c>Album.NavbarOrder == -1</c> and <c>Album.Published == false</c>, regardless of the values for these members in 
+            <paramref name="album"/>. Supplying a value for <c>Id</c> of <paramref name="album"/>, however, 
+            is strictly forbidden (cancels operation).
         </summary>
         <param name="album">The <c>Album</c> to save.</param>
         <returns>
             A task that represents the asynchronous operation.
-            The task result contains an <c>AlbumDto</c> depicting the saved <c>Album</c> on success, and null 
-            on failure where an exception was not thrown.
+            <para>
+                The task result contains an <c>AlbumDto</c> depicting the saved <c>Album</c> on success.
+            </para>
+            <para>
+                The task result contains null where <paramref name="album"/> was explicitly assigned an Id;
+                indicates that the operation was cancelled.
+            </para>
+
         </returns>
     </Album>
     

@@ -11,9 +11,9 @@ using Xunit;
 
 namespace WebApplication6.Tests.Tests.Integration.Repositories;
 
-public class AlbumItemRepositoryModifyDataTests(TestDatabaseFixture dbFixture) : IClassFixture<TestDatabaseFixture>
+public class AlbumItemRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture) : IClassFixture<PrimaryTestDatabaseFixture>
 {
-    public TestDatabaseFixture Fixture { get; } = dbFixture;
+    public PrimaryTestDatabaseFixture Fixture { get; } = dbFixture;
     
     // TODO: Move AlbumItems_MixedTypes_ShareOrderAndPreserveNonPhotoItemsWhenDeletingPhotos
     //// [Fact]
