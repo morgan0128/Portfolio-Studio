@@ -3,12 +3,16 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using WebApplication6.Backend.Data;
 using WebApplication6.Backend.Models;
 using WebApplication6.Backend.Repositories;
 using Xunit;
+using Xunit.Sdk;
+using Xunit.v3;
+using XunitException = Xunit.MicrosoftTestingPlatform.XunitException;
 
 namespace WebApplication6.Tests.Tests.Integration.Repositories;
 
@@ -18,20 +22,40 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
     public PrimaryTestDatabaseFixture Fixture { get; } = dbFixture;
     
     /* SaveAlbumAsync */
-    [Fact]
-    public async Task SaveAlbumAsync_ExpectedCase_SavesAlbumAndReturnsAsDto()
+    [Theory]
+    [InlineData(null, "Album712", PageLayoutPreset.Default)]
+    [InlineData("", null, PageLayoutPreset.Cozy)]
+    [InlineData("Hello Album712", "", null)]
+    [InlineData("Hi Album712", "Album712", PageLayoutPreset.Spooky)]
+    [InlineData("", null, PageLayoutPreset.Spooky)]
+    [InlineData(null, "", null)]
+    [InlineData(null, null, PageLayoutPreset.Cozy)]
+    [InlineData(null, null, null)]
+    public async Task SaveAlbumAsync_GeneralExpectedCases_SavesAlbumAndReturnsAsDto([CanBeNull] string description, 
+        [CanBeNull] string navTitle, PageLayoutPreset? preset)
     {
         using var context = Fixture.CreateContext();
         var repository = new AlbumRepository(context);
 
-        var parameterAlbum = new Album { Name = "MyAlbum712", NavTitle = "Album712" };
-        
-        var albumDto = await repository.SaveAlbumAsync(parameterAlbum);
-        var contextAlbum = await context.Albums.SingleAsync(a => a.Name == "MyAlbum712");
+        var parameterAlbum = new Album { Name = "MyAlbum712" };
+        if (description is not null) parameterAlbum.Description = description;
+        if (navTitle is not null) parameterAlbum.NavTitle = navTitle;
+        if (preset is not null) parameterAlbum.LayoutPreset = preset.Value;
+        var expectedDto = CreateExpectedAlbumToDto(parameterAlbum);
 
+        var albumDto = await repository.SaveAlbumAsync(parameterAlbum);
         Assert.NotNull(albumDto);
-        Assert.Equal("Album712", albumDto.NavTitle);
-        Assert.Equal(albumDto, TestAlbumToDto(contextAlbum));
+        
+        var contextAlbum = await context.Albums
+            .AsNoTracking()
+            .SingleAsync(a => a.Id == albumDto.Id);
+        
+        Assert.True(albumDto.Id > 0);
+        Assert.Equal(parameterAlbum.Id, albumDto.Id);
+        
+        expectedDto = expectedDto with { Id = albumDto.Id };
+        Assert.Equal(expectedDto, albumDto);
+        Assert.Equal(expectedDto, CreateExpectedAlbumToDto(contextAlbum));
     }
     
     [Theory]
@@ -52,7 +76,9 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
         if (navbarOrder is not null) parameterAlbum.NavbarOrder = navbarOrder.Value;
         
         var albumDto = await repository.SaveAlbumAsync(parameterAlbum);
-        var contextAlbum = await context.Albums.SingleAsync(a => a.Name == "VisibleAlbum?");
+        var contextAlbum = await context.Albums
+            .AsNoTracking()
+            .SingleAsync(a => a.Name == "VisibleAlbum?" && a.NavTitle == "I am hiding");
         
         Assert.NotNull(albumDto);
         Assert.Equal("I am hiding", albumDto.NavTitle);
@@ -62,13 +88,16 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
         Assert.Equal(-1, contextAlbum.NavbarOrder);
     }
     
-    [Fact]
-    public async Task SaveAlbumAsync_AlbumIsSuppliedWithId_CancelsOperationAndReturnsNull()
+    // Careful: do NOT input Sentinel for Album.Id
+    [Theory]
+    [InlineData(7)]
+    [InlineData(-7)]
+    public async Task SaveAlbumAsync_AlbumIsSuppliedWithId_CancelsOperationAndReturnsNull(int suppliedId)
     {
         using var context = Fixture.CreateContext();
         var repository = new AlbumRepository(context);
 
-        var parameterAlbum = new Album { Id = 7, Name = "MyAlbum713", NavTitle = "Album713" };
+        var parameterAlbum = new Album { Id = suppliedId, Name = "MyAlbum713", NavTitle = "Album713" };
         
         var albumDto = await repository.SaveAlbumAsync(parameterAlbum);
         var contextAlbum = await context.Albums.FirstOrDefaultAsync(a => a.Name == "MyAlbum713");
@@ -79,19 +108,29 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
     
     /* SetLayoutPresetAsync */
     [Theory]
-    [InlineData(PageLayoutPreset.Default)]
-    [InlineData(PageLayoutPreset.Spooky)]
-    public async Task SetLayoutPresetAsync_AlbumExists_SavesChangeAndReturnsAlbumAsDto(PageLayoutPreset preset)
+    [InlineData(1, PageLayoutPreset.Default)]
+    [InlineData(1, PageLayoutPreset.Spooky)]
+    [InlineData(3, PageLayoutPreset.Default)]
+    public async Task SetLayoutPresetAsync_AlbumExists_SavesChangeAndReturnsAlbumAsDto(int id, PageLayoutPreset preset)
     {
         using var context = Fixture.CreateContext();
         var repository = new AlbumRepository(context);
 
-        var albumDto = await repository.SetLayoutPresetAsync(1, preset);
-        var contextAlbum = await context.Albums.FindAsync(1);
-        
+        var originalAlbum = await context.Albums
+            .AsNoTracking()
+            .SingleAsync(a => a.Id == id);
+        var expectedDto = CreateExpectedAlbumToDto(originalAlbum) with { LayoutPreset = preset };
+
+        var albumDto = await repository.SetLayoutPresetAsync(id, preset);
+
         Assert.NotNull(albumDto);
-        Assert.Equal(preset, albumDto.LayoutPreset);
-        Assert.Equal(albumDto, TestAlbumToDto(contextAlbum));
+        Assert.Equal(expectedDto, albumDto);
+
+        var contextAlbum = await context.Albums
+            .AsNoTracking()
+            .SingleAsync(a => a.Id == id);
+
+        Assert.Equal(expectedDto, CreateExpectedAlbumToDto(contextAlbum));
     }
     
     [Fact]
@@ -107,9 +146,15 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
     
     
     
-    
-    // TODO better approach?
-    private static IAlbumRepository.AlbumDto TestAlbumToDto(Album album)
+
+    /// <summary>
+    ///     Test version of AlbumRepository.AlbumToDto(Album album), kept independent/hardcoded:
+    ///     results in less chance of a dto mapping bug slipping through.
+    /// </summary>
+    /// <returns>
+    ///     An AlbumDto, which represents the expected Album-to-dto mapping utilized in AlbumRepository.
+    /// </returns>
+    private static IAlbumRepository.AlbumDto CreateExpectedAlbumToDto(Album album)
     {
         return new IAlbumRepository.AlbumDto
         (

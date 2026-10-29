@@ -42,6 +42,7 @@ public class AlbumRepositoryReadOnlyTests(PrimaryTestDatabaseFixture dbFixture) 
             {
                 Assert.Equal(3, element3Inspector.Id);
                 Assert.Equal(1, element3Inspector.NavbarOrder);
+                Assert.Equal(PageLayoutPreset.Cozy, element3Inspector.LayoutPreset);
             },
             element4Inspector =>
             {

@@ -22,7 +22,7 @@ public class PrimaryTestDatabaseFixture
         {
             if (!_databaseInitialized)
             {
-                using (var context = CreateContext())
+                using (var context = CreateContextWithoutTransaction())
                 {
                     context.Database.EnsureDeleted();
                     context.Database.EnsureCreated();
@@ -174,13 +174,16 @@ public class PrimaryTestDatabaseFixture
 
     public ApplicationDbContext CreateContext()
     {
-        var context = new ApplicationDbContext(
-            new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseNpgsql(ConnectionString)
-                .Options);
+        var context = CreateContextWithoutTransaction();
         context.Database.BeginTransaction();
         return context;
     }
+
+    private static ApplicationDbContext CreateContextWithoutTransaction()
+        => new(
+            new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseNpgsql(ConnectionString)
+                .Options);
 
     private static void AdvancePostgresIdentitySequence(ApplicationDbContext context)
     {
