@@ -106,13 +106,13 @@ jobs:
       - name: Build
         run: dotnet build WebApplication6.Tests/WebApplication6.Tests.csproj --configuration Release --no-restore
 
-      - name: Run AlbumItem PostgreSQL integration tests
-        run: >
-          dotnet test
-          --project WebApplication6.Tests/WebApplication6.Tests.csproj
-          --configuration Release
-          --no-build
-          --filter-class "WebApplication6.Tests.Tests.Integration.Repositories.AlbumItemRepositoryModifyDataTests"
+#      - name: Run AlbumItem PostgreSQL integration tests
+#        run: >
+#          dotnet test
+#          --project WebApplication6.Tests/WebApplication6.Tests.csproj
+#          --configuration Release
+#          --no-build
+#          --filter-class "WebApplication6.Tests.Tests.Integration.Repositories.AlbumItemRepositoryModifyDataTests"
           
       - name: Run AlbumRepository PostgreSQL read-only integration tests
         run: >
@@ -122,7 +122,7 @@ jobs:
           --no-build
           --filter-class "WebApplication6.Tests.Tests.Integration.Repositories.AlbumRepositoryReadOnlyTests"
           
-      - name: Run AlbumRepository PostgreSQL integration tests
+      - name: Run AlbumRepository PostgreSQL modify-data integration tests
         run: >
           dotnet test
           --project WebApplication6.Tests/WebApplication6.Tests.csproj

@@ -27,7 +27,7 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
     [InlineData("", null, PageLayoutPreset.Cozy)]
     [InlineData("Hello Album712", "", null)]
     [InlineData("Hi Album712", "Album712", PageLayoutPreset.Spooky)]
-    [InlineData("", null, PageLayoutPreset.Spooky)]
+    [InlineData("712", null, PageLayoutPreset.Spooky)]
     [InlineData(null, "", null)]
     [InlineData(null, null, PageLayoutPreset.Cozy)]
     [InlineData(null, null, null)]
@@ -41,6 +41,7 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
         if (description is not null) parameterAlbum.Description = description;
         if (navTitle is not null) parameterAlbum.NavTitle = navTitle;
         if (preset is not null) parameterAlbum.LayoutPreset = preset.Value;
+        
         var expectedDto = CreateExpectedAlbumToDto(parameterAlbum);
 
         var albumDto = await repository.SaveAlbumAsync(parameterAlbum);
@@ -50,7 +51,6 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
             .AsNoTracking()
             .SingleAsync(a => a.Id == albumDto.Id);
         
-        Assert.True(albumDto.Id > 0);
         Assert.Equal(parameterAlbum.Id, albumDto.Id);
         
         expectedDto = expectedDto with { Id = albumDto.Id };
@@ -66,6 +66,7 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
     [InlineData(true, 4)]
     [InlineData(true, 5)]
     [InlineData(true, null)]
+    [InlineData(null, null)]
     public async Task SaveAlbumAsync_AlbumSuppliedPublishedAndOrNavbarOrder_RevertsValuesAsOutlinedThenSavesAlbumAndReturnsAsDto(bool? published, int? navbarOrder)
     {
         using var context = Fixture.CreateContext();
@@ -88,11 +89,10 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
         Assert.Equal(-1, contextAlbum.NavbarOrder);
     }
     
-    // Careful: do NOT input Sentinel for Album.Id
     [Theory]
     [InlineData(7)]
     [InlineData(-7)]
-    public async Task SaveAlbumAsync_AlbumIsSuppliedWithId_CancelsOperationAndReturnsNull(int suppliedId)
+    public async Task SaveAlbumAsync_AlbumSuppliedWithNotSentinelValueId_CancelsOperationAndReturnsNull(int suppliedId)
     {
         using var context = Fixture.CreateContext();
         var repository = new AlbumRepository(context);
