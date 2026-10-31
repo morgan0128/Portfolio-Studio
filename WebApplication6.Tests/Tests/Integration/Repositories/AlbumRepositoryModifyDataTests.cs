@@ -143,6 +143,42 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
         Assert.Null(albumDto);
     }
     
+    /*
+     * Deeper Integration Tests
+     */
+    [Fact]
+    public async Task SaveAlbums_AlbumGetterCountsReflectExpected()
+    {
+        using var context = Fixture.CreateContext();
+        var repository = new AlbumRepository(context);
+        
+        
+        var parameterAlbum1 = new Album { Name = "MyAlbum71", NavTitle = "MyAlbum", Published = true, NavbarOrder = 3 }; // Expect: Published = false, NavbarOrder = -1
+        var parameterAlbum2 = new Album { Name = "Album", NavTitle = "My", Published = true }; // Expect: Published = false
+        var parameterAlbum3 = new Album { Name = "2003", NavTitle = "BornThen", Published = false, NavbarOrder = 4 }; // Expect: NavbarOrder = -1
+        var parameterAlbum4 = new Album { Name = "AlbumOfMine", Id = 77 }; // Expect: Album is not saved
+        
+        var albumCountPrior = (await repository.GetAlbumIdsAsync()).Count();
+        var publishedCountPrior = (await repository.GetPublishedAlbumsAsync()).Count();
+        var publishedNavExcludedCountPrior = (await repository.GetPublishedNavExcludedAlbumsAsync()).Count();
+        var navIncludedCountPrior = (await repository.GetNavIncludedAlbumsAsync()).Count();
+
+        await repository.SaveAlbumAsync(parameterAlbum1);
+        await repository.SaveAlbumAsync(parameterAlbum2);
+        await repository.SaveAlbumAsync(parameterAlbum3);
+        await repository.SaveAlbumAsync(parameterAlbum4); // Expect: Operation cancelled, no save occurred
+
+        var albumCountPost = (await repository.GetAlbumIdsAsync()).Count();
+        Assert.Equal((albumCountPrior + 3), albumCountPost);
+        
+        var publishedCountPost = (await repository.GetPublishedAlbumsAsync()).Count();
+        var publishedNavExcludedCountPost = (await repository.GetPublishedNavExcludedAlbumsAsync()).Count();
+        var navIncludedCountPost = (await repository.GetNavIncludedAlbumsAsync()).Count();
+        Assert.Equal(publishedCountPrior, publishedCountPost);
+        Assert.Equal(publishedNavExcludedCountPrior, publishedNavExcludedCountPost);
+        Assert.Equal(navIncludedCountPrior, navIncludedCountPost);
+    }
+    
     
     
     

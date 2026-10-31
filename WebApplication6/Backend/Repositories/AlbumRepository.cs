@@ -45,6 +45,7 @@ public class AlbumRepository(ApplicationDbContext context) : IAlbumRepository
     {
         var album = await context.Albums
             .Where(album => album.Id == id)
+            .AsNoTracking()
             .Select(ToDto)
             .FirstOrDefaultAsync();
 

@@ -209,6 +209,37 @@ public class AlbumRepositoryReadOnlyTests(PrimaryTestDatabaseFixture dbFixture) 
                 Assert.Equal(2, element3Inspector.NavbarOrder);
             });
     }
+    
+    /*
+     * Deeper Integration Tests
+     */
+    
+    [Fact]
+    public async Task NonpartititionedAlbumGetters_ReturnEquivalentCount()
+    {
+        await using var context = Fixture.CreateContext();
+        var repository = new AlbumRepository(context);
+
+        var numAlbums = (await repository.GetAlbumsCountAsync());
+        
+        var albumsCount = (await repository.GetAlbumsAsync()).Count();
+        Assert.Equal(numAlbums, albumsCount);
+
+        var albumIdsCount = (await repository.GetAlbumIdsAsync()).Count();
+        Assert.Equal(numAlbums, albumIdsCount);
+    }
+    
+    [Fact]
+    public async Task PartitionedAlbumGetters_ReturnEquivalentSumsAsExpected()
+    {
+        await using var context = Fixture.CreateContext();
+        var repository = new AlbumRepository(context);
+
+        var publishedCount = (await repository.GetPublishedAlbumsAsync()).Count();
+        var publishedNavExcludedCount = (await repository.GetPublishedNavExcludedAlbumsAsync()).Count();
+        var navIncludedCount = (await repository.GetNavIncludedAlbumsAsync()).Count();
+        Assert.Equal(publishedCount, (publishedNavExcludedCount + navIncludedCount));
+    }
 
 
 }

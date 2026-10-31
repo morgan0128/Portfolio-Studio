@@ -93,26 +93,26 @@ public class TransactionalTestDatabaseFixture
                 
         var album2 = new Album
         {
-            Id = 3002, Name = "Unnamed", Published = false, NavbarOrder = -1
+            Id = 2, Name = "Unnamed", Published = false, NavbarOrder = -1
         };
         context.Add(album2);
         context.SaveChanges();
                 
         var album3 = new Album
         {
-            Id = 3, Name = "HelloAlbum", NavTitle = "Hello", Published = true, NavbarOrder = 1
+            Id = 3, Name = "HelloAlbum", NavTitle = "Hello", Published = true, NavbarOrder = 1, LayoutPreset = PageLayoutPreset.Cozy
         };
         context.Add(album3);
         context.SaveChanges();
                 
         var album4 = new Album
         {
-            Id = 2, Name = "HelloAlbum", NavTitle = "Hello", Description = "Hello Album Description", 
+            Id = 4, Name = "HelloAlbum", NavTitle = "Hello", Description = "Hello Album Description", 
             Published = true, NavbarOrder = 2
         };
         context.Add(album4);
         context.SaveChanges();
-                
+
         var album5 = new Album
         {
             Id = 5, Name = "HelloAlbum5", NavTitle = "Hello5", 
@@ -121,53 +121,47 @@ public class TransactionalTestDatabaseFixture
         context.Add(album5);
         context.SaveChanges();
                 
-        var albumIdIs1 = context.Albums.Find(1);
-        if (albumIdIs1 != null)
+        album1.AlbumItems.Add(new PhotoDisplay
         {
-            albumIdIs1.AlbumItems.Add(new PhotoDisplay
-            {
-                Photo = photo1
-            });
-            context.SaveChanges();
-            context.PhotoDisplays.Single(ap => ap.AlbumId == 1 && ap.PhotoId == 2).Order = 1;
-            context.SaveChanges();
-            // photo1.Id == 2, Order in Album where Id==1 is 1
+            Photo = photo1
+        });
+        context.SaveChanges();
+        context.PhotoDisplays.Single(ap => ap.AlbumId == 1 && ap.PhotoId == 2).Order = 1;
+        context.SaveChanges();
+        // photo1.Id == 2, Order in Album where Id==1 is 1
 
-            albumIdIs1.AlbumItems.Add(new PhotoDisplay
-            {
-                Photo = photo2
-            });
-            context.SaveChanges();
-            context.PhotoDisplays.Single(ap => ap.AlbumId == 1 && ap.PhotoId == photo2.Id).Order = 4;
-            context.SaveChanges();
-            // photo2.Id == 64, Order in Album where Id==1 is 4
+        album1.AlbumItems.Add(new PhotoDisplay
+        {
+            Photo = photo2
+        });
+        context.SaveChanges();
+        context.PhotoDisplays.Single(ap => ap.AlbumId == 1 && ap.PhotoId == photo2.Id).Order = 4;
+        context.SaveChanges();
+        // photo2.Id == 64, Order in Album where Id==1 is 4
                     
-            albumIdIs1.AlbumItems.Add(new PhotoDisplay
-            {
-                Photo = photo3
-            });
-            context.SaveChanges();
-            context.PhotoDisplays.Single(ap => ap.AlbumId == 1 && ap.PhotoId == photo3.Id).Order = 2;
-            context.SaveChanges();
-            // photo3.Id == 3, Order in Album where Id==1 is 2
+        album1.AlbumItems.Add(new PhotoDisplay
+        {
+            Photo = photo3
+        });
+        context.SaveChanges();
+        context.PhotoDisplays.Single(ap => ap.AlbumId == 1 && ap.PhotoId == photo3.Id).Order = 2;
+        context.SaveChanges();
+        // photo3.Id == 3, Order in Album where Id==1 is 2
                     
 
-            albumIdIs1.AlbumItems.Add(new PhotoDisplay
-            {
-                Photo = photo4
-            });
-            context.SaveChanges();
-            // photo4.Id == 4, Order in Album where Id==1 is 0
+        album1.AlbumItems.Add(new PhotoDisplay
+        {
+            Photo = photo4
+        });
+        context.SaveChanges();
+        // photo4.Id == 4, Order in Album where Id==1 is 0
                     
-            // For AlbumPhotos of Album where AlbumId==1:
-            // Photo.Id // PhotoDisplay.Order
-            // 4        // 0
-            // 2        // 1
-            // 3        // 2
-            // 64       // 4
-                
-
-        }
+        // For AlbumPhotos of Album where AlbumId==1:
+        // Photo.Id // PhotoDisplay.Order
+        // 4        // 0
+        // 2        // 1
+        // 3        // 2
+        // 64       // 4
         
     }
 
