@@ -117,15 +117,22 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
         using var context = Fixture.CreateContext();
         var repository = new AlbumRepository(context);
 
-        var albumPreSave = await GetAlbumStateFromContextById(context, 1);
-        Assert.NotNull(albumPreSave);
+        var albumPreSave = new Album
+        {
+            Name = "Existing album",
+            NavTitle = "Original title",
+            Published = true
+        };
+        context.Albums.Add(albumPreSave);
+        await context.SaveChangesAsync();
         var priorDto = CreateExpectedAlbumToDto(albumPreSave);
+        context.ChangeTracker.Clear();
         albumPreSave.NavTitle = "2026csgrad";
 
         var albumDto = await repository.SaveAlbumAsync(albumPreSave);
         Assert.Null(albumDto);
 
-        var albumPostSave = await GetAlbumStateFromContextById(context, 1);
+        var albumPostSave = await GetAlbumStateFromContextById(context, priorDto.Id);
         Assert.NotNull(albumPostSave);
 
         Assert.Equivalent(priorDto, CreateExpectedAlbumToDto(albumPostSave));
