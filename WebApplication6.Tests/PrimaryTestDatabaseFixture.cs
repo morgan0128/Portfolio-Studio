@@ -34,8 +34,8 @@ public class PrimaryTestDatabaseFixture
                         Url = "uploads/a7344381-fe36-4139-be80-5c61cb7fe8af.png", AltText = "alt text",
                         Height = 771, Width = 646
                     };
-                    context.Add(image1);
-                    context.SaveChanges();
+                    // context.Add(image1);
+                    // context.SaveChanges();
                     
                     var image2 = new Image
                     {
@@ -44,114 +44,119 @@ public class PrimaryTestDatabaseFixture
                         Url = "uploads/a7344381-fe36-4139-be80-5c61cb7fe8af.png", AltText = "alt text",
                         Height = 349, Width = 346
                     };
-                    context.Add(image2);
-                    context.SaveChanges();
-
+                    // context.Add(image2);
+                    // context.SaveChanges();
+                    context.Images.AddRange(image1, image2);
+                    
                     var photo1 = new Photo
                     {
                         Id = 2, CreatedAt = new DateTime(DateOnly.MinValue, TimeOnly.MinValue), Name = "MyPhoto",
                         Description = "I am a Photo!", Image = image2, ImageId = image2.Id, YearContentCreated = 2000
                     };
-                    context.Add(photo1);
-                    context.SaveChanges();
+                    // context.Add(photo1);
+                    // context.SaveChanges();
                     
                     var photo2 = new Photo
                     {
                         Id = 64, CreatedAt = new DateTime(DateOnly.MaxValue, TimeOnly.MaxValue), Name = "Cat Picture",
                         Description = "I am a cat!", Image = image1, ImageId = image1.Id, YearContentCreated = 2026
                     };
-                    context.Add(photo2);
-                    context.SaveChanges();
+                    // context.Add(photo2);
+                    // context.SaveChanges();
                     
                     var photo3 = new Photo
                     {
                         Id = 3, CreatedAt = new DateTime(DateOnly.MaxValue, TimeOnly.MaxValue), Name = "Cat Picture?",
                         Description = "I am not a cat!", Image = image1, ImageId = image1.Id, YearContentCreated = 2026
                     };
-                    context.Add(photo3);
-                    context.SaveChanges();
+                    // context.Add(photo3);
+                    // context.SaveChanges();
                     
                     var photo4 = new Photo
                     {
                         Id = 4, CreatedAt = new DateTime(DateOnly.MaxValue, TimeOnly.MaxValue), Name = "A Picture",
                         Description = "I am a clone!", Image = image2, ImageId = image2.Id, YearContentCreated = 2026
                     };
-                    context.Add(photo4);
-                    context.SaveChanges();
+                    // context.Add(photo4);
+                    // context.SaveChanges();
+                    context.Photos.AddRange(photo1, photo2, photo3, photo4);
 
                     var album1 = new Album
                     {
                         Id = 1, Name = "MyPhotoAlbum", Description = "Here are all of my pictures", 
                         NavTitle = "MyPhotoAlbum", Published = true, NavbarOrder = 0
                     };
-                    context.Add(album1);
-                    context.SaveChanges();
+                    // context.Add(album1);
+                    // context.SaveChanges();
                     
                     var album2 = new Album
                     {
                         Id = 32, Name = "Unnamed", Published = false, NavbarOrder = -1
                     };
-                    context.Add(album2);
-                    context.SaveChanges();
+                    // context.Add(album2);
+                    // context.SaveChanges();
                     
                     var album3 = new Album
                     {
                         Id = 3, Name = "HelloAlbum", NavTitle = "Hello", Published = true, NavbarOrder = 1, LayoutPreset = PageLayoutPreset.Cozy
                     };
-                    context.Add(album3);
-                    context.SaveChanges();
+                    // context.Add(album3);
+                    // context.SaveChanges();
                     
                     var album4 = new Album
                     {
                         Id = 2, Name = "HelloAlbum", NavTitle = "Hello", Description = "Hello Album Description", 
                         Published = true, NavbarOrder = 2
                     };
-                    context.Add(album4);
-                    context.SaveChanges();
+                    // context.Add(album4);
+                    // context.SaveChanges();
                     
                     var album5 = new Album
                     {
                         Id = 5, Name = "HelloAlbum5", NavTitle = "Hello5", 
                         Published = true, NavbarOrder = -1
                     };
-                    context.Add(album5);
+                    // context.Add(album5);
+                    // context.SaveChanges();
+                    context.Albums.AddRange(album1, album2, album3, album4, album5);
                     context.SaveChanges();
                     
 
                     album1.AlbumItems.Add(new PhotoDisplay
                     {
-                        Photo = photo1
+                        Photo = photo1, Order = 1
                     });
-                    context.SaveChanges();
-                    context.PhotoDisplays.Single(ap => ap.AlbumId == 1 && ap.PhotoId == 2).Order = 1;
-                    context.SaveChanges();
+                    // context.SaveChanges();
+                    // context.PhotoDisplays.Single(ap => ap.AlbumId == 1 && ap.PhotoId == 2).Order = 1;
+                    // context.SaveChanges();
                     // photo1.Id == 2, Order in Album where Id==1 is 1
-
+                    
                     album1.AlbumItems.Add(new PhotoDisplay
                     {
-                        Photo = photo2
+                        Photo = photo2, Order = 4
                     });
-                    context.SaveChanges();
-                    context.PhotoDisplays.Single(ap => ap.AlbumId == 1 && ap.PhotoId == photo2.Id).Order = 4;
-                    context.SaveChanges();
+                    // context.SaveChanges();
+                    // context.PhotoDisplays.Single(ap => ap.AlbumId == 1 && ap.PhotoId == photo2.Id).Order = 4;
+                    // context.SaveChanges();
                     // photo2.Id == 64, Order in Album where Id==1 is 4
                     
                     album1.AlbumItems.Add(new PhotoDisplay
                     {
-                        Photo = photo3
+                        Photo = photo3, Order = 2
                     });
-                    context.SaveChanges();
-                    context.PhotoDisplays.Single(ap => ap.AlbumId == 1 && ap.PhotoId == photo3.Id).Order = 2;
-                    context.SaveChanges();
+                    // context.SaveChanges();
+                    // context.PhotoDisplays.Single(ap => ap.AlbumId == 1 && ap.PhotoId == photo3.Id).Order = 2;
+                    // context.SaveChanges();
                     // photo3.Id == 3, Order in Album where Id==1 is 2
                     
 
                     album1.AlbumItems.Add(new PhotoDisplay
                     {
-                        Photo = photo4
+                        Photo = photo4, Order = 0
                     });
-                    context.SaveChanges();
+                    // context.SaveChanges();
                     // photo4.Id == 4, Order in Album where Id==1 is 0
+                    context.SaveChanges();
                     
                     // For AlbumPhotos of Album where AlbumId==1:
                     // Photo.Id // PhotoDisplay.Order
@@ -164,9 +169,15 @@ public class PrimaryTestDatabaseFixture
                     
 
                     // AFTER ALL SEEDED DATA HAS BEEN SAVED
+                    var reservedEmpties = context.Albums
+                        .Where(a => a.Id == -7 || a.Id == -1 || a.Id == 7)
+                        .ToList();
+                    if (reservedEmpties.Count != 0)
+                    {
+                        throw new ApplicationException("-7, -1, and 7 are to be reserved in the seed for 'where Album does not exist' testing.");
+                    }
                     AdvancePostgresIdentitySequence(context);
                 }
-
                 _databaseInitialized = true;
             }
         }

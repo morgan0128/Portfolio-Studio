@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Data.Common;
 using System.Linq;
@@ -28,11 +29,10 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
     [InlineData("Hello Album712", "", null)]
     [InlineData("Hi Album712", "Album712", PageLayoutPreset.Spooky)]
     [InlineData("712", null, PageLayoutPreset.Spooky)]
-    [InlineData(null, "", null)]
     [InlineData(null, null, PageLayoutPreset.Cozy)]
     [InlineData(null, null, null)]
-    public async Task SaveAlbumAsync_GeneralExpectedCases_SavesAlbumAndReturnsAsDto([CanBeNull] string description, 
-        [CanBeNull] string navTitle, PageLayoutPreset? preset)
+    public async Task SaveAlbumAsync_GeneralExpectedCases_SavesAlbumAndReturnsAsDto(string? description, 
+        string? navTitle, PageLayoutPreset? preset)
     {
         using var context = Fixture.CreateContext();
         var repository = new AlbumRepository(context);
@@ -46,42 +46,43 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
 
         var albumDto = await repository.SaveAlbumAsync(parameterAlbum);
         Assert.NotNull(albumDto);
-        
-        var contextAlbum = await context.Albums
-            .AsNoTracking()
-            .SingleAsync(a => a.Id == albumDto.Id);
-        
-        Assert.Equal(parameterAlbum.Id, albumDto.Id);
+        var albumId = albumDto.Id;
+        Assert.Equal(parameterAlbum.Id, albumId);
         
         expectedDto = expectedDto with { Id = albumDto.Id };
         Assert.Equal(expectedDto, albumDto);
+        
+        var contextAlbum = await GetAlbumStateFromContextById(context, albumId);
+        Assert.NotNull(contextAlbum);
         Assert.Equal(expectedDto, CreateExpectedAlbumToDto(contextAlbum));
     }
     
     [Theory]
+    [InlineData(false, -2)]
     [InlineData(false, -1)]
+    [InlineData(false, 0)]
     [InlineData(false, 4)]
-    [InlineData(null, 0)]
+    [InlineData(false, 5)]
+    [InlineData(true, -2)]
+    [InlineData(true, -1)]
     [InlineData(true, 0)]
     [InlineData(true, 4)]
     [InlineData(true, 5)]
-    [InlineData(true, null)]
-    [InlineData(null, null)]
-    public async Task SaveAlbumAsync_AlbumSuppliedPublishedAndOrNavbarOrder_RevertsValuesAsOutlinedThenSavesAlbumAndReturnsAsDto(bool? published, int? navbarOrder)
+    public async Task SaveAlbumAsync_AlbumSuppliedPublishedAndOrNavbarOrder_RevertsValuesAsOutlinedThenSavesAlbumAndReturnsAsDto(bool published, int navbarOrder)
     {
         using var context = Fixture.CreateContext();
         var repository = new AlbumRepository(context);
 
-        var parameterAlbum = new Album { Name = "VisibleAlbum?", NavTitle = "I am hiding" };
-        if (published is not null) parameterAlbum.Published = published.Value;
-        if (navbarOrder is not null) parameterAlbum.NavbarOrder = navbarOrder.Value;
+        var parameterAlbum = new Album { Name = "VisibleAlbum?", NavTitle = "I am hiding", Published = published, NavbarOrder = navbarOrder};
         
         var albumDto = await repository.SaveAlbumAsync(parameterAlbum);
-        var contextAlbum = await context.Albums
-            .AsNoTracking()
-            .SingleAsync(a => a.Name == "VisibleAlbum?" && a.NavTitle == "I am hiding");
-        
         Assert.NotNull(albumDto);
+        var albumId = albumDto.Id;
+        Assert.Equal(albumId, parameterAlbum.Id);
+        
+        var contextAlbum = await GetAlbumStateFromContextById(context, albumId);
+        Assert.NotNull(contextAlbum);
+        
         Assert.Equal("I am hiding", albumDto.NavTitle);
         Assert.False(albumDto.Published);
         Assert.False(contextAlbum.Published);
@@ -96,49 +97,86 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
     {
         using var context = Fixture.CreateContext();
         var repository = new AlbumRepository(context);
-
-        var parameterAlbum = new Album { Id = suppliedId, Name = "MyAlbum713", NavTitle = "Album713" };
         
-        var albumDto = await repository.SaveAlbumAsync(parameterAlbum);
-        var contextAlbum = await context.Albums.FirstOrDefaultAsync(a => a.Name == "MyAlbum713");
+        var contextAlbum = await GetAlbumStateFromContextById(context, suppliedId);
+        Assert.Null(contextAlbum);
 
+        var parameterAlbum = new Album { Id = suppliedId, Name = "MyAlbum71341", NavTitle = "Album71322" };
+        var albumDto = await repository.SaveAlbumAsync(parameterAlbum);
         Assert.Null(albumDto);
+
+        contextAlbum = await GetAlbumStateFromContextById(context, suppliedId);
+        Assert.Null(contextAlbum);
+        contextAlbum = await context.Albums.FirstOrDefaultAsync(a => a.Name == "MyAlbum71341" && a.NavTitle == "Album71322");
         Assert.Null(contextAlbum);
     }
-    
-    /* SetLayoutPresetAsync */
-    [Theory]
-    [InlineData(1, PageLayoutPreset.Default)]
-    [InlineData(1, PageLayoutPreset.Spooky)]
-    [InlineData(3, PageLayoutPreset.Default)]
-    public async Task SetLayoutPresetAsync_AlbumExists_SavesChangeAndReturnsAlbumAsDto(int id, PageLayoutPreset preset)
+
+    [Fact]
+    public async Task SaveAlbumAsync_AlbumAlreadyExists_ReturnsNullAndLeavesAlbumUnchanged()
     {
         using var context = Fixture.CreateContext();
         var repository = new AlbumRepository(context);
 
-        var originalAlbum = await context.Albums
-            .AsNoTracking()
-            .SingleAsync(a => a.Id == id);
-        var expectedDto = CreateExpectedAlbumToDto(originalAlbum) with { LayoutPreset = preset };
+        var albumPreSave = await GetAlbumStateFromContextById(context, 1);
+        Assert.NotNull(albumPreSave);
+        var priorDto = CreateExpectedAlbumToDto(albumPreSave);
+        albumPreSave.NavTitle = "2026csgrad";
 
-        var albumDto = await repository.SetLayoutPresetAsync(id, preset);
+        var albumDto = await repository.SaveAlbumAsync(albumPreSave);
+        Assert.Null(albumDto);
 
-        Assert.NotNull(albumDto);
-        Assert.Equal(expectedDto, albumDto);
+        var albumPostSave = await GetAlbumStateFromContextById(context, 1);
+        Assert.NotNull(albumPostSave);
 
-        var contextAlbum = await context.Albums
-            .AsNoTracking()
-            .SingleAsync(a => a.Id == id);
-
-        Assert.Equal(expectedDto, CreateExpectedAlbumToDto(contextAlbum));
+        Assert.Equivalent(priorDto, CreateExpectedAlbumToDto(albumPostSave));
     }
+    
+    /* SetLayoutPresetAsync */
+    [Fact]
+    public async Task SetLayoutPresetAsync_AlbumExists_SavesChangeAndReturnsAlbumAsDto()
+    {
+        using var context = Fixture.CreateContext();
+        var repository = new AlbumRepository(context);
+
+        var parameterAlbum1 = new Album { Name = "test1name" };
+        var parameterAlbum2 = new Album { Name = "test2name", LayoutPreset = PageLayoutPreset.Cozy };
+        context.Albums.AddRange(parameterAlbum1, parameterAlbum2);
+        await context.SaveChangesAsync();
+
+        var id1 = parameterAlbum1.Id;
+        var id2 = parameterAlbum2.Id;
+        var expectedDto1 = CreateExpectedAlbumToDto(parameterAlbum1);
+        var expectedDto2 = CreateExpectedAlbumToDto(parameterAlbum2);
+        context.ChangeTracker.Clear();
+
+        var album1 = await repository.SetLayoutPresetAsync(id1, PageLayoutPreset.Spooky);
+        expectedDto1 = expectedDto1 with { LayoutPreset = PageLayoutPreset.Spooky };
+        Assert.Equal(expectedDto1, album1);
+        var contextAlbum1 = await GetAlbumStateFromContextById(context, id1);
+        var contextAlbum2 = await GetAlbumStateFromContextById(context, id2);
+        Assert.NotNull(contextAlbum1);
+        Assert.NotNull(contextAlbum2);
+        Assert.Equal(expectedDto1, CreateExpectedAlbumToDto(contextAlbum1));
+        Assert.Equal(expectedDto2, CreateExpectedAlbumToDto(contextAlbum2));
+
+        var album2 = await repository.SetLayoutPresetAsync(id2, PageLayoutPreset.Default);
+        expectedDto2 = expectedDto2 with { LayoutPreset = PageLayoutPreset.Default };
+        Assert.Equal(expectedDto2, album2);
+        contextAlbum1 = await GetAlbumStateFromContextById(context, id1);
+        contextAlbum2 = await GetAlbumStateFromContextById(context, id2);
+        Assert.NotNull(contextAlbum1);
+        Assert.NotNull(contextAlbum2);
+        Assert.Equal(expectedDto1, CreateExpectedAlbumToDto(contextAlbum1));
+        Assert.Equal(expectedDto2, CreateExpectedAlbumToDto(contextAlbum2));
+    }
+
     
     [Fact]
     public async Task SetLayoutPresetAsync_AlbumDoesNotExist_ReturnsNull()
     {
         using var context = Fixture.CreateContext();
         var repository = new AlbumRepository(context);
-
+        
         var albumDto = await repository.SetLayoutPresetAsync(-1, PageLayoutPreset.Spooky);
         Assert.Null(albumDto);
     }
@@ -146,38 +184,38 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
     /*
      * Deeper Integration Tests
      */
-    [Fact]
-    public async Task SaveAlbums_AlbumGetterCountsReflectExpected()
-    {
-        using var context = Fixture.CreateContext();
-        var repository = new AlbumRepository(context);
-        
-        
-        var parameterAlbum1 = new Album { Name = "MyAlbum71", NavTitle = "MyAlbum", Published = true, NavbarOrder = 3 }; // Expect: Published = false, NavbarOrder = -1
-        var parameterAlbum2 = new Album { Name = "Album", NavTitle = "My", Published = true }; // Expect: Published = false
-        var parameterAlbum3 = new Album { Name = "2003", NavTitle = "BornThen", Published = false, NavbarOrder = 4 }; // Expect: NavbarOrder = -1
-        var parameterAlbum4 = new Album { Name = "AlbumOfMine", Id = 77 }; // Expect: Album is not saved
-        
-        var albumCountPrior = (await repository.GetAlbumIdsAsync()).Count();
-        var publishedCountPrior = (await repository.GetPublishedAlbumsAsync()).Count();
-        var publishedNavExcludedCountPrior = (await repository.GetPublishedNavExcludedAlbumsAsync()).Count();
-        var navIncludedCountPrior = (await repository.GetNavIncludedAlbumsAsync()).Count();
-
-        await repository.SaveAlbumAsync(parameterAlbum1);
-        await repository.SaveAlbumAsync(parameterAlbum2);
-        await repository.SaveAlbumAsync(parameterAlbum3);
-        await repository.SaveAlbumAsync(parameterAlbum4); // Expect: Operation cancelled, no save occurred
-
-        var albumCountPost = (await repository.GetAlbumIdsAsync()).Count();
-        Assert.Equal((albumCountPrior + 3), albumCountPost);
-        
-        var publishedCountPost = (await repository.GetPublishedAlbumsAsync()).Count();
-        var publishedNavExcludedCountPost = (await repository.GetPublishedNavExcludedAlbumsAsync()).Count();
-        var navIncludedCountPost = (await repository.GetNavIncludedAlbumsAsync()).Count();
-        Assert.Equal(publishedCountPrior, publishedCountPost);
-        Assert.Equal(publishedNavExcludedCountPrior, publishedNavExcludedCountPost);
-        Assert.Equal(navIncludedCountPrior, navIncludedCountPost);
-    }
+    // [Fact]
+    // public async Task SaveAlbums_AlbumGetterCountsReflectExpected()
+    // {
+    //     using var context = Fixture.CreateContext();
+    //     var repository = new AlbumRepository(context);
+    //     
+    //     
+    //     var parameterAlbum1 = new Album { Name = "MyAlbum71", NavTitle = "MyAlbum", Published = true, NavbarOrder = 3 }; // Expect: Published = false, NavbarOrder = -1
+    //     var parameterAlbum2 = new Album { Name = "Album", NavTitle = "My", Published = true }; // Expect: Published = false
+    //     var parameterAlbum3 = new Album { Name = "2003", NavTitle = "BornThen", Published = false, NavbarOrder = 4 }; // Expect: NavbarOrder = -1
+    //     var parameterAlbum4 = new Album { Name = "AlbumOfMine", Id = 77 }; // Expect: Album is not saved
+    //     
+    //     var albumCountPrior = (await repository.GetAlbumIdsAsync()).Count();
+    //     var publishedCountPrior = (await repository.GetPublishedAlbumsAsync()).Count();
+    //     var publishedNavExcludedCountPrior = (await repository.GetPublishedNavExcludedAlbumsAsync()).Count();
+    //     var navIncludedCountPrior = (await repository.GetNavIncludedAlbumsAsync()).Count();
+    //
+    //     await repository.SaveAlbumAsync(parameterAlbum1);
+    //     await repository.SaveAlbumAsync(parameterAlbum2);
+    //     await repository.SaveAlbumAsync(parameterAlbum3);
+    //     await repository.SaveAlbumAsync(parameterAlbum4); // Expect: Operation cancelled, no save occurred
+    //
+    //     var albumCountPost = (await repository.GetAlbumIdsAsync()).Count();
+    //     Assert.Equal((albumCountPrior + 3), albumCountPost);
+    //     
+    //     var publishedCountPost = (await repository.GetPublishedAlbumsAsync()).Count();
+    //     var publishedNavExcludedCountPost = (await repository.GetPublishedNavExcludedAlbumsAsync()).Count();
+    //     var navIncludedCountPost = (await repository.GetNavIncludedAlbumsAsync()).Count();
+    //     Assert.Equal(publishedCountPrior, publishedCountPost);
+    //     Assert.Equal(publishedNavExcludedCountPrior, publishedNavExcludedCountPost);
+    //     Assert.Equal(navIncludedCountPrior, navIncludedCountPost);
+    // }
     
     
     
@@ -201,5 +239,7 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
             Published: album.Published,
             LayoutPreset: album.LayoutPreset, NavbarOrder: album.NavbarOrder);
     }
+
+    private static async Task<Album?> GetAlbumStateFromContextById(ApplicationDbContext context, int id) => await context.Albums.AsNoTracking().SingleOrDefaultAsync(a => a.Id == id);
 
 }

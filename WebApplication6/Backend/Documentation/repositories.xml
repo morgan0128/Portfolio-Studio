@@ -45,7 +45,7 @@
             </para>
             <para>
                 The task result contains null where <paramref name="album"/> was explicitly assigned an Id;
-                indicates that the operation was cancelled.
+                indicates that the operation was cancelled and that no changes were made.
             </para>
 
         </returns>
