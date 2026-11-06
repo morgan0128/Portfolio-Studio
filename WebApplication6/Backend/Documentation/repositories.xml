@@ -95,7 +95,7 @@
     <Album name="update-nav-order-async">
         <summary>
             <para>
-                Includes the <c>Album</c> in the Navbar if <paramref name="newNavOrder"/> is positive and adheres to the
+                Includes the <c>Album</c> in the Navbar if <paramref name="newNavOrder"/> is non-negative and adheres to the
                 Album.NavbarOrder bounds constraint of the database; the <c>Album</c> is <c>Published</c>; the Navbar is not full.
                 Gives preference to assigning <c>Album.NavbarOrder</c> to <paramref name="newNavOrder"/>, but include <c>Album</c>
                 in Navbar even where <paramref name="newNavOrder"/> is occupied; if aforementioned conditions are met.
@@ -118,31 +118,34 @@
                 of the operation, and the second value an <c>IEnumerable</c> depicting the Albums appearing in the Navbar,
                 ordered by <c>NavbarOrder</c>, as <c>AlbumDto</c>.
             </para>
-            <list type="bullet">
-                <item>
-                    <c>UpdateNavOrderOutcome.Success</c> to represent that all conditions to modify Navbar order were met,
-                    and <c>Album.NavbarOrder</c> was successfully updated; regardless of whether updated state is logically equivalent
-                    to the state prior.
-                </item>
-                <item>
-                    <c>UpdateNavOrderOutcome.OutOfBounds</c> to represent that <paramref name="newNavOrder"/> was not 
-                    adherent to the Album.NavbarOrder bounds constraint; operation cancelled.
-                </item>
-                <item>
-                    <c>UpdateNavOrderOutcome.NotPublished</c> to represent that <c>Album</c> was not published at time 
-                    of operation, and as such the operation was cancelled; <c>NavbarOrder</c> of -1, prior to and upon completion 
-                    of operation.
-                </item>
-                <item>
-                    <c>UpdateNavOrderOutcome.NotFound</c> to represent that <c>Album</c> of <paramref name="id"/> was not 
-                    found; operation cancelled.
-                </item>
-                <item>
-                    <c>UpdateNavOrderOutcome.NavbarFull</c> to represent that, in an operation where <c>Album</c> not 
-                    in Navbar is to be added to Navbar, according to <paramref name="newNavOrder"/>: the operation was
-                    cancelled as the Navbar is already full.
-                </item>
-            </list>
+            <para>
+                With non-success outcomes ordered by precedence:
+                <list type="bullet">
+                    <item>
+                        <c>UpdateNavOrderOutcome.Success</c> to represent that all conditions to modify Navbar order (add or remove) 
+                        were met, and <c>Album.NavbarOrder</c> was successfully updated; regardless of whether updated state
+                        is logically equivalent to prior state.
+                    </item>
+                    <item>
+                        <c>UpdateNavOrderOutcome.OutOfBounds</c> to represent that <paramref name="newNavOrder"/> was not 
+                        adherent to the Album.NavbarOrder bounds constraint; operation cancelled.
+                    </item>
+                    <item>
+                        <c>UpdateNavOrderOutcome.NotFound</c> to represent that <c>Album</c> of <paramref name="id"/> was not
+                        found; operation cancelled.
+                    </item>
+                    <item>
+                        <c>UpdateNavOrderOutcome.NotPublished</c> to represent that <c>Album</c> was not published at time 
+                        of operation, and as such the operation was cancelled; <c>NavbarOrder</c> of -1, prior to and upon completion 
+                        of operation.
+                    </item>
+                    <item>
+                        <c>UpdateNavOrderOutcome.NavbarFull</c> to represent that, in an operation where <c>Album</c> not 
+                        in Navbar is to be added to Navbar, according to <paramref name="newNavOrder"/>: the operation was
+                        cancelled as the Navbar is already full.
+                    </item>
+                </list>
+            </para>
         </returns>
         <remarks>
             <para>

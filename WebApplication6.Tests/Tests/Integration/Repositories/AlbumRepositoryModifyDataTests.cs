@@ -107,7 +107,7 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
 
         contextAlbum = await GetAlbumStateFromContextById(context, suppliedId);
         Assert.Null(contextAlbum);
-        contextAlbum = await context.Albums.FirstOrDefaultAsync(a => a.Name == "MyAlbum71341" && a.NavTitle == "Album71322");
+        contextAlbum = await context.Albums.FirstOrDefaultAsync(a => a.Name == "MyAlbum71341" && a.NavTitle == "Album71322", cancellationToken: TestContext.Current.CancellationToken);
         Assert.Null(contextAlbum);
     }
 
@@ -124,7 +124,7 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
             Published = true
         };
         context.Albums.Add(albumPreSave);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
         var priorDto = CreateExpectedAlbumToDto(albumPreSave);
         context.ChangeTracker.Clear();
         albumPreSave.NavTitle = "2026csgrad";
@@ -148,7 +148,7 @@ public class AlbumRepositoryModifyDataTests(PrimaryTestDatabaseFixture dbFixture
         var parameterAlbum1 = new Album { Name = "test1name" };
         var parameterAlbum2 = new Album { Name = "test2name", LayoutPreset = PageLayoutPreset.Cozy };
         context.Albums.AddRange(parameterAlbum1, parameterAlbum2);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var id1 = parameterAlbum1.Id;
         var id2 = parameterAlbum2.Id;
