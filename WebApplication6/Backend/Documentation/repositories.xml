@@ -98,8 +98,12 @@
                 Includes the <c>Album</c> in the Navbar if <paramref name="newNavOrder"/> is non-negative and adheres to the
                 Album.NavbarOrder bounds constraint of the database; the <c>Album</c> is <c>Published</c>; 
                 the Navbar is not full or the <c>Album</c> is included in the Navbar prior to this method being called.
-                Gives preference to assigning <c>Album.NavbarOrder</c> to <paramref name="newNavOrder"/>, but include <c>Album</c>
-                in Navbar even where <paramref name="newNavOrder"/> is occupied; if aforementioned conditions are met.
+            </para>
+            <para>
+                Assigns <c>Album.NavbarOrder</c> to <paramref name="newNavOrder"/> via insertion-like operation if the
+                aforementioned conditions have been met, so long as newNavOrder would not break contiguously indexed 
+                starting from 0 property; in this case, assigns <c>Album.NavbarOrder</c> to the highest NavbarOrder index
+                with maintaining contiguously indexed starting from 0 property.
             </para>
             <para>
                 Removes the <c>Album</c> from the Navbar if <paramref name="newNavOrder"/> is -1.
