@@ -13,7 +13,7 @@ public class DeleteAlbumByIdAsyncTests(TransactionalTestDatabaseFixture dbFixtur
 {
     /* DeleteAlbumByIdAsync */
     [Fact]
-    public async Task DeleteAlbumByIdAsync_AlbumExists_AlbumInNavbarIsDeletedAndNavbarOrderingPropertiesMaintained()
+    public async Task AlbumExists_AlbumInNavbarIsDeletedAndNavbarOrderingPropertiesMaintained()
     {
         using var context = Fixture.CreateContext();
         var repository = new AlbumRepository(context);
@@ -103,7 +103,7 @@ public class DeleteAlbumByIdAsyncTests(TransactionalTestDatabaseFixture dbFixtur
     }
 
     [Fact]
-    public async Task DeleteAlbumByIdAsync_AlbumDoesNotExist_CancelsOperationReturnsFalse()
+    public async Task AlbumDoesNotExist_CancelsOperationReturnsFalse()
     {
         using var context = Fixture.CreateContext();
         var repository = new AlbumRepository(context);
